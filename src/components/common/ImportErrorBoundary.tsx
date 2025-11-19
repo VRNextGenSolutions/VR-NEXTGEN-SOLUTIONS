@@ -120,7 +120,7 @@ export default class ImportErrorBoundary extends Component<Props, State> {
    * Attempts to recover from the error
    */
   private handleRecovery = () => {
-    logger.log('🔄 Attempting to recover from import error...');
+    logger.info('🔄 Attempting to recover from import error...');
     this.setState({
       hasError: false,
       error: null,
