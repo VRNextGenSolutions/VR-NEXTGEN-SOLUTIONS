@@ -318,7 +318,9 @@ export class GlobalErrorHandler {
       try {
         listener(enhancedError);
       } catch (listenerError) {
-        logger.error('Error in error listener:', listenerError);
+        logger.error('Error in error listener:', {
+          error: listenerError instanceof Error ? listenerError.message : String(listenerError),
+        });
       }
     });
 
