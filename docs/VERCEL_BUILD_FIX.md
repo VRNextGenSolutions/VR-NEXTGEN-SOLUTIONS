@@ -134,5 +134,31 @@ The standard `console.log` was mistakenly used, which works locally but fails Ty
 
 ---
 
+---
+
+## Second Build Error
+
+**Error:**
+```
+Type error: Module '"./sendContactEmail"' declares 'ContactEmailPayload' locally, but it is not exported.
+```
+
+**Root Cause:**
+The `ContactEmailPayload` type was defined but not exported from `sendContactEmail.ts`, so it couldn't be re-exported from `index.ts`.
+
+**Fix:**
+Changed line 5 in `src/utils/email/sendContactEmail.ts`:
+```typescript
+// Before
+type ContactEmailPayload = {
+
+// After
+export type ContactEmailPayload = {
+```
+
+**Commit:** `ae47ca2`
+
+---
+
 **Status:** ✅ Fixed - Deployment in progress
 
