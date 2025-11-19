@@ -1,95 +1,130 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { z } from 'zod';
-import { sanitizeInput, sanitizeEmail, generateCSRFToken, validateCSRFToken, RateLimiter, SECURE_HEADERS } from '@/utils/security';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { SECURE_HEADERS } from '@/utils/security';
+import { validateContactPayload, ContactValidationError } from '@/utils/validateContact';
+import { checkRateLimit } from '@/utils/rateLimiter';
+import { sendContactEmail } from '@/utils/email/sendContactEmail';
+import { logger } from '@/utils/logger';
+import { validateEmailConfig } from '@/utils/env/validateEnv';
 
-// Rate limiter: 5 requests per minute per IP
-const rateLimiter = new RateLimiter(5, 60000);
+type SuccessResponse = { success: true };
+type ErrorResponse = { success: false; error: string };
 
-// Contact form validation schema
-const ContactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
-  email: z.string().email('Invalid email format'),
-  message: z.string().min(10, 'Message must be at least 10 characters').max(1000, 'Message too long'),
-  csrfToken: z.string().optional(),
-});
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 
-// type ContactFormData = z.infer<typeof ContactSchema>; // Unused for now
+function getClientIp(req: NextApiRequest) {
+  const header = (req.headers['x-forwarded-for'] || req.headers['x-real-ip']) as string | undefined;
+  if (header) {
+    return header.split(',')[0]?.trim();
+  }
+  return (req.socket?.remoteAddress || 'unknown').replace('::ffff:', '');
+}
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Set security headers
-  Object.entries(SECURE_HEADERS).forEach(([key, value]) => {
-    res.setHeader(key, value);
+async function verifyRecaptcha(token: string, ip?: string | null) {
+  if (!RECAPTCHA_SECRET) return true;
+
+  const params = new URLSearchParams();
+  params.append('secret', RECAPTCHA_SECRET);
+  params.append('response', token);
+  if (ip) params.append('remoteip', ip);
+
+  const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: params.toString(),
   });
 
-  // Only allow POST requests
+  if (!response.ok) {
+    logger.warn('reCAPTCHA verification failed to reach Google', { status: response.status });
+    return false;
+  }
+
+  const data = (await response.json()) as { success: boolean; score?: number };
+  if (!data.success) return false;
+
+  // For v3, enforce minimal score if provided
+  if (typeof data.score === 'number' && data.score < 0.5) {
+    return false;
+  }
+
+  return true;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<SuccessResponse | ErrorResponse>) {
+  Object.entries(SECURE_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
+
+  // Validate email configuration on first request (non-blocking)
+  try {
+    validateEmailConfig();
+  } catch (error) {
+    logger.error('Email configuration invalid', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return res.status(503).json({
+      success: false,
+      error: 'Contact form is temporarily unavailable. Please try again later.',
+    });
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
+  }
+
+  if (!req.headers['content-type']?.includes('application/json')) {
+    return res.status(415).json({ success: false, error: 'Unsupported Media Type' });
+  }
+
+  const clientIp = getClientIp(req);
+  const rateCheck = checkRateLimit(clientIp);
+  if (!rateCheck.allowed) {
+    return res
+      .status(429)
+      .json({ success: false, error: 'Too many messages. Please wait a few minutes and try again.' });
   }
 
   try {
-    // Get client IP for rate limiting
-    const clientIP = req.headers['x-forwarded-for'] as string || 
-                     req.headers['x-real-ip'] as string || 
-                     req.connection.remoteAddress || 
-                     'unknown';
+    const { name, email, message, honeypot, recaptchaToken } = validateContactPayload(req.body);
 
-    // Check rate limit
-    if (!rateLimiter.isAllowed(clientIP)) {
-      return res.status(429).json({ 
-        error: 'Too many requests. Please try again later.',
-        retryAfter: 60 
-      });
+    if (honeypot) {
+      logger.warn('Honeypot triggered', { ip: clientIp });
+      return res.status(204).end();
     }
 
-    // Validate request body
-    const validationResult = ContactSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      return res.status(400).json({ 
-        error: 'Invalid form data',
-        details: validationResult.error.issues 
-      });
+    if (RECAPTCHA_SECRET) {
+      if (!recaptchaToken) {
+        return res.status(400).json({ success: false, error: 'reCAPTCHA validation failed. Please try again.' });
     }
 
-    const { name, email, message, csrfToken } = validationResult.data;
-
-    // Validate CSRF token if provided (optional for now, but recommended)
-    if (csrfToken && !validateCSRFToken(csrfToken, req.headers['x-csrf-token'] as string)) {
-      return res.status(403).json({ error: 'Invalid CSRF token' });
+      const recaptchaPassed = await verifyRecaptcha(recaptchaToken, clientIp);
+      if (!recaptchaPassed) {
+        return res.status(400).json({ success: false, error: 'reCAPTCHA validation failed. Please try again.' });
+    }
     }
 
-    // Sanitize inputs
-    const sanitizedData = {
-      name: sanitizeInput(name),
-      email: sanitizeEmail(email),
-      message: sanitizeInput(message),
-    };
-
-    // Log the submission (in production, send to your email service)
-    // Contact form submission received - ready for production email service
-
-    // TODO: In production, implement one of these:
-    // 1. Send email using SendGrid, AWS SES, or similar
-    // 2. Save to database
-    // 3. Send to Slack/Discord webhook
-    // 4. Use Formspree or similar service
-
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Return success response
-    res.status(200).json({ 
-      success: true, 
-      message: 'Thank you for your message. We will get back to you soon!',
-      csrfToken: generateCSRFToken() // Generate new token for next request
+    await sendContactEmail({
+      name,
+      email,
+      message,
+      meta: { ip: clientIp },
     });
 
+    logger.info('Contact form submitted', { ip: clientIp });
+    return res.status(200).json({ success: true });
   } catch (error) {
-    // Contact form error occurred - handled gracefully
-    
-    // Don't expose internal errors to client
-    res.status(500).json({ 
-      error: 'An error occurred while processing your request. Please try again later.' 
+    if (error instanceof ContactValidationError) {
+      return res.status(error.statusCode).json({ success: false, error: error.message });
+    }
+
+    logger.error('Contact form submission failed', {
+      ip: clientIp,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to send your message right now. Please try again later.',
     });
   }
 }

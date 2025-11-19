@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,49 +16,111 @@ const ContactSchema = z.object({
     .max(254, "Email is too long"),
   message: z.string()
     .min(10, "Message must be at least 10 characters")
-    .max(1000, "Message is too long")
+    .max(5000, "Message is too long")
     .refine((val) => sanitizeInput(val).length > 0, "Invalid characters in message"),
+  company: z.string().optional(),
 });
 
 type ContactFormData = z.infer<typeof ContactSchema>;
+type SubmissionState = 'idle' | 'success' | 'error';
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (cb: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 export default function ContactForm() {
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const [submissionState, setSubmissionState] = useState<SubmissionState>('idle');
+  const [feedbackMessage, setFeedbackMessage] = useState<string>('');
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<ContactFormData>({ resolver: zodResolver(ContactSchema) });
 
+  useEffect(() => {
+    if (!recaptchaSiteKey || typeof window === 'undefined') return;
+    if (document.querySelector('script[src*="recaptcha/api.js"]')) return;
+
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, [recaptchaSiteKey]);
+
+  const executeRecaptcha = async () => {
+    if (!recaptchaSiteKey || typeof window === 'undefined' || !window.grecaptcha) {
+      return undefined;
+    }
+
+    await new Promise<void>((resolve) => {
+      window.grecaptcha?.ready(() => resolve());
+    });
+
+    return window.grecaptcha?.execute(recaptchaSiteKey, {
+      action: 'submit_contact_form',
+    });
+  };
+
   const onSubmit = async (data: ContactFormData) => {
     try {
-      // Sanitize data before sending
+      setSubmissionState('idle');
+      setFeedbackMessage('');
+
       const sanitizedData = {
         name: sanitizeInput(data.name),
         email: data.email, // Email validation handled by Zod
         message: sanitizeInput(data.message),
+        honeypot: data.company?.trim() ?? '',
       };
 
-      // Submit to secure API endpoint
+      const recaptchaToken = await executeRecaptcha();
+      const payload = {
+        ...sanitizedData,
+        ...(recaptchaToken ? { recaptchaToken } : {}),
+      };
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(sanitizedData),
+        body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
+      const text = await response.text();
+      const result = text ? JSON.parse(text) : {};
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send message');
+        throw new Error(result.error || 'Failed to send message. Please try again.');
       }
 
-      // Reset form on success
+      setSubmissionState('success');
+      setFeedbackMessage('✅ Thank you! Your message has been sent successfully. We’ll get back to you soon.');
       reset();
+
+      return;
     } catch (error) {
-      // Error handling is managed by the form state
-      throw error; // Re-throw to show error in UI
+      setSubmissionState('error');
+      setFeedbackMessage(
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong while sending your message. Please try again later.'
+      );
     }
   };
 
@@ -72,15 +135,21 @@ export default function ContactForm() {
           </p>
         </div>
 
-        {isSubmitSuccessful && (
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <p className="text-green-400 text-sm">
-              ✅ Thank you! Your message has been sent successfully. We&apos;ll get back to you soon.
-            </p>
+        {submissionState !== 'idle' && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`mb-6 p-4 border rounded-lg ${
+              submissionState === 'success'
+                ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                : 'bg-red-500/10 border-red-500/30 text-red-300'
+            }`}
+          >
+            <p className="text-sm">{feedbackMessage}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" aria-busy={isSubmitting}>
           <div>
             <Input
               {...register("name")}
@@ -88,6 +157,7 @@ export default function ContactForm() {
               placeholder="Your Name"
               error={errors.name?.message}
               className="w-full"
+              aria-invalid={Boolean(errors.name)}
             />
           </div>
 
@@ -98,6 +168,7 @@ export default function ContactForm() {
               placeholder="Your Email"
               error={errors.email?.message}
               className="w-full"
+              aria-invalid={Boolean(errors.email)}
             />
           </div>
 
@@ -107,10 +178,23 @@ export default function ContactForm() {
               placeholder="Your Message"
               rows={6}
               className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all duration-300"
+              aria-invalid={Boolean(errors.message)}
             />
             {errors.message && (
               <p className="mt-2 text-red-400 text-sm">{errors.message.message}</p>
             )}
+          </div>
+
+          {/* Honeypot field */}
+          <div className="sr-only" aria-hidden="true">
+            <label htmlFor="company" className="hidden">Company</label>
+            <input
+              id="company"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              {...register("company")}
+            />
           </div>
 
           <Button
@@ -119,6 +203,7 @@ export default function ContactForm() {
             size="lg"
             disabled={isSubmitting}
             className="w-full btn-enhanced"
+            aria-live="polite"
           >
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
