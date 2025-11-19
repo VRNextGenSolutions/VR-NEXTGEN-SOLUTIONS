@@ -160,5 +160,34 @@ export type ContactEmailPayload = {
 
 ---
 
+---
+
+## Third Build Error
+
+**Error:**
+```
+Type error: Argument of type 'unknown' is not assignable to parameter of type 'LogMeta | undefined'.
+./src/utils/errorHandling/enhanced.ts:321:50
+```
+
+**Root Cause:**
+In a catch block, `listenerError` is of type `unknown` (TypeScript's default for catch variables), but `logger.error()` expects `LogMeta | undefined` as the second parameter.
+
+**Fix:**
+Changed line 321 in `src/utils/errorHandling/enhanced.ts`:
+```typescript
+// Before
+logger.error('Error in error listener:', listenerError);
+
+// After
+logger.error('Error in error listener:', {
+  error: listenerError instanceof Error ? listenerError.message : String(listenerError),
+});
+```
+
+**Commit:** `9c20411`
+
+---
+
 **Status:** ✅ Fixed - Deployment in progress
 
