@@ -57,22 +57,29 @@ export function validateEmailConfig(): EmailConfig {
     throw new Error(`Invalid MAIL_PORT: ${port}. Must be between 1 and 65535.`);
   }
 
+  // At this point TypeScript still considers values possibly undefined.
+  // Narrow them to non-nullable strings for validation and return.
+  const resolvedHost = host as string;
+  const resolvedUser = user as string;
+  const resolvedPass = pass as string;
+  const resolvedReceiveEmail = receiveEmail as string;
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(user)) {
-    throw new Error(`Invalid MAIL_USER email format: ${user}`);
+  if (!emailRegex.test(resolvedUser)) {
+    throw new Error(`Invalid MAIL_USER email format: ${resolvedUser}`);
   }
-  if (!emailRegex.test(receiveEmail)) {
-    throw new Error(`Invalid CONTACT_RECEIVE_EMAIL format: ${receiveEmail}`);
+  if (!emailRegex.test(resolvedReceiveEmail)) {
+    throw new Error(`Invalid CONTACT_RECEIVE_EMAIL format: ${resolvedReceiveEmail}`);
   }
 
   return {
-    host,
+    host: resolvedHost,
     port,
     secure,
-    user,
-    pass,
-    receiveEmail,
+    user: resolvedUser,
+    pass: resolvedPass,
+    receiveEmail: resolvedReceiveEmail,
   };
 }
 
