@@ -2,7 +2,7 @@ import nodemailer, { Transporter } from 'nodemailer';
 import { logger } from '@/utils/logger';
 import { validateEmailConfig } from '@/utils/env/validateEnv';
 
-type ContactEmailPayload = {
+export type ContactEmailPayload = {
   name: string;
   email: string;
   message: string;
