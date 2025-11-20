@@ -26,10 +26,25 @@ export interface ContactConfig {
   };
 }
 
+// Cache validation result to avoid repeated checks
+let cachedEmailConfig: EmailConfig | null = null;
+let validationError: Error | null = null;
+
 /**
  * Validates email configuration environment variables
+ * Results are cached to improve performance
  */
 export function validateEmailConfig(): EmailConfig {
+  // Return cached config if available and valid
+  if (cachedEmailConfig) {
+    return cachedEmailConfig;
+  }
+
+  // Return cached error if validation already failed
+  if (validationError) {
+    throw validationError;
+  }
+
   const host = process.env.MAIL_HOST;
   const port = Number(process.env.MAIL_PORT ?? 465);
   const secure =
@@ -47,9 +62,14 @@ export function validateEmailConfig(): EmailConfig {
   if (!receiveEmail) missing.push('CONTACT_RECEIVE_EMAIL');
 
   if (missing.length > 0) {
-    const error = `Missing required email environment variables: ${missing.join(', ')}`;
-    logger.error(error);
-    throw new Error(error);
+    const errorMessage = `Missing required email environment variables: ${missing.join(', ')}. Please configure these in your Vercel project settings (Settings → Environment Variables).`;
+    validationError = new Error(errorMessage);
+    logger.error('Email configuration validation failed', {
+      missingVariables: missing,
+      error: errorMessage,
+      hint: 'Add these variables in Vercel Dashboard → Settings → Environment Variables → Production',
+    });
+    throw validationError;
   }
 
   // Validate port range
@@ -73,7 +93,8 @@ export function validateEmailConfig(): EmailConfig {
     throw new Error(`Invalid CONTACT_RECEIVE_EMAIL format: ${resolvedReceiveEmail}`);
   }
 
-  return {
+  // Cache the validated config
+  cachedEmailConfig = {
     host: resolvedHost,
     port,
     secure,
@@ -81,6 +102,48 @@ export function validateEmailConfig(): EmailConfig {
     pass: resolvedPass,
     receiveEmail: resolvedReceiveEmail,
   };
+
+  logger.info('Email configuration validated successfully', {
+    host: resolvedHost,
+    port,
+    secure,
+    user: resolvedUser,
+    receiveEmail: resolvedReceiveEmail,
+  });
+
+  return cachedEmailConfig;
+}
+
+/**
+ * Clears the cached email configuration
+ * Useful for testing or when environment variables change
+ */
+export function clearEmailConfigCache(): void {
+  cachedEmailConfig = null;
+  validationError = null;
+}
+
+/**
+ * Gets the current validation status without throwing
+ * Useful for health checks and diagnostics
+ */
+export function getEmailConfigStatus(): {
+  configured: boolean;
+  missing?: string[];
+  error?: string;
+} {
+  try {
+    validateEmailConfig();
+    return { configured: true };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const missing = errorMessage.match(/Missing required email environment variables: ([^.]+)/)?.[1]?.split(', ') || [];
+    return {
+      configured: false,
+      missing: missing.length > 0 ? missing : undefined,
+      error: errorMessage,
+    };
+  }
 }
 
 /**

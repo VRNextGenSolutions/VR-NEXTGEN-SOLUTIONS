@@ -54,12 +54,15 @@ async function verifyRecaptcha(token: string, ip?: string | null) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<SuccessResponse | ErrorResponse>) {
   Object.entries(SECURE_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
 
-  // Validate email configuration on first request (non-blocking)
+  // Validate email configuration (cached, so efficient)
   try {
     validateEmailConfig();
   } catch (error) {
-    logger.error('Email configuration invalid', {
-      error: error instanceof Error ? error.message : String(error),
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error('Email configuration invalid - contact form unavailable', {
+      error: errorMessage,
+      hint: 'Check Vercel Dashboard → Settings → Environment Variables',
+      timestamp: new Date().toISOString(),
     });
     return res.status(503).json({
       success: false,
