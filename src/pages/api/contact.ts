@@ -52,23 +52,27 @@ async function verifyRecaptcha(token: string, ip?: string | null) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<SuccessResponse | ErrorResponse>) {
-  Object.entries(SECURE_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
-
-  // Validate email configuration (cached, so efficient)
+  // Wrap entire handler in try-catch to ensure JSON responses
   try {
-    validateEmailConfig();
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error('Email configuration invalid - contact form unavailable', {
-      error: errorMessage,
-      hint: 'Check Vercel Dashboard → Settings → Environment Variables',
-      timestamp: new Date().toISOString(),
-    });
-    return res.status(503).json({
-      success: false,
-      error: 'Contact form is temporarily unavailable. Please try again later.',
-    });
-  }
+    // Set Content-Type first to ensure JSON responses
+    res.setHeader('Content-Type', 'application/json');
+    Object.entries(SECURE_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
+
+    // Validate email configuration (cached, so efficient)
+    try {
+      validateEmailConfig();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error('Email configuration invalid - contact form unavailable', {
+        error: errorMessage,
+        hint: 'Check Vercel Dashboard → Settings → Environment Variables',
+        timestamp: new Date().toISOString(),
+      });
+      return res.status(503).json({
+        success: false,
+        error: 'Contact form is temporarily unavailable. Please try again later.',
+      });
+    }
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -128,6 +132,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(500).json({
       success: false,
       error: 'Unable to send your message right now. Please try again later.',
+    });
+  } catch (handlerError) {
+    // Catch any unhandled errors in the handler itself
+    logger.error('Unhandled error in contact API handler', {
+      error: handlerError instanceof Error ? handlerError.message : String(handlerError),
+      stack: handlerError instanceof Error ? handlerError.stack : undefined,
+    });
+    return res.status(500).json({
+      success: false,
+      error: 'An unexpected error occurred. Please try again later.',
     });
   }
 }

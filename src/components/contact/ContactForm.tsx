@@ -103,10 +103,29 @@ export default function ContactForm() {
       });
 
       const text = await response.text();
-      const result = text ? JSON.parse(text) : {};
+      let result: { success?: boolean; error?: string } = {};
+      
+      try {
+        result = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        // If response is not JSON (e.g., HTML error page), provide helpful error
+        // Client-side logging only - don't log sensitive data
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to parse API response as JSON', {
+            status: response.status,
+            statusText: response.statusText,
+            preview: text.substring(0, 100), // Only first 100 chars in dev
+          });
+        }
+        throw new Error(
+          response.status === 503
+            ? 'Contact form is temporarily unavailable. Please try again later.'
+            : 'Unable to send your message. The server returned an invalid response. Please try again later.'
+        );
+      }
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send message. Please try again.');
+        throw new Error(result.error || `Failed to send message. Status: ${response.status}`);
       }
 
       setSubmissionState('success');
