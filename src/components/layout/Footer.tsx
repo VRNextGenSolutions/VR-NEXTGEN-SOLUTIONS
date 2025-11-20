@@ -166,7 +166,7 @@ export default function Footer() {
 
             {/* LinkedIn */}
             <a 
-              href="https://www.linkedin.com/posts/vr-nextgen-solutions_vrnextgensolutions-businessconsulting-dataanalytics-activity-7381233182467252226-DGZL?utm_medium=ios_app&rcm=ACoAACdKeXUBRnT4CPC4_68nluDlUC_dXH4EtbM&utm_source=social_share_send&utm_campaign=whatsapp" 
+              href="https://www.linkedin.com/company/vr-nextgen-solutions/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-blue-600 transition-all duration-300 transform hover:scale-110"
@@ -212,17 +212,6 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-gray-400 text-sm">
               © {currentYear} VR NextGEN Solutions. All rights reserved.
-            </div>
-            <div className="flex items-center gap-6">
-              <a href="/privacy-policy" className="text-gray-400 hover:text-gold transition-colors text-sm">
-                Privacy Policy
-              </a>
-              <a href="/terms-of-service" className="text-gray-400 hover:text-gold transition-colors text-sm">
-                Terms of Service
-              </a>
-              <a href="/sitemap" className="text-gray-400 hover:text-gold transition-colors text-sm">
-                Sitemap
-              </a>
             </div>
           </div>
         </div>
