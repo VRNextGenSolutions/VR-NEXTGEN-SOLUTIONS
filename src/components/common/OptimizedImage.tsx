@@ -33,20 +33,20 @@ function getOptimizedImagePath(originalPath: string): string {
   if (originalPath.includes('images-optimized') || originalPath.includes('icons-optimized')) {
     return originalPath;
   }
-  
+
   // Convert original path to optimized path
   const pathParts = originalPath.split('/');
   const filename = pathParts[pathParts.length - 1];
   const dir = pathParts.slice(0, -1).join('/');
-  
+
   const basename = filename.replace(/\.[^/.]+$/, '');
-  
+
   // Determine optimal format based on device capabilities
   const settings = performanceDetector.getSettings();
   const capabilities = performanceDetector.getCapabilities();
-  
+
   let format = 'webp'; // Default fallback
-  
+
   if (settings?.imageQuality === 'high' && capabilities?.supportsAVIF) {
     format = 'avif';
   } else if (settings?.imageQuality === 'medium' || settings?.imageQuality === 'low') {
@@ -56,7 +56,7 @@ function getOptimizedImagePath(originalPath: string): string {
   } else {
     format = 'png'; // Ultimate fallback
   }
-  
+
   if (dir === '/images') {
     return `/images-optimized/${basename}.${format}`;
   } else if (dir === '/images/Industries') {
@@ -66,7 +66,7 @@ function getOptimizedImagePath(originalPath: string): string {
   } else if (dir === '/images/logo-Final-png.svg') {
     return '/icons-optimized/vr-logo-md.webp';
   }
-  
+
   return originalPath;
 }
 
@@ -77,26 +77,11 @@ function getOptimizedImagePath(originalPath: string): string {
  */
 
 /**
- * Generate a simple blur placeholder
+ * Static blur placeholder - avoids expensive Canvas creation on every render
+ * This is a small 10x10 dark gradient JPEG encoded as base64
  */
-function generateBlurDataURL(width: number = 10, height: number = 10): string {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  
-  if (ctx) {
-    // Create a simple gradient blur placeholder
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#1a1a1a');
-    gradient.addColorStop(0.5, '#2a2a2a');
-    gradient.addColorStop(1, '#1a1a1a');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-  }
-  
-  return canvas.toDataURL('image/jpeg', 0.1);
-}
+const STATIC_BLUR_PLACEHOLDER =
+  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgcI/8QAIhAAAQQBBAMBAAAAAAAAAAAAAQIDBAUGBxESIQgTMUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8ApaV4yxuosTt5c1Oz1bFrp21litrIvYRmWt5NtuV7BAIII369+tAD//Z';
 
 export default function OptimizedImage({
   src,
@@ -122,8 +107,8 @@ export default function OptimizedImage({
   // Get optimized image paths
   const optimizedSrc = getOptimizedImagePath(src);
 
-  // Generate blur placeholder if not provided
-  const defaultBlurDataURL = blurDataURL || (typeof window !== 'undefined' ? generateBlurDataURL(width || 10, height || 10) : '');
+  // Use static blur placeholder - no dynamic generation needed
+  const defaultBlurDataURL = blurDataURL || STATIC_BLUR_PLACEHOLDER;
 
   // Set optimized source
   useEffect(() => {
@@ -168,7 +153,7 @@ export default function OptimizedImage({
       {isLoading && placeholder === 'blur' && (
         <div className="absolute inset-0 bg-gray-800 animate-pulse rounded" />
       )}
-      
+
       <Image
         ref={imgRef}
         src={imageSrc}
@@ -183,9 +168,8 @@ export default function OptimizedImage({
         blurDataURL={placeholder === 'blur' ? defaultBlurDataURL : undefined}
         onLoad={handleLoad}
         onError={handleError}
-        className={`transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
+        className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'
+          }`}
       />
     </div>
   );

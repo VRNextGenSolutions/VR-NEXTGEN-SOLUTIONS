@@ -10,27 +10,12 @@ html {
   scroll-padding-top: 80px; /* Account for fixed header */
 }
 
-/* Optimize scrolling performance */
-* {
-  /* Enable hardware acceleration for all elements */
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  -o-transform: translateZ(0);
-  transform: translateZ(0);
-  
-  /* Optimize rendering */
-  -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
-  -ms-backface-visibility: hidden;
-  backface-visibility: hidden;
-  
-  /* Optimize compositing */
-  -webkit-perspective: 1000px;
-  -moz-perspective: 1000px;
-  -ms-perspective: 1000px;
-  perspective: 1000px;
-}
+/* 
+ * NOTE: Universal GPU acceleration removed (was causing 500-1000+ compositor layers)
+ * GPU acceleration is now applied only to elements that need it via targeted classes:
+ * - .animate-on-scroll, .parallax-element, .fade-on-scroll (below)
+ * - .bg-parallax for background parallax effects
+ */
 
 /* Optimize scroll containers */
 .scroll-container {

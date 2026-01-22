@@ -44,6 +44,10 @@ class ScrollPerformanceMonitor {
   private lastScrollTime = 0;
   private scrollStartTime = 0;
 
+  // Store handlers for cleanup
+  private scrollStartHandler: (() => void) | null = null;
+  private scrollHandler: (() => void) | null = null;
+
   constructor() {
     // Only start monitoring in browser environment
     if (typeof window !== 'undefined') {
@@ -116,23 +120,23 @@ class ScrollPerformanceMonitor {
 
     let scrollStartTime = 0;
 
-    const handleScrollStart = () => {
+    this.scrollStartHandler = () => {
       scrollStartTime = performance.now();
     };
 
-    const handleScroll = () => {
+    this.scrollHandler = () => {
       const scrollEndTime = performance.now();
       const latency = scrollEndTime - scrollStartTime;
-      
+
       this.metrics.scrollLatency = Math.round(latency * 100) / 100;
-      
+
       // Update scroll start time for next measurement
       scrollStartTime = scrollEndTime;
     };
 
     // Use passive listeners for better performance
-    document.addEventListener('scroll', handleScrollStart, { passive: true });
-    document.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', this.scrollStartHandler, { passive: true });
+    document.addEventListener('scroll', this.scrollHandler, { passive: true });
   }
 
   /**
@@ -214,14 +218,14 @@ class ScrollPerformanceMonitor {
       console.log(`Scroll Latency: ${this.metrics.scrollLatency}ms (max: ${this.thresholds.maxScrollLatency}ms)`);
       console.log(`Dropped Frames: ${this.metrics.droppedFrames} (max: ${this.thresholds.maxDroppedFrames})`);
       console.log(`Smooth: ${this.metrics.isSmooth ? '✅' : '❌'}`);
-      
+
       const recommendations = this.getRecommendations();
       if (recommendations.length > 0) {
         console.group('💡 Recommendations');
         recommendations.forEach(rec => console.log(`• ${rec}`));
         console.groupEnd();
       }
-      
+
       console.groupEnd();
     }
   }
@@ -234,6 +238,18 @@ class ScrollPerformanceMonitor {
     if (this.rafId && typeof cancelAnimationFrame !== 'undefined') {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
+    }
+
+    // Clean up scroll event listeners
+    if (typeof document !== 'undefined') {
+      if (this.scrollStartHandler) {
+        document.removeEventListener('scroll', this.scrollStartHandler);
+        this.scrollStartHandler = null;
+      }
+      if (this.scrollHandler) {
+        document.removeEventListener('scroll', this.scrollHandler);
+        this.scrollHandler = null;
+      }
     }
   }
 

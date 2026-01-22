@@ -31,6 +31,7 @@ export default function Header() {
               width={120}
               height={40}
               className="h-8 w-auto md:h-10"
+              style={{ height: 'auto' }}
               priority
             />
           </Link>
@@ -65,7 +66,7 @@ export default function Header() {
             >
               Contact
             </Link>
-            
+
             {/* Mobile Menu Toggle */}
             <button
               className="md:hidden text-white hover:text-gold transition-colors"

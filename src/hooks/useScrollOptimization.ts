@@ -57,17 +57,17 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
 
     // Apply passive listeners to all scrollable elements
     const scrollableElements = document.querySelectorAll('[data-scroll-optimized]');
-    
+
     scrollableElements.forEach((element) => {
       const htmlElement = element as HTMLElement;
       if (!scrollElements.current.has(htmlElement)) {
         scrollElements.current.add(htmlElement);
-        
+
         // Add passive scroll listener
-        element.addEventListener('scroll', () => {}, { passive: true });
-        element.addEventListener('wheel', () => {}, { passive: true });
-        element.addEventListener('touchstart', () => {}, { passive: true });
-        element.addEventListener('touchmove', () => {}, { passive: true });
+        element.addEventListener('scroll', () => { }, { passive: true });
+        element.addEventListener('wheel', () => { }, { passive: true });
+        element.addEventListener('touchstart', () => { }, { passive: true });
+        element.addEventListener('touchmove', () => { }, { passive: true });
       }
     });
   }, [enablePassiveListeners]);
@@ -103,7 +103,7 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
 
     // Apply smooth scrolling to html element
     document.documentElement.style.scrollBehavior = 'smooth';
-    
+
     // Apply touch scrolling optimization for mobile
     if (performanceDetector.getCapabilities()?.isMobile) {
       (document.body.style as any).webkitOverflowScrolling = 'touch';
@@ -125,7 +125,7 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
 
     if (prefersReducedMotion || (isLowEndDevice && !settings?.enableHeavyAnimations)) {
       document.documentElement.classList.add('reduced-motion');
-      
+
       // Disable heavy animations
       const heavyAnimationElements = document.querySelectorAll([
         '.animate-on-scroll',
@@ -133,7 +133,7 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
         '.fade-on-scroll',
         '.bg-parallax'
       ].join(','));
-      
+
       heavyAnimationElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
         htmlElement.style.willChange = 'auto';
@@ -153,7 +153,7 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
     if (typeof window === 'undefined') return;
 
     const scrollContainers = document.querySelectorAll('.scroll-container, [data-scroll-container]');
-    
+
     scrollContainers.forEach((container) => {
       const htmlContainer = container as HTMLElement;
       htmlContainer.style.overflowX = 'hidden';
@@ -194,7 +194,7 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as HTMLElement;
-            
+
             // Check if element needs scroll optimization
             if (element.matches('.animate-on-scroll, .parallax-element, .fade-on-scroll, .bg-parallax')) {
               if (enableGPUAcceleration) {
@@ -202,10 +202,10 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
                 element.style.backfaceVisibility = 'hidden';
                 element.style.willChange = 'transform, opacity';
               }
-              
+
               if (enablePassiveListeners) {
-                element.addEventListener('scroll', () => {}, { passive: true });
-                element.addEventListener('wheel', () => {}, { passive: true });
+                element.addEventListener('scroll', () => { }, { passive: true });
+                element.addEventListener('wheel', () => { }, { passive: true });
               }
             }
           }
@@ -240,17 +240,11 @@ export function useScrollOptimization(options: ScrollOptimizationOptions = {}) {
 
     optimizationApplied.current = true;
 
-    // Reapply optimizations periodically to catch dynamic content
-    const reapplyInterval = setInterval(() => {
-      applyPassiveListeners();
-      applyGPUAcceleration();
-      optimizeScrollContainers();
-      applyContentVisibility();
-    }, 5000);
+    // NOTE: Removed 5s setInterval - MutationObserver at line 216 already handles dynamic content
+    // This eliminates unnecessary DOM queries every 5 seconds
 
     return () => {
       cleanupObserver?.();
-      clearInterval(reapplyInterval);
       optimizationApplied.current = false;
     };
   }, [

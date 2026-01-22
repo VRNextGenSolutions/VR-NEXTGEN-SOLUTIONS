@@ -3,7 +3,7 @@
  * A hook for responsive design and device detection with performance optimizations
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useViewport } from './useViewport';
 
 // Breakpoint definitions (can be customized based on your design system)
@@ -57,7 +57,7 @@ interface ResponsiveResult {
 export default function useResponsive(options: ResponsiveOptions = {}): ResponsiveResult {
   const { width, height } = useViewport();
   const [isTouch, setIsTouch] = useState(false);
-  
+
   // Use custom breakpoints if provided, otherwise use default
   const activeBreakpoints = options.customBreakpoints || breakpoints;
 
@@ -65,7 +65,7 @@ export default function useResponsive(options: ResponsiveOptions = {}): Responsi
   const breakpoint = useMemo(() => {
     const breakpointEntries = Object.entries(activeBreakpoints)
       .sort((a, b) => b[1] - a[1]); // Sort from largest to smallest
-    
+
     const current = breakpointEntries.find(([_, minWidth]) => width >= minWidth);
     return (current ? current[0] : 'xs') as Breakpoint;
   }, [width, activeBreakpoints]);
@@ -83,7 +83,7 @@ export default function useResponsive(options: ResponsiveOptions = {}): Responsi
   // Check for touch capability
   useEffect(() => {
     if (!options.detectTouch) return;
-    
+
     const checkTouch = () => {
       setIsTouch(
         'ontouchstart' in window ||
@@ -91,27 +91,27 @@ export default function useResponsive(options: ResponsiveOptions = {}): Responsi
         (navigator as any).msMaxTouchPoints > 0
       );
     };
-    
+
     checkTouch();
   }, [options.detectTouch]);
 
   // Helper functions for breakpoint comparisons
   const isAbove = (bp: Breakpoint) => width >= activeBreakpoints[bp];
   const isBelow = (bp: Breakpoint) => width < activeBreakpoints[bp];
-  const isBetween = (min: Breakpoint, max: Breakpoint) => 
+  const isBetween = (min: Breakpoint, max: Breakpoint) =>
     width >= activeBreakpoints[min] && width < activeBreakpoints[max];
   const is = (bp: Breakpoint) => {
     const breakpointEntries = Object.entries(activeBreakpoints)
       .sort((a, b) => a[1] - b[1]); // Sort from smallest to largest
-    
+
     const currentIndex = breakpointEntries.findIndex(([key]) => key === bp);
     if (currentIndex === -1) return false;
-    
+
     const minWidth = breakpointEntries[currentIndex][1];
-    const maxWidth = currentIndex < breakpointEntries.length - 1 
-      ? breakpointEntries[currentIndex + 1][1] 
+    const maxWidth = currentIndex < breakpointEntries.length - 1
+      ? breakpointEntries[currentIndex + 1][1]
       : Infinity;
-    
+
     return width >= minWidth && width < maxWidth;
   };
 

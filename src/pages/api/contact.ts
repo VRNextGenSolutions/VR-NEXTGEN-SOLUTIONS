@@ -74,67 +74,69 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       });
     }
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ success: false, error: 'Method not allowed' });
-  }
-
-  if (!req.headers['content-type']?.includes('application/json')) {
-    return res.status(415).json({ success: false, error: 'Unsupported Media Type' });
-  }
-
-  const clientIp = getClientIp(req);
-  const rateCheck = checkRateLimit(clientIp);
-  if (!rateCheck.allowed) {
-    return res
-      .status(429)
-      .json({ success: false, error: 'Too many messages. Please wait a few minutes and try again.' });
-  }
-
-  try {
-    const { name, email, message, honeypot, recaptchaToken } = validateContactPayload(req.body);
-
-    if (honeypot) {
-      logger.warn('Honeypot triggered', { ip: clientIp });
-      return res.status(204).end();
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', 'POST');
+      return res.status(405).json({ success: false, error: 'Method not allowed' });
     }
 
-    if (RECAPTCHA_SECRET) {
-      if (!recaptchaToken) {
-        return res.status(400).json({ success: false, error: 'reCAPTCHA validation failed. Please try again.' });
+    if (!req.headers['content-type']?.includes('application/json')) {
+      return res.status(415).json({ success: false, error: 'Unsupported Media Type' });
     }
 
-      const recaptchaPassed = await verifyRecaptcha(recaptchaToken, clientIp);
-      if (!recaptchaPassed) {
-        return res.status(400).json({ success: false, error: 'reCAPTCHA validation failed. Please try again.' });
-    }
-    }
-
-    await sendContactEmail({
-      name,
-      email,
-      message,
-      meta: { ip: clientIp },
-    });
-
-    logger.info('Contact form submitted', { ip: clientIp });
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    if (error instanceof ContactValidationError) {
-      return res.status(error.statusCode).json({ success: false, error: error.message });
+    const clientIp = getClientIp(req);
+    const rateCheck = checkRateLimit(clientIp);
+    if (!rateCheck.allowed) {
+      return res
+        .status(429)
+        .json({ success: false, error: 'Too many messages. Please wait a few minutes and try again.' });
     }
 
-    logger.error('Contact form submission failed', {
-      ip: clientIp,
-      error: error instanceof Error ? error.message : String(error),
-    });
+    try {
+      const { name, email, message, honeypot, recaptchaToken } = validateContactPayload(req.body);
 
-    return res.status(500).json({
-      success: false,
-      error: 'Unable to send your message right now. Please try again later.',
-    });
+      if (honeypot) {
+        logger.warn('Honeypot triggered', { ip: clientIp });
+        return res.status(204).end();
+      }
+
+      if (RECAPTCHA_SECRET) {
+        if (!recaptchaToken) {
+          return res.status(400).json({ success: false, error: 'reCAPTCHA validation failed. Please try again.' });
+        }
+
+        const recaptchaPassed = await verifyRecaptcha(recaptchaToken, clientIp);
+        if (!recaptchaPassed) {
+          return res.status(400).json({ success: false, error: 'reCAPTCHA validation failed. Please try again.' });
+        }
+      }
+
+      await sendContactEmail({
+        name,
+        email,
+        message,
+        meta: { ip: clientIp },
+      });
+
+      logger.info('Contact form submitted', { ip: clientIp });
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      if (error instanceof ContactValidationError) {
+        return res.status(error.statusCode).json({ success: false, error: error.message });
+      }
+
+      logger.error('Contact form submission failed', {
+        ip: clientIp,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+
+      return res.status(500).json({
+        success: false,
+        error: 'Unable to send your message right now. Please try again later.',
+      });
+    }
   } catch (handlerError) {
-    // Catch any unhandled errors in the handler itself
+    // Catch any unhandled errors in the outer try block (config validation, etc.)
     logger.error('Unhandled error in contact API handler', {
       error: handlerError instanceof Error ? handlerError.message : String(handlerError),
       stack: handlerError instanceof Error ? handlerError.stack : undefined,

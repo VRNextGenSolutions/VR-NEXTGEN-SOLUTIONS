@@ -14,10 +14,10 @@ declare global {
 export const isLocalhost = Boolean(
   typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' ||
-   window.location.hostname === '[::1]' ||
-   window.location.hostname.match(
-     /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
-   ))
+    window.location.hostname === '[::1]' ||
+    window.location.hostname.match(
+      /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+    ))
 );
 
 interface ServiceWorkerConfig {
@@ -45,10 +45,12 @@ export function register(config?: ServiceWorkerConfig) {
       // Add some additional logging to localhost, pointing developers to the
       // service worker/PWA documentation.
       navigator.serviceWorker.ready.then(() => {
-        console.log(
-          'This web app is being served cache-first by a service ' +
+        if (process.env.NODE_ENV === 'development') {
+          console.log(
+            'This web app is being served cache-first by a service ' +
             'worker. To learn more, visit https://bit.ly/CRA-PWA'
-        );
+          );
+        }
       });
     } else {
       // Is not localhost. Just register service worker
@@ -81,9 +83,11 @@ function checkValidServiceWorker(swUrl: string, config?: ServiceWorkerConfig) {
       }
     })
     .catch(() => {
-      console.log(
-        'No internet connection found. App is running in offline mode.'
-      );
+      if (process.env.NODE_ENV === 'development') {
+        console.log(
+          'No internet connection found. App is running in offline mode.'
+        );
+      }
     });
 }
 
@@ -93,7 +97,7 @@ function registerValidSW(swUrl: string, config?: ServiceWorkerConfig) {
     .then((registration) => {
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
-        
+
         if (!installingWorker) {
           return;
         }
@@ -145,17 +149,17 @@ export function preloadCriticalResources() {
     return;
   }
 
+  // Only preload above-the-fold critical images
+  // Removed logo preloads as they cause warnings (not used within first few seconds)
   const criticalResources = [
-    '/icons-optimized/logo-Final-png.png',
-    '/icons-optimized/vr-logo-md.webp',
     '/images-optimized/Hero.webp'
   ];
 
   criticalResources.forEach((resource) => {
     const link = document.createElement('link');
     link.rel = 'preload';
-    link.as = resource.endsWith('.css') ? 'style' : 
-             resource.match(/\.(png|jpg|jpeg|gif|webp|avif|svg)$/) ? 'image' : 'script';
+    link.as = resource.endsWith('.css') ? 'style' :
+      resource.match(/\.(png|jpg|jpeg|gif|webp|avif|svg)$/) ? 'image' : 'script';
     link.href = resource;
     document.head.appendChild(link);
   });
@@ -167,7 +171,7 @@ export function trackPerformance() {
     window.addEventListener('load', () => {
       setTimeout(() => {
         const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-        
+
         if (perfData) {
           const metrics = {
             loadTime: perfData.loadEventEnd - perfData.loadEventStart,

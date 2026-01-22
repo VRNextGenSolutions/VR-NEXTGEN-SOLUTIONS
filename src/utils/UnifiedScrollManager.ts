@@ -6,6 +6,8 @@
  * - Simplified API for common use cases
  */
 
+import { useRef, useEffect } from 'react';
+
 export interface ScrollEvent {
   scrollY: number;
   scrollX: number;
@@ -88,17 +90,17 @@ class OptimizedScrollManager {
     this.lastTimestamp = performance.now();
 
     // Use passive listeners for better scroll performance
-    window.addEventListener('scroll', this.handleScroll, { 
-      passive: true, 
-      capture: false 
+    window.addEventListener('scroll', this.handleScroll, {
+      passive: true,
+      capture: false
     });
-    
+
     // Add wheel event listener for better performance on desktop
-    window.addEventListener('wheel', this.handleWheel, { 
-      passive: true, 
-      capture: false 
+    window.addEventListener('wheel', this.handleWheel, {
+      passive: true,
+      capture: false
     });
-    
+
     this.startRafLoop();
   }
 
@@ -160,7 +162,7 @@ class OptimizedScrollManager {
 
   private handleWheel(): void {
     if (!this.isActive) return;
-    
+
     // Wheel events are handled by the scroll event, this is just for optimization
     // The wheel event helps with smoother scrolling on desktop
   }
@@ -184,7 +186,7 @@ class OptimizedScrollManager {
 
   private processScroll(event: ScrollEvent): void {
     const activeHandlers = Array.from(this.handlers.values()).filter(h => h.active);
-    
+
     activeHandlers.forEach(({ handler, id }) => {
       try {
         handler(event);
@@ -199,11 +201,11 @@ class OptimizedScrollManager {
   private throttle<T extends (...args: any[]) => any>(func: T, wait: number): T {
     let timeout: NodeJS.Timeout | null = null;
     let previous = 0;
-    
+
     return ((...args: any[]) => {
       const now = Date.now();
       const remaining = wait - (now - previous);
-      
+
       if (remaining <= 0 || remaining > wait) {
         if (timeout) {
           clearTimeout(timeout);
@@ -239,21 +241,42 @@ export function getOptimizedScrollManager(): OptimizedScrollManager {
 
 /**
  * React hook for using the optimized scroll manager
+ * Properly wraps registration in useEffect with cleanup
  */
 export function useOptimizedScroll(
   handler: (event: ScrollEvent) => void,
   options: {
     id?: string;
     throttle?: number;
-    deps?: any[];
+    deps?: unknown[];
   } = {}
 ) {
   const { deps = [], id, throttle = 16 } = options;
-  
-  const handlerId = id || `scroll-handler-${Math.random().toString(36).substr(2, 9)}`;
-  const unregister = optimizedScrollManager.register(handlerId, handler, throttle);
-  
-  return unregister;
+
+  // Use ref to maintain stable handler ID across renders
+  const handlerIdRef = useRef(id || `scroll-handler-${Math.random().toString(36).substr(2, 9)}`);
+
+  // Store handler in ref to avoid stale closures
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
+  useEffect(() => {
+    // Create wrapper that calls current handler
+    const wrappedHandler = (event: ScrollEvent) => {
+      handlerRef.current(event);
+    };
+
+    const unregister = optimizedScrollManager.register(
+      handlerIdRef.current,
+      wrappedHandler,
+      throttle
+    );
+
+    // Cleanup on unmount or when deps change
+    return unregister;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [throttle, ...deps]);
 }
 
 export default optimizedScrollManager;
+

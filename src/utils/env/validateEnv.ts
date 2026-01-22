@@ -107,8 +107,7 @@ export function validateEmailConfig(): EmailConfig {
     host: resolvedHost,
     port,
     secure,
-    user: resolvedUser,
-    receiveEmail: resolvedReceiveEmail,
+    // Redacted: user and receiveEmail for security
   });
 
   return cachedEmailConfig;

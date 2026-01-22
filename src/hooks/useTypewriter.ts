@@ -37,37 +37,47 @@ export default function useTypewriter({
   useEffect(() => {
     // Only run the typewriter effect once
     if (hasTypedRef.current) return;
-    
+
     let currentIndex = 0;
-    
+    let isActive = true;
+    const timers: NodeJS.Timeout[] = [];
+
     const typeWriter = () => {
+      if (!isActive) return;
+
       if (currentIndex < text.length) {
         setCurrentText(text.substring(0, currentIndex + 1));
         currentIndex++;
-        setTimeout(typeWriter, speed);
+        const timer = setTimeout(typeWriter, speed);
+        timers.push(timer);
       } else {
         // Text is fully typed, mark as completed
         hasTypedRef.current = true;
         setIsComplete(true);
-        
+
         // Call onComplete callback if provided
         if (onComplete) onComplete();
-        
+
         // Stop the cursor blinking after a delay if not showing cursor after complete
         if (!showCursorAfterComplete) {
-          setTimeout(() => {
-            setShowCursor(false);
+          const cursorTimer = setTimeout(() => {
+            if (isActive) setShowCursor(false);
           }, 1000);
+          timers.push(cursorTimer);
         }
       }
     };
 
     // Start typewriter effect after component mounts with delay
-    const timer = setTimeout(() => {
+    const initialTimer = setTimeout(() => {
       typeWriter();
     }, startDelay);
+    timers.push(initialTimer);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isActive = false;
+      timers.forEach(timer => clearTimeout(timer));
+    };
   }, [text, speed, startDelay, showCursorAfterComplete, onComplete]);
 
   // Cursor blink effect
@@ -77,7 +87,7 @@ export default function useTypewriter({
       setShowCursor(false);
       return;
     }
-    
+
     const cursorInterval = setInterval(() => {
       setShowCursor(prev => !prev);
     }, cursorBlinkSpeed);

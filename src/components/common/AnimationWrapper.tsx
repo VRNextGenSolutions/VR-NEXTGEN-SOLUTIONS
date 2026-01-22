@@ -74,7 +74,7 @@ export default function AnimationWrapper({
       className={`${baseClass} ${inView ? activeClass : ''} ${className}`}
       style={{
         ...animationStyle,
-        willChange: inView ? 'auto' : 'transform, opacity', // Optimize performance
+        willChange: !inView ? 'transform, opacity' : 'auto', // Set before animation, reset after
         backfaceVisibility: 'hidden', // Prevent flickering
       }}
     >

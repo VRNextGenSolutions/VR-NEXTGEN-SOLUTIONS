@@ -29,9 +29,9 @@ export default function HeroBackground({
       <motion.div
         className="absolute inset-0 -z-30 bg-cover bg-center bg-no-repeat bg-parallax"
         aria-hidden="true"
-        style={{ 
+        style={{
           backgroundImage: `url('${backgroundImage}')`,
-          opacity: opacity, 
+          opacity: opacity,
           willChange: 'opacity',
           transform: 'translate3d(0, 0, 0)', // Force hardware acceleration
           backfaceVisibility: 'hidden', // Optimize rendering
@@ -41,19 +41,18 @@ export default function HeroBackground({
         transition={{ duration: 0.7, ease: 'easeInOut' }}
       />
 
-      {/* Optional overlay image with parallax effect */}
+      {/* Optional overlay image with parallax effect - using motion.div for MotionValue optimization */}
       {overlayImage && (
-        <div
+        <motion.div
           className="absolute inset-0 -z-20 bg-no-repeat bg-center bg-parallax"
           aria-hidden="true"
-          style={{ 
+          style={{
             backgroundImage: `url('${overlayImage}')`,
             opacity: overlayOpacity,
-            transform: parallaxOffset ? `translate3d(0, ${parallaxOffset.get() * -1}px, 0)` : 'translate3d(0, 0, 0)',
+            // Use y property directly with MotionValue for compositor optimization
+            y: parallaxOffset,
             willChange: parallaxOffset ? 'transform' : 'auto',
             backfaceVisibility: 'hidden',
-            WebkitTransform: parallaxOffset ? `translate3d(0, ${parallaxOffset.get() * -1}px, 0)` : 'translate3d(0, 0, 0)',
-            WebkitBackfaceVisibility: 'hidden'
           }}
         />
       )}

@@ -4,8 +4,8 @@ import ServiceCard from "./ServiceCard";
 import { SERVICES } from "./constants";
 
 export default function Services() {
-  const serviceCards = SERVICES.map((service, index) => (
-    <ServiceCard key={service.id} service={service} index={index} isVisible={true} />
+  const serviceCards = SERVICES.map((service) => (
+    <ServiceCard key={service.id} service={service} isVisible={true} />
   ));
 
   return (

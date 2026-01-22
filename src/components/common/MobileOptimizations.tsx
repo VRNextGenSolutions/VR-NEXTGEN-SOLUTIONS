@@ -22,7 +22,7 @@ export default function MobileOptimizations({ children }: MobileOptimizationsPro
     // Touch event handlers
     const handleTouchStart = (e: TouchEvent) => {
       // Optimize touch start events
-      e.preventDefault = () => {}; // Prevent default only when necessary
+      e.preventDefault = () => { }; // Prevent default only when necessary
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -34,7 +34,7 @@ export default function MobileOptimizations({ children }: MobileOptimizationsPro
 
     const handleTouchEnd = (e: TouchEvent) => {
       // Optimize touch end events
-      e.preventDefault = () => {};
+      e.preventDefault = () => { };
     };
 
     // Scroll event handlers
@@ -42,8 +42,9 @@ export default function MobileOptimizations({ children }: MobileOptimizationsPro
       // Optimize scroll events - let the unified scroll manager handle this
       // Add performance monitoring for scroll events
       if (process.env.NODE_ENV === 'development') {
-        const scrollElement = e.target as HTMLElement;
-        if (scrollElement && scrollElement.hasAttribute('data-scroll-optimized')) {
+        const scrollTarget = e.target;
+        // Check if target is an HTMLElement (not document or other non-element targets)
+        if (scrollTarget && scrollTarget instanceof HTMLElement && scrollTarget.hasAttribute('data-scroll-optimized')) {
           // Element is already optimized
         }
       }
@@ -70,14 +71,14 @@ export default function MobileOptimizations({ children }: MobileOptimizationsPro
       document.addEventListener('touchstart', handleTouchStart, { passive: true });
       document.addEventListener('touchmove', handleTouchMove, { passive: true });
       document.addEventListener('touchend', handleTouchEnd, { passive: true });
-      
+
       // Optimize scroll events for mobile
       document.addEventListener('scroll', handleScroll, { passive: true });
       document.addEventListener('wheel', handleWheel, { passive: true });
 
       // Add mobile-specific CSS classes
       document.documentElement.classList.add('mobile-device');
-      
+
       if (isLowEnd) {
         document.documentElement.classList.add('low-end-mobile');
       }
@@ -99,7 +100,7 @@ export default function MobileOptimizations({ children }: MobileOptimizationsPro
   // but kept for future mobile optimization features
 
   return (
-    <div 
+    <div
       className={`mobile-optimized ${isMobile ? 'mobile-device' : ''} ${isLowEnd ? 'low-end-device' : ''}`}
       data-touch-optimized
     >
@@ -138,10 +139,10 @@ interface MobileTouchComponentProps {
   className?: string;
 }
 
-export function MobileTouchComponent({ 
-  children, 
-  onTouch, 
-  className = '' 
+export function MobileTouchComponent({
+  children,
+  onTouch,
+  className = ''
 }: MobileTouchComponentProps) {
   const { isMobile } = useMobileOptimizations();
 

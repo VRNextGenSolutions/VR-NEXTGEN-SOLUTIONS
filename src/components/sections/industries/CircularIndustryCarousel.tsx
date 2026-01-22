@@ -21,16 +21,16 @@ interface CarouselState {
   radius: number;
 }
 
-function IndustryCard({ 
-  industry, 
-  isActive, 
+function IndustryCard({
+  industry,
+  isActive,
   index,
   cardAngle,
   radius,
   onFlip,
   router
-}: { 
-  industry: typeof INDUSTRIES[0]; 
+}: {
+  industry: typeof INDUSTRIES[0];
   isActive: boolean;
   index: number;
   cardAngle: number;
@@ -56,9 +56,8 @@ function IndustryCard({
 
   return (
     <div
-      className={`memory-card absolute cursor-pointer transition-transform duration-500 ${
-        isActive ? 'z-10' : 'z-0'
-      }`}
+      className={`memory-card absolute cursor-pointer transition-transform duration-500 ${isActive ? 'z-10' : 'z-0'
+        }`}
       style={{
         width: '220px',
         height: '280px',
@@ -76,35 +75,32 @@ function IndustryCard({
       }}
     >
       <div
-        className={`card-inner relative w-full h-full transition-transform duration-500 ${
-          isActive ? 'hover:translate-z-5' : ''
-        }`}
+        className={`card-inner relative w-full h-full transition-transform duration-500 ${isActive ? 'hover:translate-z-5' : ''
+          }`}
         style={{
           transformStyle: 'preserve-3d',
         }}
       >
-          {/* Card Front */}
-          <div
-            className={`card-front absolute w-full h-full rounded-xl overflow-hidden group/card-front border border-gray-700 hover:border-gold/50 ${
-              hasBackground 
-                ? '' 
-                : 'bg-gradient-to-br from-gray-800/80 to-gray-900/90'
+        {/* Card Front */}
+        <div
+          className={`card-front absolute w-full h-full rounded-xl overflow-hidden group/card-front border border-gray-700 hover:border-gold/50 ${hasBackground
+            ? ''
+            : 'bg-gradient-to-br from-gray-800/80 to-gray-900/90'
             }`}
-            style={{
-              backgroundImage: hasBackground && backgroundImage ? `url('${backgroundImage}')` : undefined,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden'
-            }}
-          >
-            {/* Readability overlay with hover easing - matching Our Services */}
-            <div className="absolute inset-0 bg-black/60 rounded-xl group-hover/card-front:bg-black/40 transition-colors duration-300" />
-          
-          <div className={`card-content p-4 h-full flex flex-col items-center justify-center relative z-10 ${
-            hasBackground ? 'text-white' : 'text-black'
-          }`}>
+          style={{
+            backgroundImage: hasBackground && backgroundImage ? `url('${backgroundImage}')` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
+          }}
+        >
+          {/* Readability overlay with hover easing - matching Our Services */}
+          <div className="absolute inset-0 bg-black/60 rounded-xl group-hover/card-front:bg-black/40 transition-colors duration-300" />
+
+          <div className={`card-content p-4 h-full flex flex-col items-center justify-center relative z-10 ${hasBackground ? 'text-white' : 'text-black'
+            }`}>
             {/* Icon - matching Our Services styling */}
             <div className="flex justify-center mb-1.5">
               <div
@@ -130,7 +126,7 @@ function IndustryCard({
             </p>
 
             {/* Learn More Button - matching Our Services styling */}
-            <button 
+            <button
               onClick={handleExploreSolutions}
               className="w-full px-1.5 py-1 text-xs font-medium bg-transparent border border-gold/50 text-gold rounded transition-all duration-300 hover:bg-gold hover:text-black hover:border-gold hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] focus:ring-2 focus:ring-gold/50 focus:outline-none group/btn relative overflow-hidden"
               aria-label={`Learn more about ${industry.title}`}
@@ -169,7 +165,7 @@ function IndustryCard({
                 {industry.title}
               </h3>
             </div>
-            
+
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gold/30 scrollbar-track-transparent">
               {/* Focus Areas */}
@@ -186,7 +182,7 @@ function IndustryCard({
                   ))}
                 </ul>
               </div>
-              
+
               <p className="text-xs leading-relaxed mb-2 text-gray-300">
                 {industry.description.split('\n').slice(4).join(' ').substring(0, 150)}...
               </p>
@@ -197,6 +193,9 @@ function IndustryCard({
     </div>
   );
 }
+
+// Memoize IndustryCard to prevent re-renders when carousel state changes
+const MemoizedIndustryCard = memo(IndustryCard);
 
 function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselProps) {
   const router = useRouter();
@@ -238,14 +237,14 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
     if (carouselRef.current) {
       carouselRef.current.style.transform = `rotateY(${newTheta}deg)`;
     }
-    
+
     // Update current card index
     const anglePerCard = 360 / totalCards;
     const newIndex = Math.round(Math.abs(newTheta / anglePerCard) % totalCards);
     const normalizedIndex = newIndex >= totalCards ? 0 : newIndex;
-    
-    setState(prev => ({ 
-      ...prev, 
+
+    setState(prev => ({
+      ...prev,
       theta: newTheta,
       currentIndex: normalizedIndex
     }));
@@ -268,13 +267,13 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
   // Flip card
   const flipCard = useCallback((card: HTMLElement) => {
     const cardIndex = parseInt(card.dataset.index || '0');
-    
+
     // Only flip the current front-facing card
     if (cardIndex === state.currentIndex) {
       const cardInner = card.querySelector('.card-inner') as HTMLElement;
       if (cardInner) {
-        cardInner.style.transform = cardInner.style.transform.includes('rotateY(180deg)') 
-          ? 'translateZ(0px)' 
+        cardInner.style.transform = cardInner.style.transform.includes('rotateY(180deg)')
+          ? 'translateZ(0px)'
           : 'translateZ(0px) rotateY(180deg)';
       }
     }
@@ -285,7 +284,7 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
     e.preventDefault();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    
+
     setState(prev => ({
       ...prev,
       isDragging: true,
@@ -310,7 +309,7 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
 
   const dragEnd = useCallback((e: MouseEvent | TouchEvent) => {
     if (!state.isDragging) return;
-    
+
     const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
     const diffX = clientX - state.startX;
 
@@ -403,7 +402,7 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
           onTouchStart={dragStart}
         >
           {INDUSTRIES.map((industry, index) => (
-            <IndustryCard
+            <MemoizedIndustryCard
               key={industry.id}
               industry={industry}
               isActive={index === state.currentIndex}
@@ -426,7 +425,7 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
         >
           <i className="fas fa-chevron-left"></i>
         </button>
-        
+
         <div className="flex gap-2">
           {INDUSTRIES.map((_, index) => (
             <button
@@ -436,16 +435,15 @@ function CircularIndustryCarousel({ className = '' }: CircularIndustryCarouselPr
                 const targetTheta = index * anglePerCard;
                 rotateCarousel(targetTheta);
               }}
-              className={`nav-indicator w-3 h-3 rounded-full transition-all duration-300 ${
-                index === state.currentIndex 
-                  ? 'bg-gold scale-125' 
-                  : 'bg-gold/30 hover:bg-gold/50 hover:scale-110'
-              }`}
+              className={`nav-indicator w-3 h-3 rounded-full transition-all duration-300 ${index === state.currentIndex
+                ? 'bg-gold scale-125'
+                : 'bg-gold/30 hover:bg-gold/50 hover:scale-110'
+                }`}
               aria-label={`Go to industry ${index + 1}`}
             />
           ))}
         </div>
-        
+
         <button
           onClick={nextCard}
           className="control-btn w-10 h-10 rounded-full bg-gray-800/70 border border-gold/30 text-gold flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-gray-700/90 hover:scale-110 hover:border-gold/50"

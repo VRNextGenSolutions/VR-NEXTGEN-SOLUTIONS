@@ -69,7 +69,7 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
       unifiedHandler,
       16 // throttle in ms
     );
-    
+
     return unregister;
   }, [unifiedScrollManager]);
 
@@ -81,19 +81,7 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
     // In practice, components should use the returned unregister function from registerHandler
   }, []);
 
-  /**
-   * Get priority for handler type
-   */
-  function getPriorityForType(type: keyof ScrollHandlers): number {
-    const priorities = {
-      parallax: 1,
-      fade: 2,
-      navigation: 3,
-      background: 4,
-      custom: 5,
-    };
-    return priorities[type] || 5;
-  }
+  // NOTE: getPriorityForType was removed - it was defined but never used
 
   /**
    * Initialize scroll state tracking
@@ -124,7 +112,7 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
         if (scrollTimeout.current) {
           clearTimeout(scrollTimeout.current);
         }
-        
+
         scrollTimeout.current = setTimeout(() => {
           setScrollState(prev => ({ ...prev, isScrolling: false, scrollVelocity: 0 }));
         }, 150);
@@ -170,8 +158,8 @@ export function useScrollContext(): ScrollContextType {
         viewportHeight: 0,
         viewportWidth: 0,
       },
-      registerHandler: () => () => {},
-      unregisterHandler: () => {},
+      registerHandler: () => () => { },
+      unregisterHandler: () => { },
     };
   }
   return context;
@@ -183,22 +171,22 @@ export function useScrollContext(): ScrollContextType {
 export function useUnifiedParallax(multiplier: number = 0.3) {
   const { registerHandler } = useScrollContext();
   const [offset, setOffset] = useState(0);
-  
+
   useEffect(() => {
     const handleParallax = (scrollY: number) => {
       const newOffset = scrollY * multiplier;
-      
+
       // Only update if the change is significant enough to avoid excessive re-renders
       setOffset(prevOffset => {
         const diff = Math.abs(newOffset - prevOffset);
         return diff > 0.5 ? newOffset : prevOffset;
       });
     };
-    
+
     const unregister = registerHandler('parallax', handleParallax);
     return unregister;
   }, [multiplier, registerHandler]);
-  
+
   return offset;
 }
 
@@ -209,27 +197,27 @@ export function useUnifiedScrollFade(fadeStartRatio: number = 0.5) {
   const { scrollState, registerHandler } = useScrollContext();
   const [opacity, setOpacity] = useState(1);
   const [isVisible, setIsVisible] = useState(true);
-  
+
   useEffect(() => {
     const handleFade = (scrollY: number) => {
       const windowHeight = scrollState.viewportHeight;
-      
+
       // Calculate opacity based on scroll position
       let newOpacity = 1;
-      
+
       if (scrollY > 0) {
         // Fade out as user scrolls down
         newOpacity = Math.max(0, 1 - (scrollY / (windowHeight * fadeStartRatio)));
       }
-      
+
       setOpacity(newOpacity);
       setIsVisible(newOpacity > 0.1);
     };
-    
+
     const unregister = registerHandler('fade', handleFade);
     return unregister;
   }, [fadeStartRatio, scrollState.viewportHeight, registerHandler]);
-  
+
   return { opacity, isVisible };
 }
 
@@ -239,7 +227,7 @@ export function useUnifiedScrollFade(fadeStartRatio: number = 0.5) {
 export function useUnifiedNavigation(currentPage: string = '') {
   const { scrollState, registerHandler } = useScrollContext();
   const [currentSection, setCurrentSection] = useState<string>('');
-  
+
   useEffect(() => {
     const handleNavigation = (scrollY: number) => {
       const sections = [
@@ -250,37 +238,37 @@ export function useUnifiedNavigation(currentPage: string = '') {
         { id: 'testimonials', selector: '#testimonials' },
         { id: 'contact', selector: '#contact' },
       ];
-      
+
       const windowHeight = scrollState.viewportHeight;
       let mostVisibleSection = '';
       let maxVisibility = 0;
-      
+
       for (const section of sections) {
         const element = document.querySelector(section.selector);
         if (element) {
           const rect = element.getBoundingClientRect();
           const sectionTop = rect.top + scrollY;
           const sectionBottom = sectionTop + rect.height;
-          
+
           const visibleTop = Math.max(sectionTop, scrollY);
           const visibleBottom = Math.min(windowHeight + scrollY, sectionBottom);
           const visibleHeight = Math.max(0, visibleBottom - visibleTop);
           const visibilityRatio = visibleHeight / windowHeight;
-          
+
           if (visibilityRatio > maxVisibility) {
             maxVisibility = visibilityRatio;
             mostVisibleSection = section.id;
           }
         }
       }
-      
+
       setCurrentSection(mostVisibleSection);
     };
-    
+
     const unregister = registerHandler('navigation', handleNavigation);
     return unregister;
   }, [currentPage, scrollState.viewportHeight, registerHandler]);
-  
+
   return { currentSection };
 }
 
@@ -289,13 +277,13 @@ export function useUnifiedNavigation(currentPage: string = '') {
  */
 export function useUnifiedBackgroundAnimation() {
   const { registerHandler } = useScrollContext();
-  
+
   useEffect(() => {
     const handleBackground = () => {
       // Update section detection for background transitions
       const sections = [
         'hero',
-        'services', 
+        'services',
         'why',
         'cta',
         'what-we-do-hero',
@@ -309,11 +297,11 @@ export function useUnifiedBackgroundAnimation() {
         'blog-header',
         'blog-feed',
       ];
-      
+
       const windowHeight = window.innerHeight;
       let mostVisibleSection = 'hero';
       let maxVisibility = 0;
-      
+
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -322,14 +310,14 @@ export function useUnifiedBackgroundAnimation() {
           const visibleBottom = Math.min(windowHeight, rect.bottom);
           const visibleHeight = Math.max(0, visibleBottom - visibleTop);
           const visibilityRatio = visibleHeight / windowHeight;
-          
+
           if (visibilityRatio > maxVisibility) {
             maxVisibility = visibilityRatio;
             mostVisibleSection = sectionId;
           }
         }
       }
-      
+
       // Trigger background transition if needed
       const backgroundElement = document.querySelector('.site-bg');
       if (backgroundElement) {
@@ -341,7 +329,7 @@ export function useUnifiedBackgroundAnimation() {
         backgroundElement.classList.add(`section-${sectionClass}`);
       }
     };
-    
+
     // Helper function to get section class mapping
     const getSectionClass = (sectionId: string): string => {
       const sectionMapping: Record<string, string> = {
@@ -362,7 +350,7 @@ export function useUnifiedBackgroundAnimation() {
       };
       return sectionMapping[sectionId] || 'hero';
     };
-    
+
     const unregister = registerHandler('background', handleBackground);
     return unregister;
   }, [registerHandler]);
