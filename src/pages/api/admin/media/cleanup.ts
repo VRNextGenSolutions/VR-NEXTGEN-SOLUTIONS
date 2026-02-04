@@ -6,7 +6,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createServiceRoleClient } from '@/lib/supabase';
-import { findOrphanedFiles, findOldFiles, deleteFiles, listAllFiles } from '@/utils/media';
+import { findOrphanedFiles, findOldFiles, deleteFiles, listAllFiles, type StorageFile } from '@/utils/media';
 
 async function verifyAdmin(req: NextApiRequest): Promise<boolean> {
     const authHeader = req.headers.authorization;
@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const { mode = 'orphans', days = '60' } = req.query;
             const daysOld = parseInt(days as string, 10);
 
-            let filesToClean = [];
+            let filesToClean: StorageFile[] = [];
             let description = '';
 
             if (mode === 'orphans') {
