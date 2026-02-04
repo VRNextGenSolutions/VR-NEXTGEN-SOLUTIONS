@@ -10,5 +10,6 @@ export {
     getBreadcrumbSchema,
     getServiceSchema,
     getLocalBusinessSchema,
-    getFAQSchema
+    getFAQSchema,
+    getBlogPostSchema
 } from './SEOHead';

@@ -233,3 +233,46 @@ export function getFAQSchema(faqs: Array<{ question: string; answer: string }>) 
         }))
     };
 }
+
+/**
+ * Generate Blog Post Schema
+ */
+export function getBlogPostSchema(post: {
+    title: string;
+    excerpt: string;
+    featuredImage?: string | null;
+    authorName: string;
+    publishedAt: string;
+    modifiedAt: string;
+    url: string;
+    wordCount?: number;
+}) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.excerpt,
+        image: post.featuredImage ? (
+            post.featuredImage.startsWith('http') ? [post.featuredImage] : [`${SEO_CONFIG.siteUrl}${post.featuredImage}`]
+        ) : [SEO_CONFIG.defaultOgImage],
+        datePublished: post.publishedAt,
+        dateModified: post.modifiedAt,
+        author: {
+            '@type': 'Person',
+            name: post.authorName,
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: SEO_CONFIG.siteName,
+            logo: {
+                '@type': 'ImageObject',
+                url: SEO_CONFIG.organization.logo
+            }
+        },
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': post.url
+        },
+        wordCount: post.wordCount
+    };
+}

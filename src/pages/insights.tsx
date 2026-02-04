@@ -45,11 +45,15 @@ export default function InsightsPage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       )
-    },
+    }
+  ];
+
+  const featuredSections = [
     {
       id: "nextgen-blog",
       title: "NextGen Blog",
       description: "Latest insights, trends, and thought leadership articles from our team of experts and industry leaders.",
+      href: "/nextgen-blog",
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -131,6 +135,51 @@ export default function InsightsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Section */}
+      <section className="relative py-16 bg-black">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gold leading-tight mb-4">
+              Featured Insights
+            </h2>
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              Explore our latest articles and thought leadership.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredSections.map((section) => (
+              <Link href={section.href} key={section.id} className="block group">
+                <div className="relative border border-gray-700 rounded-xl p-8 overflow-hidden hover:border-gold transition-all duration-300 h-full bg-gradient-to-br from-gray-900 to-black">
+                  <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <div className="relative z-10 flex flex-col items-center text-center h-full">
+                    <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gold/10 text-gold mb-6 group-hover:scale-110 transition-transform duration-300">
+                      {section.icon}
+                    </div>
+
+                    <h3 className="text-xl font-bold text-white mb-4 group-hover:text-gold transition-colors">
+                      {section.title}
+                    </h3>
+
+                    <p className="text-gray-400 mb-6 flex-grow">
+                      {section.description}
+                    </p>
+
+                    <span className="inline-flex items-center text-gold font-medium group-hover:gap-2 transition-all">
+                      Read Articles
+                      <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
