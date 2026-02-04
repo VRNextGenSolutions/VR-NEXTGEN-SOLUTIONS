@@ -1,12 +1,36 @@
 import Layout from "@/components/layout/Layout";
 import IndustryPageShell from "@/components/sections/industries/IndustryPageShell";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function PharmaceuticalLifeSciences() {
+  // Structured data for SEO
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Pharmaceutical & Life Sciences', url: '/industries/pharmaceutical-life-sciences' }
+    ]),
+    getServiceSchema({
+      name: 'Pharmaceutical & Life Sciences Consulting',
+      description: PAGE_SEO.industries.pharma.description,
+      url: '/industries/pharmaceutical-life-sciences'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Pharmaceutical & Life Sciences" 
-      description="Specialized consulting for pharmaceutical and life sciences companies from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.industries.pharma.title}
+      description={PAGE_SEO.industries.pharma.description}
     >
+      <SEOHead
+        title={PAGE_SEO.industries.pharma.title}
+        description={PAGE_SEO.industries.pharma.description}
+        canonical="/industries/pharmaceutical-life-sciences"
+        keywords={PAGE_SEO.industries.pharma.keywords}
+        structuredData={structuredData}
+      />
       <IndustryPageShell>
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">

@@ -1,12 +1,30 @@
 import Layout from "@/components/layout/Layout";
 import { OptimizedValuesImage, OptimizedVisionImage, OptimizedMissionImage, OptimizedAboutImage } from "@/components/common";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 import { useParallax } from "@/hooks/useParallax";
 
 export default function WhoWeArePage() {
   const parallax = useParallax(0.25);
 
+  // Structured data for SEO
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'About Us', url: '/who-we-are' }
+    ])
+  ];
+
   return (
-    <Layout title="About Us" description="Learn more about VR NextGEN Solutions">
+    <Layout title={PAGE_SEO.whoWeAre.title} description={PAGE_SEO.whoWeAre.description}>
+      <SEOHead
+        title={PAGE_SEO.whoWeAre.title}
+        description={PAGE_SEO.whoWeAre.description}
+        canonical="/who-we-are"
+        keywords={PAGE_SEO.whoWeAre.keywords}
+        structuredData={structuredData}
+      />
       {/* Hero Section */}
       <section
         id="who-we-are-hero"
@@ -16,7 +34,7 @@ export default function WhoWeArePage() {
           className="absolute inset-0 -z-20 bg-[url('/next.svg')] bg-no-repeat bg-center opacity-[0.03]"
           style={{ transform: `translateY(${parallax * -1}px)` }}
         />
-        
+
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6 pb-3 md:pb-4 relative z-10">
           <div className="flex items-center justify-center">
             <div className="space-y-6 text-center max-w-4xl">
@@ -46,12 +64,12 @@ export default function WhoWeArePage() {
                 <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
                   Excellence Through Innovation
                 </h3>
-                
+
                 <div className="space-y-4">
                   <p className="text-lg md:text-xl text-white leading-relaxed">
                     At VR NextGen Solutions, we deliver excellence and create lasting value for businesses and communities. Our team of forward-thinking consultants, analysts, and technologists turn complex challenges into opportunities using data, innovation, and intelligence.
                   </p>
-                  
+
                   <p className="text-lg md:text-xl text-white leading-relaxed">
                     Founded with a vision to make organizations data-driven and future-ready, we partner with companies to drive measurable growth through automation, analytics, and digital transformation. From small enterprises to large corporations, we empower every client to transform decisions into outcomes — and operations into performance.
                   </p>
@@ -81,7 +99,7 @@ export default function WhoWeArePage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/30 transition-colors duration-300"></div>
               <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-colors duration-300"></div>
@@ -112,7 +130,7 @@ export default function WhoWeArePage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/30 transition-colors duration-300"></div>
               <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-colors duration-300"></div>
@@ -124,12 +142,12 @@ export default function WhoWeArePage() {
                 <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
                   Trusted Transformation Partner
                 </h3>
-                
+
                 <div className="space-y-4">
                   <p className="text-lg md:text-xl text-white leading-relaxed">
                     Rooted in a commitment to integrity, innovation, and impact, we help businesses embrace the next generation of digital intelligence. With a team experienced across industries like Pharmaceuticals, Manufacturing, Healthcare, Retail, and Education, we bring deep domain expertise and scalable solutions that deliver real business results.
                   </p>
-                  
+
                   <p className="text-lg md:text-xl text-white leading-relaxed">
                     Our approach combines strategy, technology, and transformation — turning vision into value and insight into action. As your trusted transformation partner, we&apos;re not just solving today&apos;s problems — we&apos;re shaping tomorrow&apos;s possibilities.
                   </p>
@@ -161,7 +179,7 @@ export default function WhoWeArePage() {
                 <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">
                   The Foundation of Every Transformation
                 </h3>
-                
+
                 <div className="space-y-4">
                   <p className="text-lg md:text-xl text-white leading-relaxed">
                     At VR NextGen Solutions, our values are more than words — they guide every project, every partnership, and every innovation we deliver. They define who we are and how we create impact — for our clients, our people, and the communities we serve.
@@ -192,7 +210,7 @@ export default function WhoWeArePage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/30 transition-colors duration-300"></div>
               <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-colors duration-300"></div>
@@ -238,7 +256,7 @@ export default function WhoWeArePage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/30 transition-colors duration-300"></div>
               <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-colors duration-300"></div>
@@ -305,7 +323,7 @@ export default function WhoWeArePage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/30 transition-colors duration-300"></div>
               <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-colors duration-300"></div>

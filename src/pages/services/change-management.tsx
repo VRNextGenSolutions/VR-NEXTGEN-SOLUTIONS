@@ -1,11 +1,35 @@
 import Layout from "@/components/layout/Layout";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function ChangeManagement() {
+  // Structured data for SEO
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Change Management', url: '/services/change-management' }
+    ]),
+    getServiceSchema({
+      name: 'Change Management Consulting',
+      description: PAGE_SEO.services.changeManagement.description,
+      url: '/services/change-management'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Change Management" 
-      description="Guide your organization through successful transformation initiatives with VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.services.changeManagement.title}
+      description={PAGE_SEO.services.changeManagement.description}
     >
+      <SEOHead
+        title={PAGE_SEO.services.changeManagement.title}
+        description={PAGE_SEO.services.changeManagement.description}
+        canonical="/services/change-management"
+        keywords={PAGE_SEO.services.changeManagement.keywords}
+        structuredData={structuredData}
+      />
       <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 py-16">
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -25,8 +49,8 @@ export default function ChangeManagement() {
             <div className="prose prose-lg max-w-none">
               <h2 className="text-2xl font-bold text-black mb-6">Service Overview</h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                Our change management services help organizations navigate complex transformations by providing structured 
-                approaches to managing change, building stakeholder buy-in, and ensuring successful implementation. We 
+                Our change management services help organizations navigate complex transformations by providing structured
+                approaches to managing change, building stakeholder buy-in, and ensuring successful implementation. We
                 focus on creating sustainable change that delivers lasting business value.
               </p>
 
@@ -53,8 +77,8 @@ export default function ChangeManagement() {
               <div className="bg-gold/10 rounded-xl p-6 mb-8">
                 <h3 className="text-xl font-semibold text-black mb-4">Why Choose Our Change Management?</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Our change management experts use proven methodologies and best practices to help organizations 
-                  successfully navigate complex transformations. We focus on building internal capabilities and 
+                  Our change management experts use proven methodologies and best practices to help organizations
+                  successfully navigate complex transformations. We focus on building internal capabilities and
                   creating sustainable change that drives long-term business success.
                 </p>
               </div>

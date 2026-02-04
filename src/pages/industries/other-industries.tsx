@@ -1,12 +1,35 @@
 import Layout from "@/components/layout/Layout";
 import IndustryPageShell from "@/components/sections/industries/IndustryPageShell";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function OtherIndustries() {
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Other Industries', url: '/industries/other-industries' }
+    ]),
+    getServiceSchema({
+      name: 'Cross-Industry Consulting Services',
+      description: PAGE_SEO.industries.other.description,
+      url: '/industries/other-industries'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Other Industries" 
-      description="Specialized consulting solutions for diverse industries and unique business challenges from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.industries.other.title}
+      description={PAGE_SEO.industries.other.description}
     >
+      <SEOHead
+        title={PAGE_SEO.industries.other.title}
+        description={PAGE_SEO.industries.other.description}
+        canonical="/industries/other-industries"
+        keywords={PAGE_SEO.industries.other.keywords}
+        structuredData={structuredData}
+      />
       <IndustryPageShell>
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">

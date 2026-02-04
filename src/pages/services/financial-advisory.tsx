@@ -1,11 +1,35 @@
 import Layout from "@/components/layout/Layout";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function FinancialAdvisory() {
+  // Structured data for SEO
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Financial Advisory', url: '/services/financial-advisory' }
+    ]),
+    getServiceSchema({
+      name: 'Financial Advisory Services',
+      description: PAGE_SEO.services.financialAdvisory.description,
+      url: '/services/financial-advisory'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Financial Advisory" 
-      description="Expert financial planning and investment strategy guidance from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.services.financialAdvisory.title}
+      description={PAGE_SEO.services.financialAdvisory.description}
     >
+      <SEOHead
+        title={PAGE_SEO.services.financialAdvisory.title}
+        description={PAGE_SEO.services.financialAdvisory.description}
+        canonical="/services/financial-advisory"
+        keywords={PAGE_SEO.services.financialAdvisory.keywords}
+        structuredData={structuredData}
+      />
       <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 py-16">
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -25,8 +49,8 @@ export default function FinancialAdvisory() {
             <div className="prose prose-lg max-w-none">
               <h2 className="text-2xl font-bold text-black mb-6">Service Overview</h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                Our financial advisory services provide comprehensive financial planning, investment analysis, and risk 
-                management solutions to help organizations optimize their financial performance. We work with finance 
+                Our financial advisory services provide comprehensive financial planning, investment analysis, and risk
+                management solutions to help organizations optimize their financial performance. We work with finance
                 teams to develop strategies that support business growth and long-term sustainability.
               </p>
 
@@ -53,8 +77,8 @@ export default function FinancialAdvisory() {
               <div className="bg-gold/10 rounded-xl p-6 mb-8">
                 <h3 className="text-xl font-semibold text-black mb-4">Why Choose Our Financial Advisory?</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Our financial experts bring deep industry knowledge and proven methodologies to help you make 
-                  informed financial decisions. We focus on creating sustainable financial strategies that support 
+                  Our financial experts bring deep industry knowledge and proven methodologies to help you make
+                  informed financial decisions. We focus on creating sustainable financial strategies that support
                   your business objectives and drive long-term value creation.
                 </p>
               </div>

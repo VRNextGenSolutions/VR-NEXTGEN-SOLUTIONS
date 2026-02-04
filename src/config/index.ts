@@ -10,3 +10,4 @@ export * from './animations';
 export * from './responsive';
 export * from './industryImages';
 export * from './navigation';
+export * from './seo.config';

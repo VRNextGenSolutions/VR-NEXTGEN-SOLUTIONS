@@ -2,8 +2,8 @@ import Layout from "@/components/layout/Layout";
 import dynamic from "next/dynamic";
 import LazyWrapper from "@/components/common/LazyWrapper";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import Head from "next/head";
-import StructuredData, { organizationSchema, createBreadcrumbSchema } from "@/components/common/StructuredData";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 import { useParallax } from "@/hooks/useParallax";
 import { OptimizedWhatWeDoImage } from "@/components/common";
 
@@ -43,18 +43,28 @@ export default function WhatWeDoPage() {
   const parallax = useParallax(0.25);
 
   // Structured data for SEO
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vrnextgen.com';
-  const breadcrumbSchema = createBreadcrumbSchema([
-    { name: "Home", url: `${baseUrl}` },
-    { name: "What We Do", url: `${baseUrl}/what-we-do` }
-  ]);
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' }
+    ]),
+    getServiceSchema({
+      name: 'Business Consulting Services',
+      description: PAGE_SEO.whatWeDo.description,
+      url: '/what-we-do'
+    })
+  ];
 
   return (
-    <Layout title="What We Do" description="At VR NEXTGEN, we empower businesses to unlock their full potential through data, strategy, and intelligent transformation across diverse industries.">
-      <Head>
-        <StructuredData data={organizationSchema} />
-        <StructuredData data={breadcrumbSchema} />
-      </Head>
+    <Layout title={PAGE_SEO.whatWeDo.title} description={PAGE_SEO.whatWeDo.description}>
+      <SEOHead
+        title={PAGE_SEO.whatWeDo.title}
+        description={PAGE_SEO.whatWeDo.description}
+        canonical="/what-we-do"
+        keywords={PAGE_SEO.whatWeDo.keywords}
+        structuredData={structuredData}
+      />
       <ErrorBoundary>
         {/* Hero Section */}
         <section
@@ -68,7 +78,7 @@ export default function WhatWeDoPage() {
             aria-hidden
             style={{ transform: `translateY(${parallax * -1}px)` }}
           />
-          
+
           <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6 pb-3 md:pb-4 relative z-10">
             <div className="flex items-center justify-center">
               <div className="space-y-4 text-center max-w-4xl">
@@ -76,7 +86,7 @@ export default function WhatWeDoPage() {
                   <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gold leading-tight">
                     What We Do
                   </h1>
-                  
+
                   <p className="text-lg md:text-xl text-white/80 leading-relaxed">
                     At VR NEXTGEN, we transform businesses through the power of data, strategy, and intelligent automation. Our comprehensive approach combines cutting-edge analytics, process optimization, and technology integration to drive measurable results and sustainable growth.
                   </p>
@@ -99,12 +109,12 @@ export default function WhatWeDoPage() {
                   <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">
                     Empowering Business Excellence Through Data-Driven Solutions
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <p className="text-lg md:text-xl text-white leading-relaxed">
                       We specialize in turning complex business challenges into strategic opportunities. Our expertise spans across business consulting, strategic planning, process optimization, automation, and performance monitoring.
                     </p>
-                    
+
                     <p className="text-lg md:text-xl text-white leading-relaxed">
                       From pharmaceuticals and manufacturing to retail, healthcare, finance, education, and technology, we help organizations evolve into agile, insight-driven enterprises that thrive in today's competitive landscape.
                     </p>
@@ -123,7 +133,7 @@ export default function WhatWeDoPage() {
                         <p className="text-white/70 text-sm">Transform insights into actionable strategies</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start space-x-3">
                       <div className="w-6 h-6 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 20 20">
@@ -135,7 +145,7 @@ export default function WhatWeDoPage() {
                         <p className="text-white/70 text-sm">Streamline operations for maximum efficiency</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start space-x-3">
                       <div className="w-6 h-6 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 20 20">
@@ -147,7 +157,7 @@ export default function WhatWeDoPage() {
                         <p className="text-white/70 text-sm">Scale your business with confidence</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start space-x-3">
                       <div className="w-6 h-6 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                         <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 20 20">
@@ -185,7 +195,7 @@ export default function WhatWeDoPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Decorative elements */}
                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/30 transition-colors duration-300"></div>
                 <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/20 transition-colors duration-300"></div>

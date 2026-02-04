@@ -1,26 +1,30 @@
 import Layout from "@/components/layout/Layout";
 import { OptimizedCareersImage } from "@/components/common";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import Head from "next/head";
-import StructuredData, { organizationSchema, createBreadcrumbSchema } from "@/components/common/StructuredData";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema } from "@/components/seo";
 import { useParallax } from "@/hooks/useParallax";
 
 export default function CareersPage() {
   const parallax = useParallax(0.25);
 
   // Structured data for SEO
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vrnextgen.com';
-  const breadcrumbSchema = createBreadcrumbSchema([
-    { name: "Home", url: `${baseUrl}` },
-    { name: "Careers", url: `${baseUrl}/careers` }
-  ]);
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: "Home", url: "/" },
+      { name: "Careers", url: "/careers" }
+    ])
+  ];
 
   return (
     <Layout title="Careers" description="Join VR NextGen Solutions - We're looking for passionate, curious, and innovative minds to transform businesses with data-driven strategies and technology-driven solutions.">
-      <Head>
-        <StructuredData data={organizationSchema} />
-        <StructuredData data={breadcrumbSchema} />
-      </Head>
+      <SEOHead
+        title="Careers | VR NextGEN Solutions"
+        description="Join VR NextGen Solutions - We're looking for passionate, curious, and innovative minds."
+        canonical="/careers"
+        keywords={["careers", "jobs", "consulting jobs India", "data analytics jobs Gujarat"]}
+        structuredData={structuredData}
+      />
       <ErrorBoundary>
         {/* Hero Section */}
         <section
@@ -34,7 +38,7 @@ export default function CareersPage() {
             aria-hidden
             style={{ transform: `translateY(${parallax * -1}px)` }}
           />
-          
+
           <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-20 relative z-10">
             <div className="flex items-center justify-center">
               <div className="space-y-8 text-center max-w-4xl">
@@ -48,7 +52,7 @@ export default function CareersPage() {
                   <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gold leading-tight">
                     Careers
                   </h1>
-                  
+
                   <p className="text-lg md:text-xl text-white/80 leading-relaxed">
                     At VR NextGen Solutions, we believe that our people are the driving force behind our success. We are always looking for passionate, curious, and innovative minds who want to be part of a journey that transforms businesses with data-driven strategies and technology-driven solutions.
                   </p>
@@ -82,7 +86,7 @@ export default function CareersPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Decorative elements */}
                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-xl group-hover:bg-gold/40 transition-colors duration-300"></div>
                 <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gold/10 rounded-full blur-2xl group-hover:bg-gold/30 transition-colors duration-300"></div>
@@ -94,7 +98,7 @@ export default function CareersPage() {
                   <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">
                     Current Opportunities
                   </h2>
-                  
+
                   <div className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
@@ -102,17 +106,17 @@ export default function CareersPage() {
                       </div>
                       <h3 className="text-xl font-semibold text-white">No Active Openings</h3>
                     </div>
-                    
+
                     <p className="text-white/80 leading-relaxed mb-4">
                       Currently, there are no active job openings. However, we are constantly growing and new opportunities open up regularly.
                     </p>
-                    
+
                     <div className="border-t border-white/10 pt-4">
                       <h4 className="text-lg font-medium text-gold mb-3">Future Opportunities</h4>
                       <p className="text-white/80 leading-relaxed">
                         If you&apos;d like to be considered for future roles, please send your resume to{" "}
-                        <a 
-                          href="mailto:info@vrnextgensolutions.com" 
+                        <a
+                          href="mailto:info@vrnextgensolutions.com"
                           className="text-gold hover:text-gold/80 transition-colors duration-200 font-medium"
                         >
                           info@vrnextgensolutions.com

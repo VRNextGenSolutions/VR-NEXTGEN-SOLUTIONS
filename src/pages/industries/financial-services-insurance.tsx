@@ -1,12 +1,35 @@
 import Layout from "@/components/layout/Layout";
 import IndustryPageShell from "@/components/sections/industries/IndustryPageShell";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function FinancialServicesInsurance() {
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Financial Services', url: '/industries/financial-services-insurance' }
+    ]),
+    getServiceSchema({
+      name: 'Financial Services & Insurance Consulting',
+      description: PAGE_SEO.industries.finance.description,
+      url: '/industries/financial-services-insurance'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Financial Services & Insurance" 
-      description="Risk management and digital banking solutions for financial institutions and insurance companies from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.industries.finance.title}
+      description={PAGE_SEO.industries.finance.description}
     >
+      <SEOHead
+        title={PAGE_SEO.industries.finance.title}
+        description={PAGE_SEO.industries.finance.description}
+        canonical="/industries/financial-services-insurance"
+        keywords={PAGE_SEO.industries.finance.keywords}
+        structuredData={structuredData}
+      />
       <IndustryPageShell>
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">

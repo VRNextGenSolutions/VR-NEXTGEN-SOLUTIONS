@@ -1,18 +1,19 @@
 import Layout from "@/components/layout/Layout";
-import Head from "next/head";
 import Link from "next/link";
-import StructuredData, { organizationSchema, createBreadcrumbSchema } from "@/components/common/StructuredData";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema } from "@/components/seo";
 import { useParallax } from "@/hooks/useParallax";
 
 export default function InsightsPage() {
   const parallax = useParallax(0.25);
 
   // Structured data for SEO
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vrnextgen.com';
-  const breadcrumbSchema = createBreadcrumbSchema([
-    { name: "Home", url: `${baseUrl}` },
-    { name: "Insights", url: `${baseUrl}/insights` }
-  ]);
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: "Home", url: "/" },
+      { name: "Insights", url: "/insights" }
+    ])
+  ];
 
   const comingSoonSections = [
     {
@@ -59,10 +60,13 @@ export default function InsightsPage() {
 
   return (
     <Layout title="Insights" description="Discover insights, case studies, customer stories, and thought leadership from VR NextGEN Solutions. Coming soon with valuable content to help your business grow.">
-      <Head>
-        <StructuredData data={organizationSchema} />
-        <StructuredData data={breadcrumbSchema} />
-      </Head>
+      <SEOHead
+        title="Insights | VR NextGEN Solutions"
+        description="Discover insights, case studies, customer stories, and thought leadership from VR NextGEN Solutions."
+        canonical="/insights"
+        keywords={["business insights", "case studies", "customer stories", "consulting insights India"]}
+        structuredData={structuredData}
+      />
 
       {/* Hero Section */}
       <section
@@ -74,9 +78,9 @@ export default function InsightsPage() {
         <div
           className="absolute inset-0 -z-20 bg-[url('/next.svg')] bg-no-repeat bg-center opacity-[0.03]"
           aria-hidden
-            style={{ transform: `translateY(${parallax * -1}px)` }}
+          style={{ transform: `translateY(${parallax * -1}px)` }}
         />
-        
+
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 relative z-10">
           <div className="flex items-center justify-center">
             <div className="space-y-8 text-center max-w-4xl">
@@ -84,22 +88,22 @@ export default function InsightsPage() {
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gold leading-tight">
                   Insights
                 </h1>
-                
+
                 <div className="inline-flex items-center gap-3 px-8 py-4 bg-gold/10 border border-gold/30 rounded-full text-gold text-lg font-medium mb-6">
                   <div className="w-2 h-2 bg-gold rounded-full animate-pulse" />
                   Coming Soon
                 </div>
-                
+
                 <p className="text-lg md:text-xl text-white/80 leading-relaxed">
                   We&apos;re preparing valuable insights, case studies, customer stories, and thought leadership content to help you stay ahead in the digital transformation journey.
                 </p>
-                
+
                 {/* Scroll Down Prompt */}
                 <div className="mt-8 flex flex-col items-center space-y-4">
                   <p className="text-gold text-lg font-medium">
                     Scroll down to see What&apos;s Coming
                   </p>
-                  <a 
+                  <a
                     href="#whats-coming"
                     className="scroll-down-arrow group flex flex-col items-center space-y-2 text-gold hover:text-gold/80 transition-colors duration-300"
                     onClick={(e) => {
@@ -109,17 +113,17 @@ export default function InsightsPage() {
                       });
                     }}
                   >
-                    <svg 
-                      className="w-8 h-8 animate-bounce group-hover:animate-none" 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <svg
+                      className="w-8 h-8 animate-bounce group-hover:animate-none"
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={2} 
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3" 
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
                       />
                     </svg>
                     <span className="text-sm">Scroll Down</span>
@@ -156,7 +160,7 @@ export default function InsightsPage() {
               >
                 {/* Background decoration */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
+
                 <div className="relative z-10">
                   {/* Icon */}
                   <div className="flex justify-center mb-4">

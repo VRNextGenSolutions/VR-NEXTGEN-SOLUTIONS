@@ -1,12 +1,35 @@
 import Layout from "@/components/layout/Layout";
 import IndustryPageShell from "@/components/sections/industries/IndustryPageShell";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function EducationEdTech() {
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Education & EdTech', url: '/industries/education-edtech' }
+    ]),
+    getServiceSchema({
+      name: 'Education & EdTech Consulting',
+      description: PAGE_SEO.industries.education.description,
+      url: '/industries/education-edtech'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Education & EdTech" 
-      description="Digital transformation and innovation solutions for education and EdTech companies from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.industries.education.title}
+      description={PAGE_SEO.industries.education.description}
     >
+      <SEOHead
+        title={PAGE_SEO.industries.education.title}
+        description={PAGE_SEO.industries.education.description}
+        canonical="/industries/education-edtech"
+        keywords={PAGE_SEO.industries.education.keywords}
+        structuredData={structuredData}
+      />
       <IndustryPageShell>
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">

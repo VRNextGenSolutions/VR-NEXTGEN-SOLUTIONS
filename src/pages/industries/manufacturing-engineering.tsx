@@ -1,12 +1,35 @@
 import Layout from "@/components/layout/Layout";
 import IndustryPageShell from "@/components/sections/industries/IndustryPageShell";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function ManufacturingEngineering() {
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Manufacturing & Engineering', url: '/industries/manufacturing-engineering' }
+    ]),
+    getServiceSchema({
+      name: 'Manufacturing & Engineering Consulting',
+      description: PAGE_SEO.industries.manufacturing.description,
+      url: '/industries/manufacturing-engineering'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Manufacturing & Engineering" 
-      description="Operational excellence and supply chain optimization for manufacturing companies from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.industries.manufacturing.title}
+      description={PAGE_SEO.industries.manufacturing.description}
     >
+      <SEOHead
+        title={PAGE_SEO.industries.manufacturing.title}
+        description={PAGE_SEO.industries.manufacturing.description}
+        canonical="/industries/manufacturing-engineering"
+        keywords={PAGE_SEO.industries.manufacturing.keywords}
+        structuredData={structuredData}
+      />
       <IndustryPageShell>
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">

@@ -1,12 +1,35 @@
 import Layout from "@/components/layout/Layout";
 import IndustryPageShell from "@/components/sections/industries/IndustryPageShell";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function ITProfessionalServices() {
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'IT & Professional Services', url: '/industries/it-professional-services' }
+    ]),
+    getServiceSchema({
+      name: 'IT & Professional Services Consulting',
+      description: PAGE_SEO.industries.it.description,
+      url: '/industries/it-professional-services'
+    })
+  ];
+
   return (
-    <Layout 
-      title="IT & Professional Services" 
-      description="Technology solutions and digital transformation for IT and professional services companies from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.industries.it.title}
+      description={PAGE_SEO.industries.it.description}
     >
+      <SEOHead
+        title={PAGE_SEO.industries.it.title}
+        description={PAGE_SEO.industries.it.description}
+        canonical="/industries/it-professional-services"
+        keywords={PAGE_SEO.industries.it.keywords}
+        structuredData={structuredData}
+      />
       <IndustryPageShell>
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">

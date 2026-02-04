@@ -23,8 +23,10 @@
     "prebuild": "npm run validate:imports"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.83.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/cookie": "^0.6.0",
     "cookie": "^1.0.2",
     "framer-motion": "^12.23.22",

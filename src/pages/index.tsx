@@ -1,9 +1,11 @@
 import Layout from "@/components/layout/Layout";
 import dynamic from "next/dynamic";
 import LazyWrapper from "@/components/common/LazyWrapper";
+import { SEOHead, getOrganizationSchema, getWebSiteSchema, getBreadcrumbSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 // Critical above-the-fold content - load immediately
-const Hero = dynamic(() => import("@/components/sections/hero").then(mod => ({ default: mod.Hero })), { 
+const Hero = dynamic(() => import("@/components/sections/hero").then(mod => ({ default: mod.Hero })), {
   ssr: true,
   loading: () => (
     <div className="min-h-screen flex items-center justify-center">
@@ -48,8 +50,22 @@ const CallToAction = dynamic(() => import("@/components/sections/cta").then(mod 
 
 
 export default function Home() {
+  // Structured data for SEO
+  const structuredData = [
+    getOrganizationSchema(),
+    getWebSiteSchema(),
+    getBreadcrumbSchema([{ name: 'Home', url: '/' }])
+  ];
+
   return (
-    <Layout title="Home" description="VR NextGEN Solutions – Data-driven consultancy">
+    <Layout title={PAGE_SEO.home.title} description={PAGE_SEO.home.description}>
+      <SEOHead
+        title={PAGE_SEO.home.title}
+        description={PAGE_SEO.home.description}
+        canonical="/"
+        keywords={PAGE_SEO.home.keywords}
+        structuredData={structuredData}
+      />
       <Hero />
       <LazyWrapper rootMargin="200px">
         <Services />

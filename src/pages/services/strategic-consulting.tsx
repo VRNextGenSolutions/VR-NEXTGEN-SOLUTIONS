@@ -1,11 +1,35 @@
 import Layout from "@/components/layout/Layout";
+import { SEOHead, getOrganizationSchema, getBreadcrumbSchema, getServiceSchema } from "@/components/seo";
+import { PAGE_SEO } from "@/config/seo.config";
 
 export default function StrategicConsulting() {
+  // Structured data for SEO
+  const structuredData = [
+    getOrganizationSchema(),
+    getBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'What We Do', url: '/what-we-do' },
+      { name: 'Strategic Consulting', url: '/services/strategic-consulting' }
+    ]),
+    getServiceSchema({
+      name: 'Strategic Consulting Services',
+      description: PAGE_SEO.services.strategicConsulting.description,
+      url: '/services/strategic-consulting'
+    })
+  ];
+
   return (
-    <Layout 
-      title="Strategic Consulting" 
-      description="Comprehensive business strategy development and implementation guidance from VR NextGEN Solutions."
+    <Layout
+      title={PAGE_SEO.services.strategicConsulting.title}
+      description={PAGE_SEO.services.strategicConsulting.description}
     >
+      <SEOHead
+        title={PAGE_SEO.services.strategicConsulting.title}
+        description={PAGE_SEO.services.strategicConsulting.description}
+        canonical="/services/strategic-consulting"
+        keywords={PAGE_SEO.services.strategicConsulting.keywords}
+        structuredData={structuredData}
+      />
       <div className="min-h-screen bg-gradient-to-br from-white to-gray-50 py-16">
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -25,8 +49,8 @@ export default function StrategicConsulting() {
             <div className="prose prose-lg max-w-none">
               <h2 className="text-2xl font-bold text-black mb-6">Service Overview</h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                Our strategic consulting services help organizations develop and implement comprehensive business strategies 
-                that drive sustainable growth and competitive advantage. We work closely with leadership teams to align 
+                Our strategic consulting services help organizations develop and implement comprehensive business strategies
+                that drive sustainable growth and competitive advantage. We work closely with leadership teams to align
                 business objectives with market opportunities and organizational capabilities.
               </p>
 
@@ -53,8 +77,8 @@ export default function StrategicConsulting() {
               <div className="bg-gold/10 rounded-xl p-6 mb-8">
                 <h3 className="text-xl font-semibold text-black mb-4">Why Choose Our Strategic Consulting?</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Our experienced consultants bring deep industry knowledge and proven methodologies to help you 
-                  navigate complex business challenges and capitalize on growth opportunities. We focus on creating 
+                  Our experienced consultants bring deep industry knowledge and proven methodologies to help you
+                  navigate complex business challenges and capitalize on growth opportunities. We focus on creating
                   actionable strategies that deliver measurable results.
                 </p>
               </div>
