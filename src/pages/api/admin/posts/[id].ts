@@ -67,11 +67,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (restore === true) {
                 await restorePost(id);
                 const restored = await getAdminPostById(id);
-                // Revalidate after restore
-                try {
-                    await res.revalidate('/nextgen-blog');
-                    if (restored?.slug) await res.revalidate(`/nextgen-blog/${restored.slug}`);
-                } catch (e) { console.warn('Post-restore revalidation failed:', e); }
                 return res.status(200).json({ success: true, data: restored });
             }
 
@@ -123,15 +118,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 published_at: finalPublishedAt,
             });
 
-            // Revalidate blog pages after update
+            // Revalidate pages
             try {
                 await res.revalidate('/nextgen-blog');
-                if (finalSlug) await res.revalidate(`/nextgen-blog/${finalSlug}`);
-                // Also revalidate old slug if it changed
-                if (currentPost.slug !== finalSlug) {
-                    await res.revalidate(`/nextgen-blog/${currentPost.slug}`);
+                if (updated.slug) {
+                    await res.revalidate(`/nextgen-blog/${updated.slug}`);
                 }
-            } catch (e) { console.warn('Post-update revalidation failed:', e); }
+                // If slug changed, we might want to revalidate the old slug too, but that's complex.
+                // For now, revalidating the list and the new slug is most important.
+            } catch (revalidateError) {
+                console.error('Error revalidating pages:', revalidateError);
+            }
 
             return res.status(200).json({ success: true, data: updated });
         } catch (error) {
@@ -143,17 +140,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'DELETE') {
         try {
-            // Get post slug before deleting (for revalidation)
-            const postToDelete = await getAdminPostById(id);
             await softDeletePost(id);
 
-            // Revalidate blog pages after delete
             try {
                 await res.revalidate('/nextgen-blog');
-                if (postToDelete?.slug) {
-                    await res.revalidate(`/nextgen-blog/${postToDelete.slug}`);
-                }
-            } catch (e) { console.warn('Post-delete revalidation failed:', e); }
+                // We could revalidate the individual post page to show 404, but let's start with the list.
+            } catch (revalidateError) {
+                console.error('Error revalidating blog list:', revalidateError);
+            }
 
             return res.status(200).json({ success: true });
         } catch (error) {

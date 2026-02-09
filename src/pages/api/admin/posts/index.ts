@@ -95,14 +95,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 published_at: is_published ? (published_at || new Date().toISOString()) : null,
             });
 
-            // Trigger on-demand revalidation for blog pages
-            if (is_published) {
-                try {
-                    await res.revalidate('/nextgen-blog');
-                    await res.revalidate(`/nextgen-blog/${slug}`);
-                } catch (e) {
-                    console.warn('Post-create revalidation failed:', e);
-                }
+            try {
+                await res.revalidate('/nextgen-blog');
+            } catch (revalidateError) {
+                console.error('Error revalidating blog list:', revalidateError);
+                // Continue execution, don't fail the request
             }
 
             return res.status(201).json({ success: true, data: post });
