@@ -177,9 +177,17 @@ export default function BlogPage({ posts }: Props) {
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const { posts } = await getBlogPosts({}, 1, 100);
-  return {
-    props: { posts },
-    revalidate: 300
-  };
+  try {
+    const { posts } = await getBlogPosts({}, 1, 100);
+    return {
+      props: { posts },
+      revalidate: 60
+    };
+  } catch (error) {
+    console.error('getStaticProps failed:', error);
+    return {
+      props: { posts: [] },
+      revalidate: 60
+    };
+  }
 };

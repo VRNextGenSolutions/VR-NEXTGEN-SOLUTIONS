@@ -160,30 +160,39 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    const { posts } = await getBlogPosts({}, 1, 100);
-    const paths = posts.map((post) => ({
-        params: { slug: post.slug },
-    }));
-
-    return { paths, fallback: 'blocking' };
+    try {
+        const { posts } = await getBlogPosts({}, 1, 100);
+        const paths = posts.map((post) => ({
+            params: { slug: post.slug },
+        }));
+        return { paths, fallback: 'blocking' };
+    } catch (error) {
+        console.error('getStaticPaths failed:', error);
+        return { paths: [], fallback: 'blocking' };
+    }
 };
 
 export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
-    const slug = params?.slug as string;
-    if (!slug) return { notFound: true };
+    try {
+        const slug = params?.slug as string;
+        if (!slug) return { notFound: true };
 
-    const post = await getBlogPostBySlug(slug);
-    if (!post) return { notFound: true };
+        const post = await getBlogPostBySlug(slug);
+        if (!post) return { notFound: true };
 
-    const relatedPosts = await getRelatedPosts(post.slug, post.category);
-    const comments = await getComments(post.id);
+        const relatedPosts = await getRelatedPosts(post.slug, post.category);
+        const comments = await getComments(post.id);
 
-    return {
-        props: {
-            post,
-            relatedPosts,
-            comments,
-        },
-        revalidate: 60, // ISR: 1 minute for detailed pages
-    };
+        return {
+            props: {
+                post,
+                relatedPosts,
+                comments,
+            },
+            revalidate: 60,
+        };
+    } catch (error) {
+        console.error('getStaticProps [slug] failed:', error);
+        return { notFound: true, revalidate: 60 };
+    }
 };

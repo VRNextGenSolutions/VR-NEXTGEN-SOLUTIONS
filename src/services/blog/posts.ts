@@ -13,7 +13,8 @@ export async function getBlogPosts(
     let query = supabase
         .from('blog_posts')
         .select('*', { count: 'exact' })
-        .eq('is_published', true);
+        .eq('is_published', true)
+        .eq('is_deleted', false);
 
     if (filters.category) {
         query = query.eq('category', filters.category);
@@ -72,6 +73,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         .select('*')
         .eq('slug', slug)
         .eq('is_published', true)
+        .eq('is_deleted', false)
         .single();
 
     if (error || !data) return null;
@@ -89,6 +91,7 @@ export async function getRelatedPosts(currentSlug: string, category: string, lim
         .from('blog_posts')
         .select('id, title, slug, excerpt, featured_image, author_name, category, read_time_minutes, published_at, is_featured')
         .eq('is_published', true)
+        .eq('is_deleted', false)
         .eq('category', category)
         .neq('slug', currentSlug)
         .limit(limit);
