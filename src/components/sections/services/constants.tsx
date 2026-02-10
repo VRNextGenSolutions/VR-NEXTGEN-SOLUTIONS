@@ -7,9 +7,9 @@ import React from 'react';
 import { Service } from './types';
 
 export const SERVICES: Service[] = [
-  { 
+  {
     id: 'business-consulting',
-    title: "Business Consulting & Strategic Transformation", 
+    title: "Business Consulting & Strategic Transformation",
     description: "Where Insight Meets Execution",
     bgUrl: "/images-optimized/Our Services/Business Consulting & Strategy.webp",
     icon: (
@@ -20,9 +20,9 @@ export const SERVICES: Service[] = [
     features: ["Strategic Business Assessment", "Business Model Innovation", "KPI & Performance Architecture", "Decision-Support Frameworks"],
     category: 'strategy'
   },
-  { 
+  {
     id: 'process-optimization',
-    title: "Process Optimization & Operational Excellence", 
+    title: "Process Optimization & Operational Excellence",
     description: "Streamline Processes. Strengthen Systems. Scale Performance.",
     bgUrl: "/images-optimized/Our Services/Process Optimization & Alignment.webp",
     icon: (
@@ -33,9 +33,9 @@ export const SERVICES: Service[] = [
     features: ["Lean & Kaizen Implementation", "Six Sigma Quality Improvement", "TQM & Continuous Improvement", "Process Capability Studies"],
     category: 'optimization'
   },
-  { 
+  {
     id: 'data-analytics',
-    title: "Data Analytics & Insights", 
+    title: "Data Analytics & Insights",
     description: "Transforming Data into Direction",
     bgUrl: "/images-optimized/Our Services/Data Analytics & Insights.webp",
     icon: (
@@ -46,9 +46,9 @@ export const SERVICES: Service[] = [
     features: ["Descriptive & Diagnostic Analytics", "Predictive & Prescriptive Modeling", "ERP Data Integration", "Real-time Decision Dashboards"],
     category: 'analytics'
   },
-  { 
+  {
     id: 'data-visualization',
-    title: "Data Visualization & Reporting", 
+    title: "Data Visualization & Reporting",
     description: "See What Matters. Act with Clarity.",
     bgUrl: "/images-optimized/Our Services/Data Visualization & Reporting.webp",
     icon: (
@@ -59,9 +59,9 @@ export const SERVICES: Service[] = [
     features: ["Interactive Dashboards (Power BI, Tableau)", "Automated KPI Reporting", "Cross-Department Visualization", "Gantt & Performance Tracking"],
     category: 'visualization'
   },
-  { 
+  {
     id: 'automation-solutions',
-    title: "Automation & Technology Solutions", 
+    title: "Automation & Technology Solutions",
     description: "Intelligence Through Automation",
     bgUrl: "/images-optimized/Our Services/Automation & Technology Solutions.webp",
     icon: (
@@ -72,9 +72,9 @@ export const SERVICES: Service[] = [
     features: ["Workflow & Robotic Process Automation", "Workforce Optimization", "FTE Efficiency Analysis", "Intelligent System Integration"],
     category: 'automation'
   },
-  { 
+  {
     id: 'end-to-end-solutions',
-    title: "End-to-End Business Solutions", 
+    title: "End-to-End Business Solutions",
     description: "Integrating Strategy, Process, and Technology",
     bgUrl: "/images-optimized/Our Services/End-to-End Business Solutions.webp",
     icon: (
@@ -89,7 +89,7 @@ export const SERVICES: Service[] = [
 
 export const SERVICE_CATEGORIES = {
   strategy: 'Business Strategy',
-  optimization: 'Process Optimization', 
+  optimization: 'Process Optimization',
   analytics: 'Data Analytics',
   visualization: 'Data Visualization',
   automation: 'Automation',

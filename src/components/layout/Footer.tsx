@@ -56,23 +56,23 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4 text-lg">Services Quicklinks</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/services/strategic-consulting" className="text-gray-300 hover:text-gold transition-colors text-sm block">
-                  Strategic Consulting
+                <Link href="/services/business-consulting" className="text-gray-300 hover:text-gold transition-colors text-sm block">
+                  Business Consulting
                 </Link>
               </li>
               <li>
-                <Link href="/services/financial-advisory" className="text-gray-300 hover:text-gold transition-colors text-sm block">
-                  Financial Advisory
+                <Link href="/services/data-analytics" className="text-gray-300 hover:text-gold transition-colors text-sm block">
+                  Data Analytics
                 </Link>
               </li>
               <li>
-                <Link href="/services/change-management" className="text-gray-300 hover:text-gold transition-colors text-sm block">
-                  Change Management
+                <Link href="/services/process-optimization" className="text-gray-300 hover:text-gold transition-colors text-sm block">
+                  Process Optimization
                 </Link>
               </li>
               <li>
-                <Link href="/services/data-visualization" className="text-gray-300 hover:text-gold transition-colors text-sm block">
-                  Data Visualization
+                <Link href="/services/automation-solutions" className="text-gray-300 hover:text-gold transition-colors text-sm block">
+                  Automation Solutions
                 </Link>
               </li>
               <li>
@@ -220,7 +220,7 @@ export default function Footer() {
               <a href="/terms-of-service" className="text-gray-400 hover:text-gold transition-colors text-sm">
                 Terms of Service
               </a>
-              <a href="/sitemap.xml" className="text-gray-400 hover:text-gold transition-colors text-sm">
+              <a href="/sitemap" className="text-gray-400 hover:text-gold transition-colors text-sm">
                 Sitemap
               </a>
             </div>
