@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // Read file
-        let fileBuffer = fs.readFileSync(file.filepath);
+        let fileBuffer: Buffer = fs.readFileSync(file.filepath);
         let contentType = mimeType;
         let extension = file.originalFilename?.split('.').pop() || 'webp';
 
@@ -86,7 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     format: 'webp',
                 });
 
-                fileBuffer = compressed.buffer;
+                fileBuffer = Buffer.from(compressed.buffer);
                 contentType = compressed.contentType;
                 extension = 'webp';
 
