@@ -5,38 +5,16 @@
 
 export const ESG_KEYWORDS = {
     // ESG Consulting
-    esg: [
-        'ESG consulting India',
-        'ESG compliance consulting',
-        'environmental social governance India',
-        'ESG strategy consulting',
-        'ESG reporting consulting',
-    ],
+    esg: [],
 
     // Sustainability
-    sustainability: [
-        'sustainability consulting Gujarat',
-        'green transformation consulting',
-        'sustainable business consulting India',
-        'sustainability strategy India',
-        'environmental consulting India',
-    ],
+    sustainability: [],
 
     // Carbon & Climate
-    carbonClimate: [
-        'carbon footprint consulting',
-        'carbon neutrality consulting India',
-        'climate risk consulting',
-        'net zero consulting India',
-    ],
+    carbonClimate: [],
 
     // CSR
-    csr: [
-        'CSR consulting services India',
-        'corporate social responsibility consulting',
-        'CSR strategy development',
-        'CSR implementation India',
-    ],
+    csr: [],
 } as const;
 
 /**

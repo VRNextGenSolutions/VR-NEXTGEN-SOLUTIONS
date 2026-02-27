@@ -5,45 +5,19 @@
 
 export const QUESTION_KEYWORDS = {
     // What questions
-    what: [
-        'what is business process optimization',
-        'what is digital transformation in manufacturing',
-        'what is lean consulting',
-        'what is data-driven consulting',
-        'what does a management consultant do',
-    ],
+    what: [],
 
     // How questions
-    how: [
-        'how to implement digital transformation',
-        'how to improve manufacturing efficiency',
-        'how to reduce operational costs',
-        'how to optimize business processes',
-        'how to choose a consulting firm India',
-    ],
+    how: [],
 
     // Why questions
-    why: [
-        'why hire a management consultant',
-        'why is process optimization important',
-        'why use data analytics in business',
-        'why digital transformation matters',
-    ],
+    why: [],
 
     // When questions
-    when: [
-        'when to hire a business consultant',
-        'when to implement lean manufacturing',
-        'when to use data visualization',
-    ],
+    when: [],
 
     // Which/Best questions (commercial intent)
-    best: [
-        'best consulting firms in India',
-        'best business consultants Gujarat',
-        'best process optimization tools',
-        'best practices for digital transformation',
-    ],
+    best: [],
 } as const;
 
 /**

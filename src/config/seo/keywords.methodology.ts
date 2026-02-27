@@ -6,53 +6,24 @@
 export const METHODOLOGY_KEYWORDS = {
     // Core Methodologies
     leanSixSigma: [
-        'Lean Six Sigma consulting India',
-        'Six Sigma consulting firm India',
-        'Lean management consulting',
-        'process improvement consulting India',
-        'operational excellence consulting',
         'continuous improvement consulting',
+        'lean operations consulting',
+        'operational excellence consulting',
+        'process excellence consulting',
+        'strategic consulting India',
     ],
 
-    // DMAIC & Frameworks
-    frameworks: [
-        'DMAIC consulting India',
-        'DMAIC implementation services',
-        'Define Measure Analyze Improve Control',
-        'Six Sigma DMAIC methodology',
-    ],
+    // DMAIC & Frameworks (Removed)
+    frameworks: [],
 
-    // Lean Tools
-    leanTools: [
-        'Value Stream Mapping consulting',
-        'VSM consulting India',
-        '5S implementation India',
-        '5S consulting services',
-        'Kaizen consulting services India',
-        'Kaizen events facilitation',
-        'Poka Yoke implementation',
-    ],
+    // Lean Tools (Removed)
+    leanTools: [],
 
-    // Quality Management
-    qualityManagement: [
-        'TQM implementation consulting',
-        'Total Quality Management India',
-        'FMEA consulting manufacturing',
-        'failure modes effects analysis',
-        'root cause analysis consulting',
-        'statistical process control consulting',
-        'SPC implementation India',
-    ],
+    // Quality Management (Removed)
+    qualityManagement: [],
 
-    // Operations Focus
-    operations: [
-        'bottleneck analysis consulting',
-        'process cycle time reduction',
-        'waste reduction consulting',
-        'Muda elimination consulting',
-        'lead time reduction India',
-        'throughput improvement consulting',
-    ],
+    // Operations Focus (Removed)
+    operations: [],
 } as const;
 
 /**

@@ -7,36 +7,29 @@ export const LOCATION_KEYWORDS = {
     // Country-wide
     india: [
         'business consulting India',
-        'management consulting India',
-        'digital transformation India',
-        'process optimization India',
-        'data analytics consulting India',
-        'business automation India',
+        'data analytics consulting company in India',
+        'Power BI consulting services India',
+        'data-driven consulting India',
+        'analytics & automation consulting India',
+        'business transformation consulting India',
+        'process excellence consulting India',
+        'operations consulting India',
+        'business analytics services India'
     ],
 
-    // State-level
-    gujarat: [
-        'business consulting Gujarat',
-        'management consulting Gujarat',
-        'consulting services Gujarat',
-        'digital transformation Gujarat',
-    ],
+    // State-level (Removed as per requirements)
+    gujarat: [],
 
     // City-level
     cities: {
-        gandhinagar: [
-            'consulting services Gandhinagar',
-            'business consultant Gandhinagar',
-        ],
-        ahmedabad: [
-            'management consulting Ahmedabad',
+        newCities: [
+            'Mehsana',
+            'Chatral',
             'business consulting Ahmedabad',
-            'consulting firms Ahmedabad',
-        ],
-        surat: [
-            'business consulting Surat',
-            'manufacturing consulting Surat',
-        ],
+            'data analytics services Ahmedabad',
+            'Power BI consulting Ahmedabad',
+            'process optimization Gandhinagar'
+        ]
     },
 } as const;
 

@@ -48,6 +48,28 @@ const CallToAction = dynamic(() => import("@/components/sections/cta").then(mod 
   )
 });
 
+const WhyChooseUs = dynamic(() => import("@/components/sections/home/WhyChooseUs"), {
+  ssr: false,
+  loading: () => (
+    <div className="py-16 md:py-24">
+      <div className="animate-pulse bg-gray-200/10 rounded-lg h-96 flex items-center justify-center">
+        <div className="text-gray-400 text-lg">Loading Why Choose Us...</div>
+      </div>
+    </div>
+  )
+});
+
+const OurApproach = dynamic(() => import("@/components/sections/home/OurApproach"), {
+  ssr: false,
+  loading: () => (
+    <div className="py-16 md:py-24">
+      <div className="animate-pulse bg-gray-200/10 rounded-lg h-96 flex items-center justify-center">
+        <div className="text-gray-400 text-lg">Loading Our Approach...</div>
+      </div>
+    </div>
+  )
+});
+
 
 export default function Home() {
   // Structured data for SEO
@@ -72,6 +94,12 @@ export default function Home() {
       </LazyWrapper>
       <LazyWrapper rootMargin="400px">
         <Industries />
+      </LazyWrapper>
+      <LazyWrapper rootMargin="200px">
+        <WhyChooseUs />
+      </LazyWrapper>
+      <LazyWrapper rootMargin="200px">
+        <OurApproach />
       </LazyWrapper>
       <LazyWrapper rootMargin="200px">
         <CallToAction />

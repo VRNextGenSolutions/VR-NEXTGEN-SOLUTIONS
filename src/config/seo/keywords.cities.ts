@@ -6,63 +6,20 @@
 export const EXTENDED_LOCATION_KEYWORDS = {
     // Major Metro Cities
     metros: {
-        mumbai: [
-            'business consulting Mumbai',
-            'management consulting Mumbai',
-            'digital transformation Mumbai',
-            'lean consulting Mumbai',
-        ],
-        bengaluru: [
-            'technology consulting Bangalore',
-            'IT consulting Bengaluru',
-            'startup consulting Bangalore',
-            'digital consulting Bengaluru',
-        ],
-        chennai: [
-            'manufacturing consulting Chennai',
-            'pharma consulting Chennai',
-            'automotive consulting Chennai',
-            'IT consulting Chennai',
-        ],
-        pune: [
-            'manufacturing consulting Pune',
-            'IT consulting Pune',
-            'automotive consulting Pune',
-            'business consulting Pune',
-        ],
-        hyderabad: [
-            'pharma consulting Hyderabad',
-            'IT consulting Hyderabad',
-            'business consulting Hyderabad',
-        ],
-        delhi: [
-            'management consulting Delhi NCR',
-            'business consulting Delhi',
-            'strategy consulting Delhi NCR',
-        ],
+        mumbai: [],
+        bengaluru: [],
+        chennai: [],
+        pune: [],
+        hyderabad: [],
+        delhi: [],
     },
 
     // Gujarat Cities (Local Focus)
     gujarat: {
-        vadodara: [
-            'industrial consulting Vadodara',
-            'manufacturing consulting Baroda',
-            'business consulting Vadodara',
-        ],
-        rajkot: [
-            'engineering consulting Rajkot',
-            'SME consulting Rajkot',
-            'manufacturing consulting Rajkot',
-        ],
-        vapi: [
-            'pharma consulting Vapi',
-            'chemical consulting Vapi',
-            'industrial consulting Vapi',
-        ],
-        ankleshwar: [
-            'chemical consulting Ankleshwar',
-            'industrial consulting Ankleshwar',
-        ],
+        vadodara: [],
+        rajkot: [],
+        vapi: [],
+        ankleshwar: [],
     },
 } as const;
 

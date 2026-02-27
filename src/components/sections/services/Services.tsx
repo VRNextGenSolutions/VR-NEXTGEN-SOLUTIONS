@@ -22,12 +22,12 @@ export default function Services() {
       <Container>
         <SectionHeader
           badge={{
-            text: "Our Services",
+            text: "Expertise",
             color: "black",
             size: "xl"
           }}
-          title="Powering End-to-End Business Transformation through Process, Data, and Strategy"
-          description=""
+          title="Our Services"
+          description="Powering End-to-End Business Transformation through Process, Data, and Strategy"
           titleColor="black"
           titleSize="md"
           descriptionColor="white"

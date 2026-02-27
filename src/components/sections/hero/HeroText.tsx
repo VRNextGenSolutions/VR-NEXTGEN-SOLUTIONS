@@ -8,8 +8,7 @@ import { Container } from '@/components/common';
 import FloatingElements from '@/components/common/FloatingElements';
 
 export default function HeroText() {
-  // Original hero text content
-  const heroText = "Empowering Businesses Through Data, Process & Strategy";
+  const heroText = "Data-Driven Business Consulting for Smarter Decisions";
 
   return (
     <div className="relative z-10 flex items-center justify-center min-h-screen">
@@ -31,7 +30,7 @@ export default function HeroText() {
       </Container>
 
       {/* Floating Elements for Visual Appeal */}
-      <FloatingElements 
+      <FloatingElements
         elements={[
           { size: 'sm', position: { top: '20%', left: '10%' }, color: 'bg-gold/30' },
           { size: 'xs', position: { top: '40%', right: '20%' }, color: 'bg-gold/40', delay: 1000 },

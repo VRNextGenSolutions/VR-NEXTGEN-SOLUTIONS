@@ -4,49 +4,28 @@
  */
 
 export const TECHNOLOGY_KEYWORDS = {
-    // Data Visualization Tools
+    // Data Visualization
     dataVizTools: [
-        'Power BI consulting India',
-        'Power BI dashboard development',
-        'Tableau consulting services India',
-        'Tableau dashboard development',
-        'Excel automation consulting',
-        'Google Data Studio consulting',
+        'executive dashboard consulting',
+        'KPI dashboard consulting',
+        'data visualization consulting India'
     ],
 
-    // ERP & Enterprise
-    enterprise: [
-        'ERP consulting India',
-        'ERP implementation consulting',
-        'SAP consulting services India',
-        'Oracle consulting India',
-        'Microsoft Dynamics consulting',
-    ],
+    // ERP & Enterprise (Removed)
+    enterprise: [],
 
     // Automation
     automation: [
-        'RPA consulting services India',
-        'business automation consulting',
-        'workflow automation India',
-        'process automation consulting',
-        'robotic process automation India',
+        'APA consulting services India',
+        'business process automation India',
+        'automation strategy consulting'
     ],
 
-    // AI & Analytics
-    aiAnalytics: [
-        'AI consulting for business India',
-        'machine learning consulting',
-        'predictive analytics consulting India',
-        'big data consulting India',
-        'data science consulting services',
-    ],
+    // AI & Analytics (Removed)
+    aiAnalytics: [],
 
-    // Cloud & Digital
-    cloud: [
-        'cloud transformation consulting India',
-        'digital infrastructure consulting',
-        'cloud migration consulting',
-    ],
+    // Cloud & Digital (Removed)
+    cloud: [],
 } as const;
 
 /**
