@@ -33,35 +33,59 @@ export interface CleanupResult {
 export async function listAllFiles(supabase: SupabaseClient): Promise<StorageFile[]> {
     const files: StorageFile[] = [];
 
-    // Get all root level folders
-    const { data: rootFolders } = await supabase.storage
+    // Get all root level items
+    const { data: rootItems } = await supabase.storage
         .from(BUCKET_NAME)
         .list('', { limit: 100 });
 
-    for (const folder of rootFolders || []) {
-        if (!folder.id) continue;
+    for (const item of rootItems || []) {
+        if (!item.name) continue; // Don't check item.id — folders have id=null
 
-        // Get files in each folder
-        const { data: subFolders } = await supabase.storage
-            .from(BUCKET_NAME)
-            .list(folder.name, { limit: 100 });
-
-        for (const subFolder of subFolders || []) {
-            if (!subFolder.id) continue;
-
-            const { data: folderFiles } = await supabase.storage
+        if (item.metadata) {
+            // It's a file at the root
+            files.push({
+                id: item.id,
+                name: item.name,
+                path: item.name,
+                size: item.metadata.size || 0,
+                createdAt: new Date(item.created_at || Date.now()),
+            });
+        } else {
+            // It's a folder (e.g., 'posts', 'general')
+            const { data: subItems } = await supabase.storage
                 .from(BUCKET_NAME)
-                .list(`${folder.name}/${subFolder.name}`, { limit: 100 });
+                .list(item.name, { limit: 100 });
 
-            for (const file of folderFiles || []) {
-                if (file.id && file.name) {
+            for (const subItem of subItems || []) {
+                if (!subItem.name) continue; // Check for name instead of ID for sub-items
+
+                if (subItem.metadata) {
+                    // It's a file inside the folder
+                    if (!subItem.id) continue; // Keep ID check for actual files
                     files.push({
-                        id: file.id,
-                        name: file.name,
-                        path: `${folder.name}/${subFolder.name}/${file.name}`,
-                        size: file.metadata?.size || 0,
-                        createdAt: new Date(file.created_at || Date.now()),
+                        id: subItem.id,
+                        name: subItem.name,
+                        path: `${item.name}/${subItem.name}`,
+                        size: subItem.metadata.size || 0,
+                        createdAt: new Date(subItem.created_at || Date.now()),
                     });
+                } else {
+                    // Support one more level of nesting ('posts/slug/image.jpg')
+                    const { data: deepItems } = await supabase.storage
+                        .from(BUCKET_NAME)
+                        .list(`${item.name}/${subItem.name}`, { limit: 100 });
+
+                    for (const deepItem of deepItems || []) {
+                        if (deepItem.id && deepItem.metadata) {
+                            files.push({
+                                id: deepItem.id,
+                                name: deepItem.name,
+                                path: `${item.name}/${subItem.name}/${deepItem.name}`,
+                                size: deepItem.metadata.size || 0,
+                                createdAt: new Date(deepItem.created_at || Date.now()),
+                            });
+                        }
+                    }
                 }
             }
         }

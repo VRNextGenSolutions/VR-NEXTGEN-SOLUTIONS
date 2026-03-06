@@ -5,30 +5,11 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createServiceRoleClient } from '@/lib/supabase';
 import { getAdminPosts, createPost, getAllSlugs } from '@/services/admin/posts';
 import { slugify, uniqueSlug } from '@/utils/admin/slugify';
 import { calculateReadTime } from '@/utils/admin/readTime';
 import { sanitizeInput } from '@/utils/security';
-
-async function verifyAdmin(req: NextApiRequest): Promise<boolean> {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) return false;
-
-    const token = authHeader.split(' ')[1];
-    const supabase = createServiceRoleClient();
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user?.email) return false;
-
-    const { data: admin } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-    return !!admin;
-}
+import { verifyAdmin } from '@/lib/verifyAdmin';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Verify admin

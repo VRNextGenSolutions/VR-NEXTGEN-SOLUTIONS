@@ -1,6 +1,7 @@
 /**
  * Admin Auth Verification API
- * Verifies if a user email is in the admin_users table
+ * Verifies if the authenticated user is in the admin_users table.
+ * Requires a valid Bearer JWT — no longer accepts raw email.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -21,18 +22,25 @@ export default async function handler(
     }
 
     try {
-        const { email } = req.body;
-
-        if (!email || typeof email !== 'string') {
-            return res.status(400).json({ isAdmin: false, error: 'Email is required' });
+        const authHeader = req.headers.authorization;
+        if (!authHeader?.startsWith('Bearer ')) {
+            return res.status(401).json({ isAdmin: false, error: 'Missing authorization' });
         }
 
+        const token = authHeader.split(' ')[1];
         const supabase = createServiceRoleClient();
 
+        // Validate JWT and extract user
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        if (authError || !user?.email) {
+            return res.status(401).json({ isAdmin: false, error: 'Invalid token' });
+        }
+
+        // Check admin_users table
         const { data, error } = await supabase
             .from('admin_users')
             .select('id')
-            .eq('email', email.toLowerCase())
+            .eq('email', user.email.toLowerCase())
             .single();
 
         if (error || !data) {

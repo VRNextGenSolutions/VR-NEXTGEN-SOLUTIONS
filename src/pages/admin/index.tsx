@@ -3,34 +3,38 @@
  * Overview with stats and quick actions
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AdminLayout } from '@/components/admin/layout/AdminLayout';
 import { ProtectedRoute } from '@/components/admin/guards/ProtectedRoute';
 import { StatCard } from '@/components/admin/dashboard/StatCard';
 import { QuickActions } from '@/components/admin/dashboard/QuickActions';
+import { useAuth } from '@/hooks/useAuth';
 import type { DashboardStats } from '@/types/admin';
 
 export default function AdminDashboardPage() {
+    const { getAuthHeader } = useAuth();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await fetch('/api/admin/stats');
-                if (response.ok) {
-                    const data = await response.json();
-                    setStats(data);
-                }
-            } catch (error) {
-                console.error('Failed to fetch stats:', error);
-            } finally {
-                setIsLoading(false);
+    const fetchStats = useCallback(async () => {
+        try {
+            const response = await fetch('/api/admin/stats', {
+                headers: getAuthHeader(),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setStats(data);
             }
-        };
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [getAuthHeader]);
 
+    useEffect(() => {
         fetchStats();
-    }, []);
+    }, [fetchStats]);
 
     return (
         <ProtectedRoute>

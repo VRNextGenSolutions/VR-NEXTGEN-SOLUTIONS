@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import { useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { SEOHead, getBlogPostSchema, getBreadcrumbSchema } from "@/components/seo";
@@ -26,6 +27,17 @@ interface Props {
 
 export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
     const parallax = useParallax(0.25);
+
+    // Increment view count once on page load
+    useEffect(() => {
+        if (post?.slug) {
+            fetch('/api/blog/view', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: post.slug }),
+            }).catch(() => { /* fire-and-forget */ });
+        }
+    }, [post?.slug]);
 
     const structuredData = [
         getBlogPostSchema({

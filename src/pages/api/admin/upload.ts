@@ -11,6 +11,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createServiceRoleClient } from '@/lib/supabase';
 import { compressImage, isCompressibleImage, getExtensionForFormat } from '@/utils/media';
+import { verifyAdmin } from '@/lib/verifyAdmin';
 import formidable from 'formidable';
 import fs from 'fs';
 
@@ -20,25 +21,6 @@ export const config = {
         bodyParser: false,
     },
 };
-
-async function verifyAdmin(req: NextApiRequest): Promise<boolean> {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) return false;
-
-    const token = authHeader.split(' ')[1];
-    const supabase = createServiceRoleClient();
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user?.email) return false;
-
-    const { data: admin } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-    return !!admin;
-}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {

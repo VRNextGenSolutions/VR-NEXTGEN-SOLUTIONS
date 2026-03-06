@@ -6,27 +6,9 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createServiceRoleClient } from '@/lib/supabase';
+import { verifyAdmin } from '@/lib/verifyAdmin';
 
 const BUCKET_NAME = 'blog-media';
-
-async function verifyAdmin(req: NextApiRequest): Promise<boolean> {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) return false;
-
-    const token = authHeader.split(' ')[1];
-    const supabase = createServiceRoleClient();
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user?.email) return false;
-
-    const { data: admin } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-    return !!admin;
-}
 
 interface MediaFile {
     id: string;
@@ -48,40 +30,81 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
         try {
-            // List all folders in the bucket
-            const { data: folders, error: foldersError } = await supabase.storage
+            // Instead of just 'posts', we should list all root folders to find all media
+            const { data: rootItems, error: itemsError } = await supabase.storage
                 .from(BUCKET_NAME)
-                .list('posts', { limit: 100 });
+                .list('', { limit: 100 });
 
-            if (foldersError) {
-                console.error('Error listing folders:', foldersError);
+            if (itemsError) {
+                console.error('Error listing root items:', itemsError);
                 return res.status(500).json({ success: false, error: 'Failed to list media' });
             }
 
+            console.log('ROOT ITEMS FROM SUPABASE:', JSON.stringify(rootItems, null, 2));
+
             const allFiles: MediaFile[] = [];
 
-            // Iterate through each post folder
-            for (const folder of folders || []) {
-                if (folder.id) {
-                    const { data: files } = await supabase.storage
+            // Helper to get public URL
+            const getUrl = (path: string) => supabase.storage.from(BUCKET_NAME).getPublicUrl(path).data.publicUrl;
+
+            // Iterate through root items
+            for (const item of rootItems || []) {
+                if (!item.name) continue; // Every item has a name
+
+                // If it's a file at root level (has no metadata if folder in some Storage APIs, but has it if file)
+                // Actually, Supabase Storage list() returns files AND folders.
+                // Folders typically have no metadata or a specific format.
+                // A reliable way: if item has metadata, it's a file.
+                if (item.metadata) {
+                    if (!item.id) continue; // Sanity check for file ID
+                    allFiles.push({
+                        id: item.id,
+                        name: item.name,
+                        path: item.name,
+                        url: getUrl(item.name),
+                        size: item.metadata?.size || 0,
+                        created_at: item.created_at || new Date().toISOString(),
+                    });
+                } else {
+                    // It's a folder (e.g., 'posts', 'general')
+                    const { data: subItems } = await supabase.storage
                         .from(BUCKET_NAME)
-                        .list(`posts/${folder.name}`, { limit: 100 });
+                        .list(item.name, { limit: 100 });
 
-                    for (const file of files || []) {
-                        if (file.id && file.name) {
-                            const path = `posts/${folder.name}/${file.name}`;
-                            const { data: urlData } = supabase.storage
-                                .from(BUCKET_NAME)
-                                .getPublicUrl(path);
+                    for (const subItem of subItems || []) {
+                        if (!subItem.name) continue;
 
+                        if (subItem.metadata) {
+                            if (!subItem.id) continue;
+                            // It's a file inside the folder
+                            const path = `${item.name}/${subItem.name}`;
                             allFiles.push({
-                                id: file.id,
-                                name: file.name,
+                                id: subItem.id,
+                                name: subItem.name,
                                 path,
-                                url: urlData.publicUrl,
-                                size: file.metadata?.size || 0,
-                                created_at: file.created_at || new Date().toISOString(),
+                                url: getUrl(path),
+                                size: subItem.metadata?.size || 0,
+                                created_at: subItem.created_at || new Date().toISOString(),
                             });
+                        } else {
+                            // Support one more level of nesting ('posts/slug')
+                            const { data: deepItems } = await supabase.storage
+                                .from(BUCKET_NAME)
+                                .list(`${item.name}/${subItem.name}`, { limit: 100 });
+
+                            for (const deepItem of deepItems || []) {
+                                if (deepItem.id && deepItem.metadata) {
+                                    const path = `${item.name}/${subItem.name}/${deepItem.name}`;
+                                    allFiles.push({
+                                        id: deepItem.id,
+                                        name: deepItem.name,
+                                        path,
+                                        url: getUrl(path),
+                                        size: deepItem.metadata?.size || 0,
+                                        created_at: deepItem.created_at || new Date().toISOString(),
+                                    });
+                                }
+                            }
                         }
                     }
                 }

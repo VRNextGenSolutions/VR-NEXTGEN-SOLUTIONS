@@ -5,6 +5,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createServiceRoleClient } from '@/lib/supabase';
+import { verifyAdmin } from '@/lib/verifyAdmin';
 import type { DashboardStats } from '@/types/admin';
 
 export default async function handler(
@@ -14,6 +15,12 @@ export default async function handler(
     if (req.method !== 'GET') {
         res.setHeader('Allow', 'GET');
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    // Verify admin access
+    const isAdmin = await verifyAdmin(req);
+    if (!isAdmin) {
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
     try {

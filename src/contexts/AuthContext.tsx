@@ -32,12 +32,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const supabase = getSupabaseClient();
 
     // Check if user is an admin
-    const checkAdminStatus = useCallback(async (email: string): Promise<boolean> => {
+    const checkAdminStatus = useCallback(async (accessToken: string): Promise<boolean> => {
         try {
             const response = await fetch('/api/admin/auth/verify', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },
             });
             const data = await response.json();
             return data.isAdmin === true;
@@ -53,7 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const { data: { session } } = await supabase.auth.getSession();
 
                 if (session?.user) {
-                    const isAdmin = await checkAdminStatus(session.user.email || '');
+                    const isAdmin = await checkAdminStatus(session.access_token);
                     setState({
                         user: session.user,
                         session,
@@ -79,7 +81,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 if (event === 'SIGNED_IN' && session?.user) {
-                    const isAdmin = await checkAdminStatus(session.user.email || '');
+                    const isAdmin = await checkAdminStatus(session.access_token);
                     setState({
                         user: session.user,
                         session,
@@ -121,8 +123,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 return { success: false, error: error.message };
             }
 
-            if (data.user) {
-                const isAdmin = await checkAdminStatus(data.user.email || '');
+            if (data.user && data.session) {
+                const isAdmin = await checkAdminStatus(data.session.access_token);
 
                 if (!isAdmin) {
                     await supabase.auth.signOut();

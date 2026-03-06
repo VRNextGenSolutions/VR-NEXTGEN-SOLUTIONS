@@ -7,25 +7,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createServiceRoleClient } from '@/lib/supabase';
 import type { AdminSubscriber, PaginatedResponse } from '@/types/admin';
-
-async function verifyAdmin(req: NextApiRequest): Promise<boolean> {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) return false;
-
-    const token = authHeader.split(' ')[1];
-    const supabase = createServiceRoleClient();
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user?.email) return false;
-
-    const { data: admin } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-    return !!admin;
-}
+import { verifyAdmin } from '@/lib/verifyAdmin';
 
 async function getSubscribers(options: { page: number; pageSize: number; search?: string }): Promise<PaginatedResponse<AdminSubscriber>> {
     const { page, pageSize, search } = options;
@@ -39,7 +21,8 @@ async function getSubscribers(options: { page: number; pageSize: number; search?
         .select('*', { count: 'exact' });
 
     if (search) {
-        query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
+        const escaped = search.replace(/[%_.*,()]/g, (ch) => `\\${ch}`);
+        query = query.or(`email.ilike.%${escaped}%,name.ilike.%${escaped}%`);
     }
 
     const { data, count, error } = await query

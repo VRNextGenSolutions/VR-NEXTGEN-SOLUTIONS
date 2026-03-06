@@ -42,7 +42,9 @@ export async function getAdminPosts(options: GetPostsOptions = {}): Promise<Pagi
 
     // Search
     if (search) {
-        query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%`);
+        // Escape special PostgREST filter characters to prevent syntax issues
+        const escaped = search.replace(/[%_.*,()]/g, (ch) => `\\${ch}`);
+        query = query.or(`title.ilike.%${escaped}%,excerpt.ilike.%${escaped}%`);
     }
 
     const { data, count, error } = await query

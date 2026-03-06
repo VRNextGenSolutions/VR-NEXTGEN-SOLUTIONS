@@ -53,7 +53,7 @@ export function PostForm({ post, onSuccess }: PostFormProps) {
         setSlugEdited(true);
     };
 
-    const handleMediaUpload = useCallback((url: string) => {
+    const handleMediaUpload = useCallback((url: string, _type: 'image' | 'video') => {
         setFeaturedImage(url);
     }, []);
 
@@ -77,7 +77,8 @@ export function PostForm({ post, onSuccess }: PostFormProps) {
                 tags,
                 is_published: shouldPublish,
                 is_featured: isFeatured,
-                published_at: shouldPublish ? new Date().toISOString() : null,
+                // Let the server decide published_at (it only sets it on first publish)
+                published_at: undefined,
             };
 
             const url = isEditing ? `/api/admin/posts/${post.id}` : '/api/admin/posts';
