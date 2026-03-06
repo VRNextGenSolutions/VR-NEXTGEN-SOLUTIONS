@@ -25,7 +25,11 @@ export function getSupabaseClient(): SupabaseClient {
 }
 
 // Alias for server-side usage with anon key
-export const createServerSupabase = () => createClient(supabaseUrl!, supabaseAnonKey!);
+export const createServerSupabase = () => createClient(supabaseUrl!, supabaseAnonKey!, {
+    global: {
+        fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' })
+    }
+});
 
 // Service role client for admin operations (server-side only)
 export function createServiceRoleClient(): SupabaseClient {
@@ -40,6 +44,9 @@ export function createServiceRoleClient(): SupabaseClient {
             autoRefreshToken: false,
             persistSession: false,
         },
+        global: {
+            fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' })
+        }
     });
 }
 
