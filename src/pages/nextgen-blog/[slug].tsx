@@ -14,9 +14,9 @@ import {
     RelatedPosts,
     NewsletterForm
 } from "@/components/blog";
-import { getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
+import { getBlogPosts, getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
 import { formatDate } from "@/utils/blog/helpers";
-import type { GetServerSideProps } from "next";
+import type { GetStaticPaths, GetStaticProps } from "next";
 import type { BlogPost, BlogPostSummary, BlogComment } from "@/types/blog";
 
 interface Props {
@@ -39,6 +39,8 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
         }
     }, [post?.slug]);
 
+    if (!post) return null;
+
     const isVideoFeatured = post.featured_image?.match(/\.(mp4|webm)$/i);
 
     const structuredData = [
@@ -58,8 +60,6 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
             { name: post.title, url: `/nextgen-blog/${post.slug}` }
         ])
     ];
-
-    if (!post) return null;
 
     return (
         <Layout title={post.title} description={post.excerpt}>
@@ -173,34 +173,46 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
     );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params, res }) => {
+export const getStaticPaths: GetStaticPaths = async () => {
+    try {
+        const { posts } = await getBlogPosts({}, 1, 100);
+        const paths = posts.map((post) => ({
+            params: { slug: post.slug },
+        }));
+        return { paths, fallback: 'blocking' };
+    } catch (error) {
+        console.error('Error generating static paths:', error);
+        return { paths: [], fallback: 'blocking' };
+    }
+};
+
+export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     const slug = params?.slug as string;
     if (!slug) return { notFound: true };
 
     try {
         const post = await getBlogPostBySlug(slug);
-        if (!post) return { notFound: true };
+        if (!post) return { notFound: true, revalidate: 10 };
 
-        const [relatedPosts, comments] = await Promise.all([
+        // Fetch related posts and comments in parallel, with fallback on failure
+        const [relatedPosts, comments] = await Promise.allSettled([
             getRelatedPosts(post.slug, post.category),
             getComments(post.id),
+        ]).then(results => [
+            results[0].status === 'fulfilled' ? results[0].value : [],
+            results[1].status === 'fulfilled' ? results[1].value : [],
         ]);
-
-        // Cache for 60s on CDN, serve stale for 120s while revalidating
-        res.setHeader(
-            'Cache-Control',
-            'public, s-maxage=60, stale-while-revalidate=120'
-        );
 
         return {
             props: {
                 post,
-                relatedPosts,
-                comments,
+                relatedPosts: relatedPosts as BlogPostSummary[],
+                comments: comments as BlogComment[],
             },
+            revalidate: 10,
         };
     } catch (error) {
-        console.error(`Error loading blog post "${slug}":`, error);
-        return { notFound: true };
+        console.error(`Error generating blog post page for slug "${slug}":`, error);
+        return { notFound: true, revalidate: 10 };
     }
 };

@@ -11,7 +11,7 @@ import {
   NewsletterForm,
   BlogSidebar
 } from "@/components/blog";
-import type { GetServerSideProps } from "next";
+import type { GetStaticProps } from "next";
 import type { BlogPostSummary } from "@/types/blog";
 import { getBlogPosts } from "@/services/blog";
 import { BLOG_CATEGORIES } from "@/types/blog";
@@ -176,19 +176,18 @@ export default function BlogPage({ posts }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ res }) => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   try {
     const { posts } = await getBlogPosts({}, 1, 100);
-
-    // Cache for 60s on CDN, serve stale for 120s while revalidating
-    res.setHeader(
-      'Cache-Control',
-      'public, s-maxage=60, stale-while-revalidate=120'
-    );
-
-    return { props: { posts } };
+    return {
+      props: { posts },
+      revalidate: 10,
+    };
   } catch (error) {
     console.error('Error fetching blog posts:', error);
-    return { props: { posts: [] } };
+    return {
+      props: { posts: [] },
+      revalidate: 10,
+    };
   }
 };
