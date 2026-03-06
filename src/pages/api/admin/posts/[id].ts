@@ -121,13 +121,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'DELETE') {
         try {
+            // Get post slug before deleting so we can revalidate its page
+            const post = await getAdminPostById(id);
             await softDeletePost(id);
 
             try {
                 await res.revalidate('/nextgen-blog');
-                // We could revalidate the individual post page to show 404, but let's start with the list.
+                if (post?.slug) {
+                    await res.revalidate(`/nextgen-blog/${post.slug}`);
+                }
             } catch (revalidateError) {
-                console.error('Error revalidating blog list:', revalidateError);
+                console.error('Error revalidating pages after delete:', revalidateError);
             }
 
             return res.status(200).json({ success: true });
