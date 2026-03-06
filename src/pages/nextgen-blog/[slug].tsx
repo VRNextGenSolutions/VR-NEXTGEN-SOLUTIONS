@@ -39,16 +39,18 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
         }
     }, [post?.slug]);
 
+    const isVideoFeatured = post.featured_image?.match(/\.(mp4|webm)$/i);
+
     const structuredData = [
         getBlogPostSchema({
             title: post.title,
             excerpt: post.excerpt,
-            featuredImage: post.featured_image,
+            featuredImage: isVideoFeatured ? null : post.featured_image,
             authorName: post.author_name,
             publishedAt: post.published_at || new Date().toISOString(),
             modifiedAt: post.updated_at,
             url: `https://vrnextgensolutions.com/nextgen-blog/${post.slug}`,
-            wordCount: post.content.split(/\s+/).length,
+            wordCount: (post.content || '').split(/\s+/).length,
         }),
         getBreadcrumbSchema([
             { name: "Home", url: "/" },
@@ -65,8 +67,8 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
                 title={`${post.title} | NextGen Blog`}
                 description={post.excerpt}
                 canonical={`/nextgen-blog/${post.slug}`}
-                keywords={[...post.tags, post.category]}
-                ogImage={post.featured_image || undefined}
+                keywords={[...(post.tags || []), post.category]}
+                ogImage={isVideoFeatured ? undefined : (post.featured_image || undefined)}
                 ogType="article"
                 structuredData={structuredData}
             />
@@ -184,18 +186,25 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     const slug = params?.slug as string;
     if (!slug) return { notFound: true };
 
-    const post = await getBlogPostBySlug(slug);
-    if (!post) return { notFound: true };
+    try {
+        const post = await getBlogPostBySlug(slug);
+        if (!post) return { notFound: true };
 
-    const relatedPosts = await getRelatedPosts(post.slug, post.category);
-    const comments = await getComments(post.id);
+        const [relatedPosts, comments] = await Promise.all([
+            getRelatedPosts(post.slug, post.category),
+            getComments(post.id),
+        ]);
 
-    return {
-        props: {
-            post,
-            relatedPosts,
-            comments,
-        },
-        revalidate: 60, // ISR: 1 minute for detailed pages
-    };
+        return {
+            props: {
+                post,
+                relatedPosts,
+                comments,
+            },
+            revalidate: 60,
+        };
+    } catch (error) {
+        console.error(`Error generating blog post page for slug "${slug}":`, error);
+        return { notFound: true, revalidate: 30 };
+    }
 };

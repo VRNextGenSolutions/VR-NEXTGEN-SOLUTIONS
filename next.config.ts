@@ -122,6 +122,7 @@ const nextConfig: NextConfig = {
               scriptSrc,
               styleSrc,
               "img-src 'self' data: blob: https:",
+              "media-src 'self' https://zyudtvmdomiyrbrypbna.supabase.co",
               "font-src 'self' data: https://cdnjs.cloudflare.com",
               connectSrc,
               "frame-src 'none'",

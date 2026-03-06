@@ -43,7 +43,7 @@ export default function SEOHead({
         ? `${SEO_CONFIG.siteUrl}${canonical.startsWith('/') ? canonical : `/${canonical}`}`
         : undefined;
     const ogImageUrl = ogImage
-        ? `${SEO_CONFIG.siteUrl}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`
+        ? (ogImage.startsWith('http') ? ogImage : `${SEO_CONFIG.siteUrl}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`)
         : `${SEO_CONFIG.siteUrl}${SEO_CONFIG.defaultOgImage}`;
 
     // Combine keywords
