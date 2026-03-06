@@ -53,7 +53,7 @@ export async function getBlogPosts(
         author_name: post.author_name,
         category: post.category,
         read_time_minutes: post.read_time_minutes,
-        published_at: post.published_at,
+        published_at: post.published_at || post.created_at || new Date().toISOString(),
         is_featured: post.is_featured,
     })) || [];
 
@@ -89,7 +89,7 @@ export async function getRelatedPosts(currentSlug: string, category: string, lim
 
     const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, featured_image, author_name, category, read_time_minutes, published_at, is_featured')
+        .select('id, title, slug, excerpt, featured_image, author_name, category, read_time_minutes, published_at, is_featured, created_at')
         .eq('is_published', true)
         .eq('is_deleted', false)
         .eq('category', category)
@@ -101,5 +101,6 @@ export async function getRelatedPosts(currentSlug: string, category: string, lim
     return (data as BlogPostSummary[]).map(post => ({
         ...post,
         featured_image: post.featured_image || getFeaturedImageUrl(post.slug),
+        published_at: post.published_at || (post as any).created_at || new Date().toISOString(),
     }));
 }
