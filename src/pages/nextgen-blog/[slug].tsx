@@ -203,12 +203,17 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
             results[1].status === 'fulfilled' ? results[1].value : [],
         ]);
 
+        const originalProps = {
+            post,
+            relatedPosts: relatedPosts as BlogPostSummary[],
+            comments: comments as BlogComment[],
+        };
+
+        // Aggressive serialization to strip any hidden undefined or non-serializable objects
+        const safeProps = JSON.parse(JSON.stringify(originalProps));
+
         return {
-            props: {
-                post,
-                relatedPosts: relatedPosts as BlogPostSummary[],
-                comments: comments as BlogComment[],
-            },
+            props: safeProps,
             revalidate: 10,
         };
     } catch (error) {

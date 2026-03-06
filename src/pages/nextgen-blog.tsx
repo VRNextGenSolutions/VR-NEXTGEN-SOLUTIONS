@@ -180,7 +180,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
   try {
     const { posts } = await getBlogPosts({}, 1, 100);
     return {
-      props: { posts },
+      props: { posts: JSON.parse(JSON.stringify(posts)) },
       revalidate: 10,
     };
   } catch (error) {
