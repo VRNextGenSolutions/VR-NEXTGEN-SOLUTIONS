@@ -14,9 +14,9 @@ import {
     RelatedPosts,
     NewsletterForm
 } from "@/components/blog";
-import { getBlogPosts, getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
+import { getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
 import { formatDate } from "@/utils/blog/helpers";
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import type { BlogPost, BlogPostSummary, BlogComment } from "@/types/blog";
 
 interface Props {
@@ -59,7 +59,7 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
         ])
     ];
 
-    if (!post) return null; // Fallback
+    if (!post) return null;
 
     return (
         <Layout title={post.title} description={post.excerpt}>
@@ -173,16 +173,7 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
     );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-    const { posts } = await getBlogPosts({}, 1, 100);
-    const paths = posts.map((post) => ({
-        params: { slug: post.slug },
-    }));
-
-    return { paths, fallback: 'blocking' };
-};
-
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params, res }) => {
     const slug = params?.slug as string;
     if (!slug) return { notFound: true };
 
@@ -195,16 +186,21 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
             getComments(post.id),
         ]);
 
+        // Cache for 60s on CDN, serve stale for 120s while revalidating
+        res.setHeader(
+            'Cache-Control',
+            'public, s-maxage=60, stale-while-revalidate=120'
+        );
+
         return {
             props: {
                 post,
                 relatedPosts,
                 comments,
             },
-            revalidate: 60,
         };
     } catch (error) {
-        console.error(`Error generating blog post page for slug "${slug}":`, error);
-        return { notFound: true, revalidate: 30 };
+        console.error(`Error loading blog post "${slug}":`, error);
+        return { notFound: true };
     }
 };
