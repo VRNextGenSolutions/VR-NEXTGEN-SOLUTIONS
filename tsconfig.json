@@ -28,8 +28,7 @@
   "include": [
     "next-env.d.ts",
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "scripts/**/*.ts"
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
