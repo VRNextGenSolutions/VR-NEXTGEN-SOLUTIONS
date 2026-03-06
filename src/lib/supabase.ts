@@ -27,7 +27,11 @@ export function getSupabaseClient(): SupabaseClient {
 // Alias for server-side usage with anon key
 export const createServerSupabase = () => createClient(supabaseUrl!, supabaseAnonKey!, {
     global: {
-        fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' })
+        fetch: (url, options) => {
+            const separator = url.includes('?') ? '&' : '?';
+            const bustedUrl = `${url}${separator}t=${Date.now()}`;
+            return fetch(bustedUrl, { ...options, cache: 'no-store' });
+        }
     }
 });
 
@@ -45,7 +49,11 @@ export function createServiceRoleClient(): SupabaseClient {
             persistSession: false,
         },
         global: {
-            fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' })
+            fetch: (url, options) => {
+                const separator = url.includes('?') ? '&' : '?';
+                const bustedUrl = `${url}${separator}t=${Date.now()}`;
+                return fetch(bustedUrl, { ...options, cache: 'no-store' });
+            }
         }
     });
 }
