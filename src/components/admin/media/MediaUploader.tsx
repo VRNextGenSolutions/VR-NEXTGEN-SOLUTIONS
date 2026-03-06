@@ -2,7 +2,10 @@
  * Media Uploader Component
  * Upload images and videos to Supabase Storage
  * Supports: JPEG, PNG, WebP, GIF, MP4, WebM
- * Max file size: 50MB (for videos up to 1 min)
+ * 
+ * Uses hybrid upload strategy:
+ * - Small files (≤4MB): API route for server-side image compression
+ * - Large files (>4MB): Direct upload via signed URL (bypasses Vercel limit)
  */
 
 import { useState, useCallback, useRef } from 'react';
@@ -20,6 +23,7 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+const DIRECT_UPLOAD_THRESHOLD = 4 * 1024 * 1024; // 4MB — above this, bypass Vercel
 
 export function MediaUploader({
     onUpload,
@@ -30,11 +34,8 @@ export function MediaUploader({
 }: MediaUploaderProps) {
     const { getAuthHeader } = useAuth();
 
-    // Auto-detect media type from URL if not provided
     const detectMediaType = (url: string): 'image' | 'video' => {
-        if (url && url.match(/\.(mp4|webm)$/i)) {
-            return 'video';
-        }
+        if (url && url.match(/\.(mp4|webm)$/i)) return 'video';
         return 'image';
     };
 
@@ -49,17 +50,76 @@ export function MediaUploader({
     const inputRef = useRef<HTMLInputElement>(null);
 
     const getAllowedTypes = () => {
-        if (acceptVideo) {
-            return [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
-        }
-        return ALLOWED_IMAGE_TYPES;
+        return acceptVideo
+            ? [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES]
+            : ALLOWED_IMAGE_TYPES;
     };
 
     const getAcceptString = () => {
-        if (acceptVideo) {
-            return 'image/*,video/mp4,video/webm';
-        }
-        return 'image/*';
+        return acceptVideo ? 'image/*,video/mp4,video/webm' : 'image/*';
+    };
+
+    /** Upload small files through API route (benefits from server-side compression) */
+    const uploadViaApi = async (file: File, authHeaders: Record<string, string>): Promise<string> => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', folder);
+
+        const progressInterval = setInterval(() => {
+            setUploadProgress(prev => Math.min(prev + 10, 90));
+        }, 200);
+
+        const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: authHeaders,
+            body: formData,
+        });
+
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error || 'Upload failed');
+        return data.url;
+    };
+
+    /** Upload large files directly to Supabase via signed URL (bypasses Vercel limit) */
+    const uploadDirectly = async (file: File, authHeaders: Record<string, string>): Promise<string> => {
+        const extension = file.name.split('.').pop() || 'bin';
+
+        // Step 1: Get signed URL from our API (lightweight JSON request)
+        const signedRes = await fetch('/api/admin/upload/signed-url', {
+            method: 'POST',
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contentType: file.type, folder, extension }),
+        });
+
+        const signedData = await signedRes.json();
+        if (!signedData.success) throw new Error(signedData.error || 'Failed to get upload URL');
+
+        // Step 2: Upload file directly to Supabase using XMLHttpRequest for progress
+        await new Promise<void>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', signedData.signedUrl, true);
+            xhr.setRequestHeader('Content-Type', file.type);
+            xhr.setRequestHeader('Cache-Control', '31536000');
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    setUploadProgress(Math.round((e.loaded / e.total) * 100));
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) resolve();
+                else reject(new Error(`Upload failed with status ${xhr.status}`));
+            };
+
+            xhr.onerror = () => reject(new Error('Network error during upload'));
+            xhr.send(file);
+        });
+
+        return signedData.publicUrl;
     };
 
     const handleUpload = useCallback(async (file: File) => {
@@ -67,7 +127,6 @@ export function MediaUploader({
         setUploadProgress(0);
 
         const isVideo = file.type.startsWith('video/');
-        const isImage = file.type.startsWith('image/');
 
         // Validate file type
         if (!getAllowedTypes().includes(file.type)) {
@@ -83,8 +142,7 @@ export function MediaUploader({
             return;
         }
 
-        // Set media type
-        const type = isVideo ? 'video' : 'image';
+        const type: 'image' | 'video' = isVideo ? 'video' : 'image';
         setMediaType(type);
 
         // Show preview
@@ -95,31 +153,13 @@ export function MediaUploader({
         setIsUploading(true);
 
         try {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('folder', folder);
+            const authHeaders = getAuthHeader();
+            const useDirect = file.size > DIRECT_UPLOAD_THRESHOLD;
+            const url = useDirect
+                ? await uploadDirectly(file, authHeaders)
+                : await uploadViaApi(file, authHeaders);
 
-            // Simulate progress for UX (actual upload doesn't provide progress with fetch)
-            const progressInterval = setInterval(() => {
-                setUploadProgress(prev => Math.min(prev + 10, 90));
-            }, 200);
-
-            const response = await fetch('/api/admin/upload', {
-                method: 'POST',
-                headers: getAuthHeader(),
-                body: formData,
-            });
-
-            clearInterval(progressInterval);
-            setUploadProgress(100);
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || 'Upload failed');
-            }
-
-            onUpload(data.url, type);
+            onUpload(url, type);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Upload failed');
             setPreview(currentMedia || '');

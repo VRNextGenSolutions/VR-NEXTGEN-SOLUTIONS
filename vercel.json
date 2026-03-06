@@ -53,6 +53,9 @@
     }
   ],
   "functions": {
+    "src/pages/api/admin/upload/**/*.ts": {
+      "maxDuration": 30
+    },
     "src/pages/api/**/*.ts": {
       "maxDuration": 10
     }
