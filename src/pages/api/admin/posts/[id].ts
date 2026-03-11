@@ -100,6 +100,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 published_at: finalPublishedAt,
             });
 
+            try {
+                await res.revalidate('/nextgen-blog');
+                if (finalSlug) await res.revalidate(`/nextgen-blog/${finalSlug}`);
+                if (currentPost.slug !== finalSlug) {
+                    await res.revalidate(`/nextgen-blog/${currentPost.slug}`);
+                }
+            } catch (_e) { /* best-effort */ }
+
             return res.status(200).json({ success: true, data: updated });
         } catch (error) {
             console.error('Error updating post:', error);
@@ -110,7 +118,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'DELETE') {
         try {
+            const postToDelete = await getAdminPostById(id);
             await softDeletePost(id);
+
+            try {
+                await res.revalidate('/nextgen-blog');
+                if (postToDelete?.slug) {
+                    await res.revalidate(`/nextgen-blog/${postToDelete.slug}`);
+                }
+            } catch (_e) { /* best-effort */ }
+
             return res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error deleting post:', error);

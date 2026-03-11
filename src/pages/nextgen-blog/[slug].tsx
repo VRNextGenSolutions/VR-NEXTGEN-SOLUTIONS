@@ -15,7 +15,7 @@ import {
 } from "@/components/blog";
 import { getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
 import { formatDate } from "@/utils/blog/helpers";
-import type { GetServerSideProps } from "next";
+import type { GetStaticPaths, GetStaticProps } from "next";
 import type { BlogPost, BlogPostSummary, BlogComment } from "@/types/blog";
 
 interface Props {
@@ -172,13 +172,17 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
     );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
+export const getStaticPaths: GetStaticPaths = async () => {
+    return { paths: [], fallback: 'blocking' };
+};
+
+export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     const slug = params?.slug as string;
     if (!slug) return { notFound: true };
 
     try {
         const post = await getBlogPostBySlug(slug);
-        if (!post) return { notFound: true };
+        if (!post) return { notFound: true, revalidate: 1 };
 
         const [relatedPosts, comments] = await Promise.allSettled([
             getRelatedPosts(post.slug, post.category),
@@ -194,9 +198,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) 
             comments: comments as BlogComment[],
         }));
 
-        return { props: safeProps };
+        return { props: safeProps, revalidate: 1 };
     } catch (error) {
         console.error(`Error fetching blog post "${slug}":`, error);
-        return { notFound: true };
+        return { notFound: true, revalidate: 1 };
     }
 };

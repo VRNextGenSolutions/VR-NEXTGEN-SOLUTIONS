@@ -77,6 +77,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 published_at: is_published ? (published_at || new Date().toISOString()) : null,
             });
 
+            try {
+                await res.revalidate('/nextgen-blog');
+                if (is_published && slug) {
+                    await res.revalidate(`/nextgen-blog/${slug}`);
+                }
+            } catch (_e) { /* best-effort */ }
+
             return res.status(201).json({ success: true, data: post });
         } catch (error) {
             console.error('Error creating post:', error);
