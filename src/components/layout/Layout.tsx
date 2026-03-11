@@ -79,8 +79,7 @@ export default function Layout({ title, description, children }: LayoutProps) {
             <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
             <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
             
-            {/* Preload critical images */}
-            <link rel="preload" href="/images-optimized/Hero.webp" as="image" />
+            {/* Preload logo (used on every page) */}
             <link rel="preload" href="/icons-optimized/vr-logo-md.webp" as="image" />
             
             {/* Preload critical fonts - Using system fonts for better performance */}

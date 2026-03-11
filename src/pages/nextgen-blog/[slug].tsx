@@ -1,11 +1,11 @@
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { SEOHead, getBlogPostSchema, getBreadcrumbSchema } from "@/components/seo";
 import { useParallax } from "@/hooks/useParallax";
 import {
-    BlogContent,
     BlogSidebar,
     CommentList,
     CommentForm,
@@ -13,10 +13,15 @@ import {
     RelatedPosts,
     NewsletterForm
 } from "@/components/blog";
-import { getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
+import { getBlogPosts, getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
 import { formatDate } from "@/utils/blog/helpers";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import type { BlogPost, BlogPostSummary, BlogComment } from "@/types/blog";
+
+const BlogContent = dynamic(
+    () => import("@/components/blog/BlogContent").then(m => m.BlogContent),
+    { ssr: false, loading: () => <div className="animate-pulse bg-white/5 rounded h-96" /> }
+);
 
 interface Props {
     post: BlogPost;
@@ -173,7 +178,13 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    return { paths: [], fallback: 'blocking' };
+    try {
+        const { posts } = await getBlogPosts({}, 1, 200);
+        const paths = posts.map(p => ({ params: { slug: p.slug } }));
+        return { paths, fallback: 'blocking' };
+    } catch {
+        return { paths: [], fallback: 'blocking' };
+    }
 };
 
 export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
