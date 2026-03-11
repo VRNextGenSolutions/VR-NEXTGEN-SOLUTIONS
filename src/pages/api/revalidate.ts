@@ -1,12 +1,7 @@
-/**
- * On-Demand ISR Revalidation API
- * POST /api/revalidate - Revalidate specific pages
- * 
- * Requires admin authentication. Accepts a list of paths to revalidate.
- */
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { verifyAdmin } from '@/lib/verifyAdmin';
+
+const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
@@ -14,12 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).json({ success: false, error: 'Method not allowed' });
     }
 
-    const isAdmin = await verifyAdmin(req);
-    if (!isAdmin) {
+    const { secret, paths } = req.body;
+
+    const isAuthorized = secret === REVALIDATE_SECRET || await verifyAdmin(req);
+    if (!isAuthorized) {
         return res.status(401).json({ success: false, error: 'Unauthorized' });
     }
-
-    const { paths } = req.body;
 
     if (!Array.isArray(paths) || paths.length === 0) {
         return res.status(400).json({ success: false, error: 'paths array is required' });
@@ -36,9 +31,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             await res.revalidate(path);
             results.push({ path, success: true });
+            console.log(`[Revalidation] Success: ${path}`);
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error';
-            console.error(`Failed to revalidate ${path}:`, message);
+            console.error(`[Revalidation] Failed ${path}:`, error);
             results.push({ path, success: false, error: message });
         }
     }

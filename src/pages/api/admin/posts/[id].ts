@@ -102,11 +102,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             try {
                 await res.revalidate('/nextgen-blog');
-                if (finalSlug) await res.revalidate(`/nextgen-blog/${finalSlug}`);
+                console.log('[Revalidation] Successfully revalidated /nextgen-blog');
+                if (finalSlug) {
+                    await res.revalidate(`/nextgen-blog/${finalSlug}`);
+                    console.log(`[Revalidation] Successfully revalidated /nextgen-blog/${finalSlug}`);
+                }
                 if (currentPost.slug !== finalSlug) {
                     await res.revalidate(`/nextgen-blog/${currentPost.slug}`);
                 }
-            } catch (_e) { /* best-effort */ }
+            } catch (revalError) {
+                console.error('[Revalidation] Failed:', revalError);
+            }
 
             return res.status(200).json({ success: true, data: updated });
         } catch (error) {
@@ -123,10 +129,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             try {
                 await res.revalidate('/nextgen-blog');
+                console.log('[Revalidation] Successfully revalidated /nextgen-blog');
                 if (postToDelete?.slug) {
                     await res.revalidate(`/nextgen-blog/${postToDelete.slug}`);
+                    console.log(`[Revalidation] Successfully revalidated /nextgen-blog/${postToDelete.slug}`);
                 }
-            } catch (_e) { /* best-effort */ }
+            } catch (revalError) {
+                console.error('[Revalidation] Failed:', revalError);
+            }
 
             return res.status(200).json({ success: true });
         } catch (error) {

@@ -149,11 +149,9 @@ export function preloadCriticalResources() {
     return;
   }
 
-  // Only preload above-the-fold critical images
-  // Removed logo preloads as they cause warnings (not used within first few seconds)
-  const criticalResources = [
-    '/images-optimized/Hero.webp'
-  ];
+  // Hero.webp is only used on the homepage; preloading on all pages causes warnings
+  const isHomepage = window.location.pathname === '/' || window.location.pathname === '';
+  const criticalResources = isHomepage ? ['/images-optimized/Hero.webp'] : [];
 
   criticalResources.forEach((resource) => {
     const link = document.createElement('link');

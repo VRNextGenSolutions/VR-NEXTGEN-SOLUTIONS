@@ -79,10 +79,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             try {
                 await res.revalidate('/nextgen-blog');
+                console.log('[Revalidation] Successfully revalidated /nextgen-blog');
                 if (is_published && slug) {
                     await res.revalidate(`/nextgen-blog/${slug}`);
+                    console.log(`[Revalidation] Successfully revalidated /nextgen-blog/${slug}`);
                 }
-            } catch (_e) { /* best-effort */ }
+            } catch (revalError) {
+                console.error('[Revalidation] Failed:', revalError);
+            }
 
             return res.status(201).json({ success: true, data: post });
         } catch (error) {
