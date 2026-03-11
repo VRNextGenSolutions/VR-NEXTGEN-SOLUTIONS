@@ -8,6 +8,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables');
 }
 
+/** Supabase passes string URLs; TS types fetch input as URL | RequestInfo — normalize before string ops. */
+function toRequestUrlString(url: string | URL | Request): string {
+    if (typeof url === 'string') return url;
+    if (url instanceof URL) return url.href;
+    return url.url;
+}
+
+function fetchWithCacheBust(url: string | URL | Request, options?: RequestInit): Promise<Response> {
+    const urlString = toRequestUrlString(url);
+    const separator = urlString.includes('?') ? '&' : '?';
+    const bustedUrl = `${urlString}${separator}t=${Date.now()}`;
+    return fetch(bustedUrl, { ...options, cache: 'no-store' });
+}
+
 // Singleton for browser
 let browserClient: SupabaseClient | null = null;
 
@@ -27,11 +41,7 @@ export function getSupabaseClient(): SupabaseClient {
 // Alias for server-side usage with anon key
 export const createServerSupabase = () => createClient(supabaseUrl!, supabaseAnonKey!, {
     global: {
-        fetch: (url, options) => {
-            const separator = url.includes('?') ? '&' : '?';
-            const bustedUrl = `${url}${separator}t=${Date.now()}`;
-            return fetch(bustedUrl, { ...options, cache: 'no-store' });
-        }
+        fetch: fetchWithCacheBust,
     }
 });
 
@@ -49,11 +59,7 @@ export function createServiceRoleClient(): SupabaseClient {
             persistSession: false,
         },
         global: {
-            fetch: (url, options) => {
-                const separator = url.includes('?') ? '&' : '?';
-                const bustedUrl = `${url}${separator}t=${Date.now()}`;
-                return fetch(bustedUrl, { ...options, cache: 'no-store' });
-            }
+            fetch: fetchWithCacheBust,
         }
     });
 }
