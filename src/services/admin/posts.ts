@@ -157,6 +157,7 @@ export async function softDeletePost(id: string): Promise<void> {
         .from('blog_posts')
         .update({
             is_deleted: true,
+            is_published: false,
             deleted_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
         })

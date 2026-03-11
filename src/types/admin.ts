@@ -83,6 +83,7 @@ export interface CreatePostPayload {
     author_name?: string;
     category: string;
     tags?: string[];
+    read_time_minutes?: number;
     is_published?: boolean;
     is_featured?: boolean;
     published_at?: string | null;

@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Image from "next/image";
 import { useEffect } from "react";
 import Layout from "@/components/layout/Layout";
@@ -14,9 +13,9 @@ import {
     RelatedPosts,
     NewsletterForm
 } from "@/components/blog";
-import { getBlogPosts, getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
+import { getBlogPostBySlug, getRelatedPosts, getComments } from "@/services/blog";
 import { formatDate } from "@/utils/blog/helpers";
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import type { BlogPost, BlogPostSummary, BlogComment } from "@/types/blog";
 
 interface Props {
@@ -173,28 +172,14 @@ export default function BlogPostPage({ post, relatedPosts, comments }: Props) {
     );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-    try {
-        const { posts } = await getBlogPosts({}, 1, 100);
-        const paths = posts.map((post) => ({
-            params: { slug: post.slug },
-        }));
-        return { paths, fallback: 'blocking' };
-    } catch (error) {
-        console.error('Error generating static paths:', error);
-        return { paths: [], fallback: 'blocking' };
-    }
-};
-
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params }) => {
     const slug = params?.slug as string;
     if (!slug) return { notFound: true };
 
     try {
         const post = await getBlogPostBySlug(slug);
-        if (!post) return { notFound: true, revalidate: 10 };
+        if (!post) return { notFound: true };
 
-        // Fetch related posts and comments in parallel, with fallback on failure
         const [relatedPosts, comments] = await Promise.allSettled([
             getRelatedPosts(post.slug, post.category),
             getComments(post.id),
@@ -203,21 +188,15 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
             results[1].status === 'fulfilled' ? results[1].value : [],
         ]);
 
-        const originalProps = {
+        const safeProps = JSON.parse(JSON.stringify({
             post,
             relatedPosts: relatedPosts as BlogPostSummary[],
             comments: comments as BlogComment[],
-        };
+        }));
 
-        // Aggressive serialization to strip any hidden undefined or non-serializable objects
-        const safeProps = JSON.parse(JSON.stringify(originalProps));
-
-        return {
-            props: safeProps,
-            revalidate: 10,
-        };
+        return { props: safeProps };
     } catch (error) {
-        console.error(`Error generating blog post page for slug "${slug}":`, error);
-        return { notFound: true, revalidate: 10 };
+        console.error(`Error fetching blog post "${slug}":`, error);
+        return { notFound: true };
     }
 };

@@ -66,22 +66,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 title: sanitizeInput(title),
                 slug,
                 excerpt: sanitizeInput(excerpt),
-                content, // Content is sanitized on display, not storage
+                content,
                 featured_image: featured_image || null,
                 author_name: author_name ? sanitizeInput(author_name) : undefined,
                 category,
                 tags: tags || [],
+                read_time_minutes,
                 is_published: is_published || false,
                 is_featured: is_featured || false,
                 published_at: is_published ? (published_at || new Date().toISOString()) : null,
             });
-
-            try {
-                await res.revalidate('/nextgen-blog');
-            } catch (revalidateError) {
-                console.error('Error revalidating blog list:', revalidateError);
-                // Continue execution, don't fail the request
-            }
 
             return res.status(201).json({ success: true, data: post });
         } catch (error) {

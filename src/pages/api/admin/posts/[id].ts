@@ -94,22 +94,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 author_name: author_name ? sanitizeInput(author_name) : undefined,
                 category,
                 tags,
+                read_time_minutes,
                 is_published,
                 is_featured,
                 published_at: finalPublishedAt,
             });
-
-            // Revalidate pages
-            try {
-                await res.revalidate('/nextgen-blog');
-                if (updated.slug) {
-                    await res.revalidate(`/nextgen-blog/${updated.slug}`);
-                }
-                // If slug changed, we might want to revalidate the old slug too, but that's complex.
-                // For now, revalidating the list and the new slug is most important.
-            } catch (revalidateError) {
-                console.error('Error revalidating pages:', revalidateError);
-            }
 
             return res.status(200).json({ success: true, data: updated });
         } catch (error) {
@@ -121,19 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'DELETE') {
         try {
-            // Get post slug before deleting so we can revalidate its page
-            const post = await getAdminPostById(id);
             await softDeletePost(id);
-
-            try {
-                await res.revalidate('/nextgen-blog');
-                if (post?.slug) {
-                    await res.revalidate(`/nextgen-blog/${post.slug}`);
-                }
-            } catch (revalidateError) {
-                console.error('Error revalidating pages after delete:', revalidateError);
-            }
-
             return res.status(200).json({ success: true });
         } catch (error) {
             console.error('Error deleting post:', error);

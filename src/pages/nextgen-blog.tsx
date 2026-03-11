@@ -11,7 +11,7 @@ import {
   NewsletterForm,
   BlogSidebar
 } from "@/components/blog";
-import type { GetStaticProps } from "next";
+import type { GetServerSideProps } from "next";
 import type { BlogPostSummary } from "@/types/blog";
 import { getBlogPosts } from "@/services/blog";
 import { BLOG_CATEGORIES } from "@/types/blog";
@@ -176,18 +176,16 @@ export default function BlogPage({ posts }: Props) {
   );
 }
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   try {
     const { posts } = await getBlogPosts({}, 1, 100);
     return {
       props: { posts: JSON.parse(JSON.stringify(posts)) },
-      revalidate: 10,
     };
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     return {
       props: { posts: [] },
-      revalidate: 10,
     };
   }
 };
