@@ -8,16 +8,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables');
 }
 
-/**
- * Server-side fetch for Supabase: no-store only.
- * Do NOT append query params to the URL — PostgREST uses the query string for
- * filters (eq, select, etc.). Adding e.g. &t=123 breaks admin_users lookups
- * and any other filtered queries (returns PGRST errors → empty → isAdmin false).
- */
-function fetchNoStore(url: RequestInfo | URL, options?: RequestInit): Promise<Response> {
-    return fetch(url, { ...options, cache: 'no-store' });
-}
-
 // Singleton for browser
 let browserClient: SupabaseClient | null = null;
 
@@ -35,9 +25,7 @@ export function getSupabaseClient(): SupabaseClient {
 }
 
 // Alias for server-side usage with anon key
-export const createServerSupabase = () => createClient(supabaseUrl!, supabaseAnonKey!, {
-    global: { fetch: fetchNoStore },
-});
+export const createServerSupabase = () => createClient(supabaseUrl!, supabaseAnonKey!);
 
 // Service role client for admin operations (server-side only)
 export function createServiceRoleClient(): SupabaseClient {
@@ -52,7 +40,6 @@ export function createServiceRoleClient(): SupabaseClient {
             autoRefreshToken: false,
             persistSession: false,
         },
-        global: { fetch: fetchNoStore },
     });
 }
 
