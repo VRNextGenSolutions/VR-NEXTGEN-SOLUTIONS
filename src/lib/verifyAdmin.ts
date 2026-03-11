@@ -24,8 +24,8 @@ export async function verifyAdmin(req: NextApiRequest): Promise<boolean> {
     const { data: admin } = await supabase
         .from('admin_users')
         .select('id')
-        .eq('email', user.email)
-        .single();
+        .eq('email', user.email.toLowerCase())
+        .maybeSingle();
 
     return !!admin;
 }
