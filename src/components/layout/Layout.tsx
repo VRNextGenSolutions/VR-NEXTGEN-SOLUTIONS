@@ -79,8 +79,8 @@ export default function Layout({ title, description, children }: LayoutProps) {
             <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
             <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
             
-            {/* Preload logo (used on every page) */}
-            <link rel="preload" href="/icons-optimized/vr-logo-md.webp" as="image" />
+            {/* Logo preload removed: next/image with priority in Logo.tsx handles this automatically.
+               Manual preload conflicts because next/image rewrites the URL through /_next/image. */}
             
             {/* Preload critical fonts - Using system fonts for better performance */}
             {/* <link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /> */}
