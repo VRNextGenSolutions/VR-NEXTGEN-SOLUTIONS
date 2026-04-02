@@ -267,7 +267,7 @@ export default function WhoWeArePage() {
               <div className="space-y-4">
                 <div className="space-y-4">
                   <p className="text-lg md:text-xl text-white leading-relaxed">
-                    To deliver end-to-end business solutions and strategic insights that transform data into actionable intelligence, enabling organizations to streamline processes, enhance efficiency, and maximize profitability.
+                    To be the most trusted partner for businesses seeking data-driven growth, empowering organizations to make smarter decisions, optimize operations, and achieve sustainable success.
                   </p>
                 </div>
               </div>
