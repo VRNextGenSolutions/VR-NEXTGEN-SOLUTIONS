@@ -1,0 +1,2050 @@
+# 🚌 UniTrack — University Bus Tracking System
+## Complete Technical Documentation for External Examination
+
+> **Project Name:** UniTrack  
+> **App ID:** `com.unitrack.app`  
+> **Firebase Project:** `university-bus-tracker-app`  
+> **University:** Ganpat University (GNU), Kherva, Mehsana, Gujarat  
+> **Development Timeline:** Semester 3 (Website) → Semester 4 (Mobile App via Capacitor)
+
+---
+
+## Table of Contents
+
+1. [Project Overview](#1-project-overview)
+2. [Technology Stack](#2-technology-stack)
+3. [System Architecture](#3-system-architecture)
+4. [Frontend (Client)](#4-frontend-client)
+5. [Backend — Firebase Services](#5-backend--firebase-services)
+6. [Database Design](#6-database-design)
+7. [APIs & External Services](#7-apis--external-services)
+8. [Authentication & Authorization](#8-authentication--authorization)
+9. [Real-Time GPS Tracking System](#9-real-time-gps-tracking-system)
+10. [Mobile App (Capacitor)](#10-mobile-app-capacitor)
+11. [PWA (Progressive Web App)](#11-pwa-progressive-web-app)
+12. [Security](#12-security)
+13. [Design Patterns & Architectural Decisions](#13-design-patterns--architectural-decisions)
+14. [Module Breakdown](#14-module-breakdown)
+15. [Deployment](#15-deployment)
+16. [Data Flow Diagrams](#16-data-flow-diagrams)
+17. [Key Technical Highlights for Viva](#17-key-technical-highlights-for-viva)
+18. [Device Specifications & Hardware Requirements](#18-device-specifications--hardware-requirements)
+19. [Android App — Deep Dive](#19-android-app--deep-dive)
+20. [Network Requirements & Data Usage](#20-network-requirements--data-usage)
+21. [Haptic Feedback System](#21-haptic-feedback-system)
+22. [Error Handling System](#22-error-handling-system)
+23. [AuthContext — Deep Dive](#23-authcontext--deep-dive)
+24. [Bulk Import System — Deep Dive](#24-bulk-import-system--deep-dive)
+25. [Schedule Template System](#25-schedule-template-system)
+26. [Trip History & Analytics](#26-trip-history--analytics)
+27. [Comparison with Existing Solutions](#27-comparison-with-existing-solutions)
+28. [Limitations & Known Constraints](#28-limitations--known-constraints)
+29. [Development Journey — Semester Timeline](#29-development-journey--semester-timeline)
+30. [Firebase Configuration & Environment](#30-firebase-configuration--environment)
+31. [Map System — Deep Dive](#31-map-system--deep-dive)
+32. [PWA Install & Detection System](#32-pwa-install--detection-system)
+33. [Utility Functions Reference](#33-utility-functions-reference)
+34. [Additional Viva Questions & Answers](#34-additional-viva-questions--answers)
+
+---
+
+## 1. Project Overview
+
+UniTrack is a **real-time university bus tracking system** that allows students and faculty of Ganpat University to track campus buses live on a map. Drivers use the app to broadcast their GPS location, and students/faculty see those buses moving in real-time on an interactive map.
+
+### Problem Statement
+Students and faculty often wait long periods at bus stops without knowing when their bus will arrive, leading to missed buses and wasted time.
+
+### Solution
+A web + mobile application with:
+- **Live GPS tracking** of university buses on an interactive map
+- **Role-based dashboards** for Admin, Driver, Student, and Faculty
+- **Real-time updates** powered by Firebase Realtime Database
+- **Offline support** with queued GPS updates
+- **PWA + Native Android** deployment via Capacitor
+
+### User Roles
+
+| Role | Access | Key Features |
+|------|--------|--------------|
+| **Admin** | Full system control | Manage buses, routes, drivers, schedules, users, analytics |
+| **Driver** | Driver dashboard | Check-in/out, GPS broadcasting, route navigation, break mode |
+| **Student** | Tracking map | View live buses, filter by route, favorite routes |
+| **Faculty** | Tracking map | Same as student (shared tracking view) |
+
+---
+
+## 2. Technology Stack
+
+### Frontend
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| **React** | 19.2.0 | UI component library |
+| **Vite** | 7.2.4 | Build tool & dev server |
+| **React Router DOM** | 7.11.0 | Client-side routing (SPA) |
+| **React-Leaflet** | 5.0.0 | Map rendering (React wrapper for Leaflet) |
+| **Leaflet** | 1.9.4 | Interactive map library |
+| **Lucide React** | 0.562.0 | Icon library (SVG-based) |
+| **XLSX (SheetJS)** | 0.18.5 | Excel file parsing for bulk user import |
+| **Vanilla CSS** | — | Custom design system (no Tailwind) |
+
+### Backend (BaaS — Backend as a Service)
+| Technology | Purpose |
+|-----------|---------|
+| **Firebase Authentication** | Email/password auth, session management |
+| **Cloud Firestore** | Primary NoSQL database for structured data |
+| **Firebase Realtime Database (RTDB)** | Real-time GPS location streaming |
+| **Firebase Hosting** | Static web app hosting with CDN |
+| **Firebase Security Rules** | Server-side access control |
+
+### Mobile
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| **Capacitor** | 6.2.1 | Web-to-native bridge (Android) |
+| **@capacitor/geolocation** | 6.0.2 | Native GPS access on Android |
+| **@capacitor/android** | 6.2.1 | Android platform integration |
+| **Gradle** | — | Android build system |
+
+### External APIs
+| API | Purpose |
+|-----|---------|
+| **OpenStreetMap Tile Server** | Map tiles (`https://{s}.tile.openstreetmap.org`) |
+| **Nominatim Geocoding API** | Address search & reverse geocoding |
+| **Web Geolocation API** | Browser-based GPS for both driver tracking and user location |
+
+### Dev Tools
+| Tool | Purpose |
+|------|---------|
+| **ESLint** | Code linting (v9.39.1) |
+| **Vite Plugin React** | React HMR & JSX transform |
+| **Vite Plugin PWA** | Service worker generation & PWA manifest |
+| **PostCSS** | CSS processing |
+
+---
+
+## 3. System Architecture
+
+### High-Level Architecture Diagram
+
+```mermaid
+graph TB
+    subgraph "Client Side"
+        A[React + Vite SPA]
+        B[Android App via Capacitor]
+    end
+
+    subgraph "Firebase Cloud"
+        C[Firebase Authentication]
+        D[Cloud Firestore]
+        E[Realtime Database]
+        F[Firebase Hosting]
+    end
+
+    subgraph "External APIs"
+        G[OpenStreetMap Tiles]
+        H[Nominatim Geocoding]
+    end
+
+    A --> C
+    B --> C
+    A --> D
+    B --> D
+    A --> E
+    B --> E
+    F --> A
+    A --> G
+    A --> H
+```
+
+### Architecture Pattern: **Serverless / BaaS (Backend-as-a-Service)**
+
+> [!IMPORTANT]
+> This project uses a **fully serverless architecture** — there is NO custom backend server (no Express, no Node.js server). All backend logic is handled by Firebase services directly from the client. This is a key architectural decision to discuss in your presentation.
+
+### Why Serverless?
+1. **Zero server management** — Firebase handles scaling, uptime, and infrastructure
+2. **Real-time out of the box** — Firebase RTDB provides WebSocket-based real-time sync
+3. **Built-in authentication** — No need to implement JWT, session management, etc.
+4. **Security rules** — Server-side validation without writing server code
+5. **Free tier sufficient** — Firebase's free (Spark) plan covers a university-scale project
+
+---
+
+## 4. Frontend (Client)
+
+### 4.1 Project Structure
+
+```
+client/
+├── index.html                    # Entry HTML with PWA meta tags
+├── package.json                  # Dependencies & scripts
+├── vite.config.js                # Vite build config + PWA plugin
+├── capacitor.config.json         # Capacitor native app config
+├── .env                          # Firebase environment variables
+│
+├── src/
+│   ├── main.jsx                  # React root render (StrictMode)
+│   ├── App.jsx                   # Root component with routing
+│   │
+│   ├── styles/
+│   │   └── index.css             # Global design system (CSS variables)
+│   │
+│   ├── contexts/
+│   │   └── AuthContext.jsx       # Global auth state (React Context API)
+│   │
+│   ├── services/                 # Firebase service layer
+│   │   ├── firebase.js           # Firebase init + secondary app
+│   │   ├── auth.js               # Auth helpers
+│   │   ├── database.js           # Firestore CRUD (generic)
+│   │   ├── users.js              # User management
+│   │   ├── userCreation.js       # User creation with secondary auth
+│   │   ├── destinations.js       # Destination/stops management
+│   │   ├── geocoding.js          # Nominatim geocoding wrapper
+│   │   ├── scheduleTemplates.js  # Schedule template CRUD
+│   │   ├── tripHistory.js        # Trip logging & analytics
+│   │   ├── bulkImport.js         # Bulk user creation with progress
+│   │   └── excelParser.js        # Excel/CSV file parsing (SheetJS)
+│   │
+│   ├── hooks/                    # Shared custom hooks
+│   │   ├── useScheduleData.js
+│   │   ├── useDashboardStats.js
+│   │   ├── useAnalyticsData.js
+│   │   ├── useUsersData.js
+│   │   └── usePWAInstall.js
+│   │
+│   ├── components/               # Reusable UI components
+│   │   ├── ui/                   # Design system components
+│   │   │   ├── Button.jsx/.css
+│   │   │   ├── Card.jsx/.css
+│   │   │   ├── Input.jsx/.css
+│   │   │   ├── Toast.jsx/.css
+│   │   │   ├── ConfirmDialog.jsx/.css
+│   │   │   ├── Icon.jsx/.css
+│   │   │   └── LogoIcon.jsx/.css
+│   │   ├── auth/
+│   │   │   └── ProtectedRoute.jsx  # RBAC route guard
+│   │   ├── admin/                  # Admin-specific components
+│   │   ├── landing/                # Landing page components
+│   │   ├── map/                    # Shared map utilities
+│   │   ├── route/                  # Route builder components
+│   │   ├── schedule/               # Schedule management components
+│   │   ├── bus/                    # Bus card components
+│   │   ├── shift/                  # Shift card components
+│   │   ├── driver/                 # Driver card components
+│   │   └── bulkimport/             # Bulk import wizard
+│   │
+│   ├── pages/                    # Page-level components
+│   │   ├── LandingPage.jsx       # Public landing page
+│   │   ├── LoginPage.jsx         # Login form
+│   │   ├── PhoneMockup.jsx       # Landing page phone animation
+│   │   │
+│   │   ├── admin/                # Admin dashboard pages
+│   │   │   ├── AdminDashboard.jsx  # Layout with sidebar nav
+│   │   │   ├── DashboardHome.jsx   # Stats overview
+│   │   │   ├── AnalyticsPage.jsx   # Trip analytics + charts
+│   │   │   ├── BusesPage.jsx       # Bus CRUD
+│   │   │   ├── RoutesPage.jsx      # Route management
+│   │   │   ├── RouteBuilder.jsx    # Visual route builder with map
+│   │   │   ├── DestinationsPage.jsx  # Destination/stop management
+│   │   │   ├── ShiftsPage.jsx      # Shift timing management
+│   │   │   ├── SchedulesPage.jsx   # Schedule + template system
+│   │   │   ├── UsersPage.jsx       # User management + bulk import
+│   │   │   ├── UserForm.jsx        # Create/edit user form
+│   │   │   └── BulkImportModal.jsx # Excel import modal
+│   │   │
+│   │   ├── driver/               # Driver interface
+│   │   │   ├── DriverView.jsx      # Main driver page (Uber-inspired)
+│   │   │   ├── components/         # 23 modular components
+│   │   │   ├── hooks/              # Driver-specific hooks
+│   │   │   └── utils/              # ETA, haptics, schedule helpers
+│   │   │
+│   │   └── track/                # Student/Faculty tracking
+│   │       ├── TrackingPage.jsx    # Main tracking page
+│   │       ├── components/         # Map, list, filters, controls
+│   │       ├── hooks/              # Bus locations, routes, favorites
+│   │       └── utils/              # Tracking utilities
+│   │
+│   └── utils/
+│       └── leafletIcons.js       # Custom Leaflet marker icons
+│
+├── android/                      # Capacitor Android project
+│   ├── app/                      # Android app module
+│   ├── build.gradle              # Root Gradle config
+│   ├── gradlew / gradlew.bat     # Gradle wrapper
+│   └── variables.gradle          # Build variables
+│
+└── public/
+    └── icons/                    # PWA icons (192px, 512px)
+```
+
+### 4.2 Routing Architecture
+
+```mermaid
+graph TD
+    A["/ (Landing Page)"] --> B["/login"]
+    B --> C{User Role?}
+    C -->|admin| D["/admin/*"]
+    C -->|driver| E["/driver/*"]
+    C -->|student/faculty| F["/track/*"]
+
+    D --> D1["/admin (Dashboard)"]
+    D --> D2["/admin/analytics"]
+    D --> D3["/admin/buses"]
+    D --> D4["/admin/routes"]
+    D --> D5["/admin/destinations"]
+    D --> D6["/admin/shifts"]
+    D --> D7["/admin/schedules"]
+    D --> D8["/admin/users"]
+```
+
+### 4.3 Code Splitting & Lazy Loading
+
+All major page components are **lazy loaded** using React's `lazy()` and `Suspense`:
+
+```javascript
+const LandingPage = lazy(() => import('@/pages/LandingPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const DriverView = lazy(() => import('@/pages/driver/DriverView'));
+const TrackingPage = lazy(() => import('@/pages/track'));
+```
+
+**Benefits:**
+- Reduces initial bundle size
+- Users only download code for pages they visit
+- Faster Time to First Paint (TTFP)
+
+### 4.4 Design System
+
+The app uses a **custom CSS design system** with CSS variables (no framework like Tailwind):
+
+| Design Token | Value | Usage |
+|-------------|-------|-------|
+| `--color-bg-primary` | `#0f0f1a` | App background (deep dark) |
+| `--color-bg-secondary` | `#1a1a2e` | Card backgrounds |
+| `--color-accent-primary` | `#4361ee` | Primary blue accent |
+| `--color-accent-secondary` | `#7209b7` | Purple gradient accent |
+| `--gradient-primary` | `135deg, #4361ee → #7209b7` | Buttons, highlights |
+| `--glass-bg` | `rgba(255,255,255,0.05)` | Glassmorphism cards |
+| `--glass-blur` | `blur(10px)` | Frosted glass effect |
+| `--font-family` | `'Inter', system-ui` | Modern sans-serif |
+
+**Design Philosophy:** Dark theme with glassmorphism, mobile-first responsive, 44px minimum touch targets.
+
+### 4.5 State Management
+
+| Layer | Technology | Data Managed |
+|-------|-----------|--------------|
+| **Global Auth** | React Context (`AuthContext`) | User session, role, auth state |
+| **Page State** | React `useState` + `useReducer` | Form data, UI state, filters |
+| **Server State** | Custom hooks with Firebase SDK | Firestore documents, RTDB subscriptions |
+| **Real-time Data** | Firebase `onValue()` listeners | Live bus locations, driver status |
+| **Persistent Client** | `localStorage` | Offline GPS queue, favorite routes |
+
+---
+
+## 5. Backend — Firebase Services
+
+### 5.1 Firebase Services Used
+
+```mermaid
+graph LR
+    subgraph "Firebase Project: university-bus-tracker-app"
+        A[Firebase Authentication]
+        B[Cloud Firestore]
+        C[Realtime Database RTDB]
+        D[Firebase Hosting]
+        E[Security Rules]
+    end
+```
+
+### 5.2 Firebase Authentication
+
+| Feature | Implementation |
+|---------|---------------|
+| **Auth Method** | Email + Password |
+| **Session Persistence** | Browser session (auto-managed by Firebase SDK) |
+| **Auth State Listener** | `onAuthStateChanged()` in `AuthContext.jsx` |
+| **Password Format** | Birthday in `DDMMYYYY` format (e.g., `01012000`) |
+| **Admin Password** | Custom strong password (e.g., `Admin@2025!`) |
+
+#### Secondary Firebase App Pattern (Critical for Admin)
+
+> [!TIP]
+> When an admin creates a new user with `createUserWithEmailAndPassword()`, Firebase automatically signs in as that new user — **logging the admin out!** UniTrack solves this with the **Secondary App Pattern**.
+
+```javascript
+// firebase.js — Secondary app to prevent admin logout
+export function getSecondaryAuth() {
+    const secondaryAppName = `secondary-${Date.now()}`;
+    const secondaryApp = initializeApp(firebaseConfig, secondaryAppName);
+    const secondaryAuth = getAuth(secondaryApp);
+    return { secondaryApp, secondaryAuth };
+}
+```
+
+**How it works:**
+1. Primary app (`auth`) = Admin's session → stays signed in
+2. Secondary app (`secondaryAuth`) = Used to create the new user
+3. New user is created on the secondary app
+4. Secondary app is immediately deleted
+5. Admin session on the primary app is **unaffected**
+
+### 5.3 Cloud Firestore (NoSQL Database)
+
+Used for **structured data** that doesn't require real-time streaming:
+- Users, buses, routes, shifts, schedules, destinations, trip history, schedule templates
+
+### 5.4 Firebase Realtime Database (RTDB)
+
+Used for **real-time GPS data** that needs low-latency streaming:
+- `busLocations/{driverId}` — Live GPS coordinates
+- `driverStatus/{driverId}` — On-duty/off-duty status
+
+#### Why Two Databases?
+
+| Feature | Firestore | Realtime Database |
+|---------|-----------|-------------------|
+| **Data Model** | Document-based (JSON-like) | JSON tree |
+| **Querying** | Rich queries, indexes | Limited querying |
+| **Real-time** | Snapshot listeners | WebSocket streaming |
+| **Latency** | ~100-300ms | ~10-50ms |
+| **Best For** | Structured/relational data | High-frequency live data |
+| **Pricing** | Per read/write operations | Per bandwidth |
+
+> [!IMPORTANT]
+> GPS updates from multiple drivers need **ultra-low latency** (updates every 3 seconds). Realtime Database's WebSocket connection is significantly faster than Firestore listeners for this use case.
+
+---
+
+## 6. Database Design
+
+### 6.1 Cloud Firestore Collections
+
+```mermaid
+erDiagram
+    USERS {
+        string uid PK
+        string email
+        string name
+        string role "admin | driver | student | faculty"
+        string phone
+        string rollNo "students only"
+        string licenseNumber "drivers only"
+        string birthday
+        timestamp createdAt
+    }
+    
+    BUSES {
+        string id PK
+        string busNumber
+        string model
+        int capacity
+        string status
+        timestamp createdAt
+    }
+    
+    ROUTES {
+        string id PK
+        string name
+        string description
+        string direction "to_campus | from_campus | round_trip"
+        string destinationId FK
+        string destinationName
+        boolean isActive
+        array stops "Array of stop objects"
+        array polyline "Array of lat/lng"
+        timestamp createdAt
+    }
+    
+    DESTINATIONS {
+        string id PK
+        string name
+        string shortName
+        float lat
+        float lng
+        string address
+        string type "campus | fieldtrip | event | custom"
+        string color
+        string icon
+        boolean isDefault
+        boolean isActive
+        timestamp createdAt
+    }
+    
+    SHIFTS {
+        string id PK
+        string name
+        string startTime
+        string endTime
+        timestamp createdAt
+    }
+    
+    SCHEDULES {
+        string id PK
+        string date "YYYY-MM-DD"
+        string driverId FK
+        string busId FK
+        string routeId FK
+        string shiftId FK
+        string templateId FK
+        timestamp createdAt
+    }
+    
+    SCHEDULE_TEMPLATES {
+        string id PK
+        string name
+        string driverId FK
+        string busId FK
+        string routeId FK
+        string shiftId FK
+        array daysOfWeek
+        boolean isActive
+        timestamp createdAt
+    }
+    
+    TRIP_HISTORY {
+        string id PK
+        string driverId FK
+        string driverName
+        string eventType "check_in | check_out"
+        string busId FK
+        string routeId FK
+        string routeName
+        string scheduleId FK
+        string timestamp
+        string date "YYYY-MM-DD"
+        object location "lat, lng"
+    }
+
+    USERS ||--o{ SCHEDULES : "assigned as driver"
+    BUSES ||--o{ SCHEDULES : "assigned to"
+    ROUTES ||--o{ SCHEDULES : "follows"
+    SHIFTS ||--o{ SCHEDULES : "during"
+    DESTINATIONS ||--o{ ROUTES : "endpoint of"
+    USERS ||--o{ TRIP_HISTORY : "logged by"
+    SCHEDULE_TEMPLATES ||--o{ SCHEDULES : "generates"
+```
+
+### 6.2 Firebase Realtime Database Structure
+
+```json
+{
+  "busLocations": {
+    "<driverId>": {
+      "lat": 23.529,
+      "lng": 72.457,
+      "heading": 180,
+      "speed": 12.5,
+      "accuracy": 8.3,
+      "driverId": "<userId>",
+      "routeId": "<routeId>",
+      "routeName": "Ahmedabad Express",
+      "isActive": true,
+      "isPaused": false,
+      "lastUpdated": 1703169600000
+    }
+  },
+  "driverStatus": {
+    "<driverId>": {
+      "isOnDuty": true,
+      "checkedInAt": 1703169600000,
+      "driverId": "<userId>",
+      "scheduleId": "<scheduleId>"
+    }
+  }
+}
+```
+
+### 6.3 Firestore Indexes
+
+The project defines composite indexes in [firestore.indexes.json](file:///c:/metallic-oort/firestore.indexes.json):
+
+| Collection | Fields | Purpose |
+|-----------|--------|---------|
+| `tripHistory` | `timestamp DESC` | Sort trips by recency |
+| `tripHistory` | `date ASC, timestamp DESC` | Daily trip queries |
+| `tripHistory` | `driverId ASC, timestamp DESC` | Driver-specific history |
+| `users` | `createdAt DESC` | Sort users by creation date |
+| `destinations` | `isActive ASC, name ASC` | Active destinations sorted by name |
+| `destinations` | `createdAt DESC` | Sort destinations by creation date |
+
+---
+
+## 7. APIs & External Services
+
+### 7.1 OpenStreetMap Tile API
+
+| Property | Value |
+|----------|-------|
+| **URL Pattern** | `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png` |
+| **Purpose** | Map tile images for Leaflet |
+| **Cost** | Free (open source) |
+| **Caching** | CacheFirst strategy via Service Worker (30-day max) |
+
+### 7.2 Nominatim Geocoding API
+
+| Property | Value |
+|----------|-------|
+| **Base URL** | `https://nominatim.openstreetmap.org/search` |
+| **Purpose** | Address search + reverse geocoding |
+| **Cost** | Free (no API key required) |
+| **Rate Limit** | 1 request/second (honored via debounce) |
+| **Region Bias** | Gujarat bounding box (`68.1,20.1,74.5,24.7`) |
+| **User-Agent** | `UniTrack-CampusBusTracker/1.0` (required by policy) |
+
+**Features used:**
+- Forward geocoding (address → coordinates) for route building
+- Reverse geocoding (coordinates → address) for stop naming
+- Gujarat region bias for locally relevant results
+
+### 7.3 Web Geolocation API (Browser Native)
+
+```javascript
+navigator.geolocation.watchPosition(successCallback, errorCallback, {
+    enableHighAccuracy: true,  // Uses GPS hardware
+    maximumAge: 3000,          // Accept 3s old positions
+    timeout: 15000             // Wait up to 15s for fix
+});
+```
+
+### 7.4 Firebase SDK APIs
+
+| SDK Module | Functions Used |
+|-----------|---------------|
+| `firebase/auth` | `signInWithEmailAndPassword`, `createUserWithEmailAndPassword`, `onAuthStateChanged`, `signOut`, `sendPasswordResetEmail` |
+| `firebase/firestore` | `collection`, `doc`, `getDocs`, `getDoc`, `addDoc`, `setDoc`, `updateDoc`, `deleteDoc`, `query`, `where`, `orderBy`, `limit`, `serverTimestamp` |
+| `firebase/database` | `ref`, `set`, `onValue`, `onDisconnect` |
+| `firebase/app` | `initializeApp`, `getApps`, `deleteApp` |
+
+---
+
+## 8. Authentication & Authorization
+
+### 8.1 Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant App as React App
+    participant Auth as Firebase Auth
+    participant FS as Firestore
+
+    U->>App: Enter email + password
+    App->>Auth: signInWithEmailAndPassword()
+    Auth-->>App: Firebase User object (uid, email)
+    App->>FS: getDoc('users/{uid}')
+    FS-->>App: User profile (role, name, etc.)
+    App->>App: Set AuthContext (user + role)
+    App->>App: Navigate to role-based dashboard
+```
+
+### 8.2 Role-Based Access Control (RBAC)
+
+**Client-side:** `ProtectedRoute` component wraps each route:
+
+```jsx
+<Route path="/admin/*" element={
+    <ProtectedRoute allowedRoles={['admin']}>
+        <AdminDashboard />
+    </ProtectedRoute>
+} />
+```
+
+**Server-side:** Firestore Security Rules enforce access:
+
+```
+// Only admin can write to buses, routes, shifts, schedules
+match /buses/{busId} {
+    allow read: if isAuthenticated();
+    allow write: if isAdmin();
+}
+
+// Drivers can only write their own trip history
+match /tripHistory/{tripId} {
+    allow create: if isAuthenticated() && hasRole('driver');
+}
+```
+
+### 8.3 RTDB Security Rules
+
+```json
+{
+  "busLocations": {
+    ".read": "auth != null",
+    "$driverId": {
+      ".write": "auth != null && auth.uid == $driverId"
+    }
+  },
+  "driverStatus": {
+    ".read": "auth != null",
+    "$driverId": {
+      ".write": "auth != null && auth.uid == $driverId"
+    }
+  }
+}
+```
+
+**Key Security Principle:** Drivers can only write to their own location node (`auth.uid == $driverId`), but all authenticated users can read all bus locations.
+
+---
+
+## 9. Real-Time GPS Tracking System
+
+### 9.1 Architecture — How Live Tracking Works
+
+```mermaid
+sequenceDiagram
+    participant Driver as Driver App
+    participant GPS as Device GPS
+    participant RTDB as Firebase RTDB
+    participant Student as Student App
+    participant Map as Leaflet Map
+
+    Driver->>GPS: watchPosition() (continuous)
+    GPS-->>Driver: Position {lat, lng, speed, heading, accuracy}
+    Driver->>RTDB: set('busLocations/{driverId}', locationData)
+    RTDB-->>Student: onValue('busLocations') → real-time push
+    Student->>Map: Update bus marker position
+    Map-->>Student: Animated marker movement
+```
+
+### 9.2 Driver-Side: GPS Broadcasting
+
+The [useDriverTracking](file:///c:/metallic-oort/client/src/pages/driver/hooks/useDriverTracking.js) hook manages:
+
+1. **GPS Watch** — `navigator.geolocation.watchPosition()` with high accuracy
+2. **Firebase Write** — Writes to `busLocations/{driverId}` on each position update
+3. **Offline Queue** — When offline, GPS updates are queued in `localStorage` and flushed when back online
+4. **Pause Mode** — Driver can pause tracking (e.g., at a stop) — GPS continues but Firebase writes `isPaused: true`
+5. **Ref-based Callbacks** — Uses React refs to avoid stale closures in the GPS callback
+
+**Location Update Payload:**
+```javascript
+{
+    lat: 23.529,
+    lng: 72.457,
+    heading: 180,        // Compass direction (degrees)
+    speed: 12.5,         // m/s
+    accuracy: 8.3,       // meters
+    driverId: "user-id",
+    routeId: "route-id",
+    routeName: "Route Name",
+    isActive: true,
+    isPaused: false,
+    lastUpdated: 1703169600000  // Unix timestamp
+}
+```
+
+### 9.3 Student-Side: Real-Time Listening
+
+The [useBusLocations](file:///c:/metallic-oort/client/src/pages/track/hooks/useBusLocations.js) hook:
+
+1. Subscribes to `busLocations` node via `onValue()` (WebSocket)
+2. Filters for `isActive: true` buses only
+3. Monitors connection status via `.info/connected`
+4. Provides a `refresh()` function for manual reconnection
+
+### 9.4 Offline Support
+
+```mermaid
+graph TD
+    A[GPS Position Update] --> B{Is Online?}
+    B -->|Yes| C{Is Paused?}
+    C -->|No| D[Write to Firebase RTDB]
+    C -->|Yes| E[Skip write, update isPaused flag]
+    B -->|No| F[Queue in localStorage]
+    F --> G[Monitor online/offline events]
+    G -->|Back Online| H[Flush queue to Firebase]
+```
+
+### 9.5 ETA Calculation
+
+The [eta.js](file:///c:/metallic-oort/client/src/pages/driver/utils/eta.js) utility uses the **Haversine formula** for great-circle distance:
+
+```javascript
+// Haversine formula for distance between two GPS coordinates
+const R = 6371e3; // Earth radius in meters
+const a = sin²(Δlat/2) + cos(lat1) × cos(lat2) × sin²(Δlng/2);
+const distance = R × 2 × atan2(√a, √(1-a));
+
+// ETA = distance / speed
+const eta = distance / (speed || defaultSpeed);
+```
+
+---
+
+## 10. Mobile App (Capacitor)
+
+### 10.1 What is Capacitor?
+
+Capacitor is an open-source native runtime by Ionic that wraps web apps into native mobile shells (like a WebView), providing access to native device APIs (GPS, camera, etc.) through JavaScript plugins.
+
+### 10.2 Configuration
+
+```json
+// capacitor.config.json
+{
+    "appId": "com.unitrack.app",
+    "appName": "UniTrack",
+    "webDir": "dist",
+    "server": {
+        "androidScheme": "https"
+    },
+    "android": {
+        "allowMixedContent": false,
+        "backgroundColor": "#0f0f1a"
+    }
+}
+```
+
+### 10.3 Build Process
+
+```
+1. npm run build          → Builds React app to client/dist/
+2. npx cap sync android   → Copies dist/ to Android project
+3. npx cap open android   → Opens in Android Studio
+4. Build APK              → Gradle builds the .apk
+```
+
+### 10.4 Native Plugin: Geolocation
+
+```javascript
+import { Geolocation } from '@capacitor/geolocation';
+
+// Request permissions (Android)
+await Geolocation.requestPermissions();
+
+// Watch position (uses native GPS)
+const watchId = await Geolocation.watchPosition({
+    enableHighAccuracy: true
+}, (position) => {
+    // Update location in Firebase
+});
+```
+
+---
+
+## 11. PWA (Progressive Web App)
+
+### 11.1 PWA Configuration
+
+Configured via **Vite Plugin PWA** in [vite.config.js](file:///c:/metallic-oort/client/vite.config.js):
+
+| Feature | Setting |
+|---------|---------|
+| **Register Type** | `autoUpdate` (updates SW in background) |
+| **Display Mode** | `standalone` (no browser chrome) |
+| **Orientation** | `portrait` |
+| **Theme Color** | `#1a1a2e` (dark) |
+| **Categories** | transportation, education, utilities |
+
+### 11.2 Service Worker Caching Strategy
+
+| Resource | Strategy | Max Age | Max Entries |
+|----------|----------|---------|-------------|
+| **Map Tiles** (OpenStreetMap) | CacheFirst | 30 days | 500 |
+| **Images** (.png, .jpg, .svg, .webp) | CacheFirst | 7 days | 100 |
+| **Static Assets** (JS, CSS, HTML) | Precache | Build-time | All |
+| **Firebase/API Requests** | **Not cached** (streaming) | — | — |
+
+### 11.3 PWA Install Prompt
+
+The `usePWAInstall` hook detects the `beforeinstallprompt` event and provides an install button to add the app to the home screen.
+
+---
+
+## 12. Security
+
+### 12.1 Security Layers
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| **Client Routing** | `ProtectedRoute` component | Prevents UI access by role |
+| **Firestore Rules** | Server-side rules file | Prevents unauthorized data read/write |
+| **RTDB Rules** | `database.rules.json` | Prevents GPS location spoofing |
+| **Firebase Auth** | Firebase-managed sessions | Handles token refresh, expiry |
+| **HTTPS** | Enforced by Firebase Hosting | Encrypted data in transit |
+| **Environment Variables** | `.env` file (not committed) | Protects API keys from source code |
+
+### 12.2 Firestore Security Rules — Key Patterns
+
+```javascript
+// Helper: Check if user is authenticated
+function isAuthenticated() {
+    return request.auth != null;
+}
+
+// Helper: Check user role from Firestore
+function hasRole(role) {
+    return isAuthenticated() && 
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+}
+
+// Helper: Check if admin
+function isAdmin() {
+    return hasRole('admin');
+}
+```
+
+### 12.3 Data Validation
+
+| Validation | Where | How |
+|-----------|-------|-----|
+| Email format | Client (`userCreation.js`) | Regex + domain check |
+| Duplicate email | Client + Firestore query | `checkEmailExists()` |
+| Required fields | Client (`validateUserData()`) | Array of error messages |
+| Role validation | Client + Security Rules | Whitelist check |
+| Birthday format | Client (`birthdayToPassword()`) | Date parsing |
+
+---
+
+## 13. Design Patterns & Architectural Decisions
+
+### 13.1 Patterns Used
+
+| Pattern | Where | Purpose |
+|---------|-------|---------|
+| **Service Layer** | `services/*.js` | Abstracts Firebase SDK calls behind clean APIs |
+| **Custom Hooks** | `hooks/*.js` | Encapsulates data fetching + state management |
+| **Context Provider** | `AuthContext.jsx` | Global auth state without prop drilling |
+| **Lazy Loading** | `App.jsx` | Code splitting per route |
+| **Barrel Exports** | `index.js` files | Clean imports from component directories |
+| **Secondary App** | `firebase.js` | Prevents admin logout during user creation |
+| **Offline Queue** | `useDriverTracking.js` | GPS resilience via `localStorage` |
+| **Debounce** | `geocoding.js` | Rate-limits API calls during typing |
+| **Ref-based Callbacks** | `useDriverTracking.js` | Prevents stale closures in GPS watch |
+| **Builder Pattern** | `RouteBuilder.jsx` | Visual route construction with drag-and-drop stops |
+| **Service Worker Caching** | `vite.config.js` | Offline map tiles + asset caching |
+| **Glassmorphism Design** | `index.css` | Modern frosted-glass UI aesthetic |
+
+### 13.2 Key Architectural Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **Firebase (not custom server)** | Eliminates server management, provides real-time sync out of box |
+| **RTDB for GPS (not Firestore)** | Lower latency for high-frequency writes (GPS updates every 3s) |
+| **Firestore for everything else** | Better querying, document model, offline persistence |
+| **Capacitor (not React Native)** | Reuses web codebase entirely — one codebase for web + Android |
+| **Leaflet (not Google Maps)** | Free, open-source, no API key needed |
+| **CSS variables (not Tailwind)** | Full design system control, smaller bundle |
+| **Vanilla CSS (component-scoped)** | Each component has its own `.css` file — no conflicts |
+| **Email/Password auth (not OAuth)** | University-controlled accounts with predictable email formats |
+
+---
+
+## 14. Module Breakdown
+
+### 14.1 Admin Module
+
+| Page | File | Features |
+|------|------|----------|
+| Dashboard Home | [DashboardHome.jsx](file:///c:/metallic-oort/client/src/pages/admin/DashboardHome.jsx) | Stat cards, today's summary, recent activity |
+| Analytics | [AnalyticsPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/AnalyticsPage.jsx) | Weekly chart, daily stats, trip trends |
+| Buses | [BusesPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/BusesPage.jsx) | CRUD for university buses |
+| Routes | [RoutesPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/RoutesPage.jsx) | Route list + visual RouteBuilder |
+| Route Builder | [RouteBuilder.jsx](file:///c:/metallic-oort/client/src/pages/admin/RouteBuilder.jsx) | Interactive map, drag stops, address search, direction modes |
+| Destinations | [DestinationsPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/DestinationsPage.jsx) | Manage campus/event locations with geocoding |
+| Shifts | [ShiftsPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/ShiftsPage.jsx) | Define shift timings |
+| Schedules | [SchedulesPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/SchedulesPage.jsx) | Calendar view, templates, bulk schedule generation |
+| Users | [UsersPage.jsx](file:///c:/metallic-oort/client/src/pages/admin/UsersPage.jsx) | User management, filtering, bulk import from Excel |
+
+### 14.2 Driver Module
+
+| Component | File | Features |
+|-----------|------|----------|
+| Main View | [DriverView.jsx](file:///c:/metallic-oort/client/src/pages/driver/DriverView.jsx) | Uber-inspired full-screen layout |
+| Full Screen Map | [FullScreenMap.jsx](file:///c:/metallic-oort/client/src/pages/driver/components/FullScreenMap.jsx) | Leaflet map, route polyline, stop markers, rotatable bus icon |
+| Top Status Bar | TopStatusBar.jsx | Online status, GPS quality indicator, offline badge |
+| Bottom Sheet | BottomSheet.jsx | Expandable panel for route details |
+| Route Info Panel | RouteInfoPanel.jsx | Route stops, ETA, progress, break button |
+| GPS Tracking Hook | [useDriverTracking.js](file:///c:/metallic-oort/client/src/pages/driver/hooks/useDriverTracking.js) | GPS watch, Firebase write, offline queue |
+| Schedule Hook | [useDriverSchedule.js](file:///c:/metallic-oort/client/src/pages/driver/hooks/useDriverSchedule.js) | Fetch assigned schedule, check-in/out |
+| Haptics Utility | haptics.js | Vibration feedback for mobile (success, error, arrival) |
+
+### 14.3 Student/Faculty Tracking Module
+
+| Component | File | Features |
+|-----------|------|----------|
+| Main Page | [TrackingPage.jsx](file:///c:/metallic-oort/client/src/pages/track/TrackingPage.jsx) | Orchestrates map, list, filters |
+| Bus Map | BusMap.jsx | Live bus markers, route polylines, user location |
+| Bus List Panel | BusListPanel.jsx | List view of active buses with speed/distance |
+| Filter Bar | FilterBar.jsx | Route filter dropdown + favorites toggle |
+| Connection Status | ConnectionStatus.jsx | Firebase connection indicator |
+| Map Controls | MapControls.jsx | Zoom, recenter, locate-me buttons |
+| User Location Marker | UserLocationMarker.jsx | Student's own GPS position on map |
+| Bus Locations Hook | [useBusLocations.js](file:///c:/metallic-oort/client/src/pages/track/hooks/useBusLocations.js) | Real-time RTDB subscription |
+| Routes Hook | useRoutes.js | Fetch active routes from Firestore |
+| Favorites Hook | useFavorites.js | Persist favorite routes in localStorage |
+
+### 14.4 Bulk Import System
+
+```mermaid
+graph LR
+    A[Upload Excel/CSV] --> B[Parse with SheetJS]
+    B --> C[Normalize Column Names]
+    C --> D[Validate Each Row]
+    D --> E[Show Preview Table]
+    E --> F[Bulk Create Users]
+    F --> G[Progress Callback]
+    G --> H[Success/Error Report]
+```
+
+**Files involved:**
+- [excelParser.js](file:///c:/metallic-oort/client/src/services/excelParser.js) — XLSX parsing + template download
+- [bulkImport.js](file:///c:/metallic-oort/client/src/services/bulkImport.js) — Batch creation with progress tracking
+- [userCreation.js](file:///c:/metallic-oort/client/src/services/userCreation.js) — Individual user creation with secondary auth
+- [BulkImportModal.jsx](file:///c:/metallic-oort/client/src/pages/admin/BulkImportModal.jsx) — UI wizard
+
+---
+
+## 15. Deployment
+
+### 15.1 Firebase Hosting
+
+| Property | Value |
+|----------|-------|
+| **Hosting Target** | `client/dist` (Vite build output) |
+| **SPA Rewrite** | `/** → /index.html` |
+| **CDN** | Firebase global CDN |
+| **SSL** | Automatic HTTPS |
+| **Domain** | `university-bus-tracker-app.web.app` |
+
+### 15.2 Deployment Commands
+
+```bash
+# Build the React app
+cd client && npm run build
+
+# Deploy to Firebase Hosting
+firebase deploy --only hosting
+
+# Deploy Firestore rules
+firebase deploy --only firestore:rules
+
+# Deploy RTDB rules
+firebase deploy --only database
+
+# Deploy everything
+firebase deploy
+```
+
+### 15.3 Android APK Build
+
+```bash
+# Build web assets
+npm run build
+
+# Sync to Android project
+npx cap sync android
+
+# Open in Android Studio → Build → Generate Signed APK
+npx cap open android
+```
+
+---
+
+## 16. Data Flow Diagrams
+
+### 16.1 Complete Data Flow — Driver to Student
+
+```mermaid
+sequenceDiagram
+    participant D as Driver (Mobile)
+    participant GPS as Device GPS
+    participant RTDB as Firebase RTDB
+    participant FS as Cloud Firestore
+    participant S as Student (Browser)
+    participant M as Leaflet Map
+
+    Note over D,S: Driver Goes Online
+    D->>FS: Fetch today's schedule (Firestore)
+    FS-->>D: Schedule with route, bus, shift
+    D->>RTDB: set('driverStatus/{uid}', {isOnDuty: true})
+    D->>GPS: watchPosition() starts
+
+    Note over D,S: Continuous Tracking
+    loop Every GPS Update (~3s)
+        GPS-->>D: Position {lat, lng, speed, heading}
+        D->>RTDB: set('busLocations/{uid}', locationData)
+        RTDB-->>S: onValue() → push update
+        S->>M: Update marker position
+    end
+
+    Note over D,S: Student Filters
+    S->>FS: Fetch routes (one-time)
+    FS-->>S: Route list with stops & polylines
+    S->>M: Draw route polyline on map
+
+    Note over D,S: Driver Goes Offline
+    D->>RTDB: set('busLocations/{uid}', {isActive: false})
+    D->>RTDB: set('driverStatus/{uid}', {isOnDuty: false})
+    RTDB-->>S: Bus marker disappears from map
+```
+
+### 16.2 Admin — User Creation Flow
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant P as Primary Auth
+    participant S as Secondary Auth
+    participant FS as Cloud Firestore
+
+    A->>A: Fill user form (name, role, birthday)
+    A->>A: Generate email (rollNo@gnu.ac.in)
+    A->>A: Generate password (birthday DDMMYYYY)
+    A->>S: createUserWithEmailAndPassword(secondaryAuth)
+    S-->>A: New user UID
+    A->>S: signOut(secondaryAuth) immediately
+    A->>FS: setDoc('users/{uid}', profileData)
+    A->>A: deleteApp(secondaryApp)
+    Note over A,P: Admin remains signed in on Primary Auth!
+```
+
+---
+
+## 17. Key Technical Highlights for Viva
+
+### Questions You May Be Asked & Answers
+
+---
+
+**Q1: Why did you choose Firebase over a custom backend (Express/Django)?**
+
+> Firebase provides **real-time database streaming** (WebSocket), **built-in authentication**, **server-side security rules**, and **free hosting** — all without managing a server. For a real-time GPS tracking app, the RTDB's low-latency WebSocket push is critical. A custom backend would require setting up WebSocket infrastructure (Socket.io), database, auth, hosting, and SSL manually.
+
+---
+
+**Q2: Why use TWO Firebase databases (Firestore + RTDB)?**
+
+> **Firestore** is optimized for complex queries and structured data (users, routes, schedules). **Realtime Database** is optimized for low-latency, high-frequency reads/writes — perfect for GPS updates that happen every 3 seconds from multiple drivers simultaneously. Using RTDB for GPS and Firestore for everything else gives us the best of both worlds.
+
+---
+
+**Q3: How does the GPS tracking work in real time?**
+
+> The driver's browser calls `navigator.geolocation.watchPosition()` which provides continuous GPS updates. Each update is written to Firebase RTDB at `busLocations/{driverId}`. Students subscribe to this node using `onValue()`, which receives push updates via WebSocket whenever any driver's location changes. The student's map then animates the bus marker to the new position.
+
+---
+
+**Q4: What happens when the driver goes offline?**
+
+> GPS updates are queued in `localStorage` using our **offline queue** mechanism. When the driver's device reconnects, the queue is flushed — each queued update is sent to Firebase. The app monitors `window.addEventListener('online'/'offline')` and the RTDB `.info/connected` node.
+
+---
+
+**Q5: How do you prevent the admin from being logged out when creating users?**
+
+> Firebase's `createUserWithEmailAndPassword()` automatically signs in as the newly created user, which would log out the admin. We solve this using the **Secondary Firebase App pattern** — we create a temporary secondary Firebase app instance, create the user on THAT instance, immediately sign out and delete the secondary app, while the admin's session remains intact on the primary app.
+
+---
+
+**Q6: What is Capacitor and how does it convert a website to an app?**
+
+> Capacitor creates a native Android shell (WebView) that loads our web app. It also provides JavaScript plugins to access native device APIs like GPS (`@capacitor/geolocation`). The build process is: `npm run build` → `npx cap sync android` → build APK in Android Studio. The same React codebase runs on both web and Android.
+
+---
+
+**Q7: What map library do you use and why?**
+
+> We use **Leaflet** (via `react-leaflet`) with **OpenStreetMap** tiles. Unlike Google Maps, Leaflet is open-source and free — no API key or billing needed. OpenStreetMap provides free map tiles globally. For address search (geocoding), we use **Nominatim** — also free and open-source.
+
+---
+
+**Q8: What design pattern does your frontend follow?**
+
+> We follow a **modular component architecture**: Services (data layer) → Custom Hooks (state + logic) → Components (UI). Each concern is separated. We use React Context for global state (auth), lazy loading for code splitting, and barrel exports for clean imports. The design system uses CSS variables for theming.
+
+---
+
+**Q9: How is security handled?**
+
+> Security is enforced at **two levels**: (1) **Client-side** — `ProtectedRoute` redirects unauthorized users. (2) **Server-side** — Firebase Security Rules validate EVERY read/write operation. For example, only drivers can write to their own GPS location node (`auth.uid == $driverId`), and only admins can modify buses, routes, and schedules.
+
+---
+
+**Q10: What is the Haversine formula and why do you use it?**
+
+> The Haversine formula calculates the straight-line distance between two GPS coordinates on a sphere (Earth). We use it to calculate the distance between the driver's current position and the next stop, then divide by speed to estimate ETA (Estimated Time of Arrival).
+
+---
+
+### Key Metrics / Numbers to Mention
+
+| Metric | Value |
+|--------|-------|
+| Total source files | ~120+ JSX/JS/CSS files |
+| React components | ~80+ components |
+| Custom hooks | ~15 hooks |
+| Service modules | 11 Firebase service files |
+| Firestore collections | 8 collections |
+| RTDB nodes | 2 root nodes |
+| Firestore indexes | 6 composite indexes |
+| User roles | 4 (admin, driver, student, faculty) |
+| GPS update frequency | ~every 3 seconds |
+| Map tile cache | 500 tiles, 30-day expiry |
+| Admin pages | 8 sub-pages |
+| PWA categories | 3 (transportation, education, utilities) |
+
+---
+
+## 18. Device Specifications & Hardware Requirements
+
+### 18.1 Android App — Minimum & Maximum Device Specs
+
+These values come directly from [variables.gradle](file:///c:/metallic-oort/client/android/variables.gradle) and [build.gradle](file:///c:/metallic-oort/client/android/app/build.gradle):
+
+| Spec | Value | Meaning |
+|------|-------|---------|
+| **Minimum SDK (minSdkVersion)** | **22** | Android 5.1 (Lollipop MR1) |
+| **Target SDK (targetSdkVersion)** | **34** | Android 14 (Upside Down Cake) |
+| **Compile SDK (compileSdkVersion)** | **34** | Compiled against Android 14 APIs |
+| **Gradle Plugin** | `8.2.1` | Android Gradle Plugin for building |
+| **Version Code** | `1` | First release build |
+| **Version Name** | `1.0` | User-facing version string |
+| **App ID** | `com.unitrack.app` | Unique package identifier |
+| **Namespace** | `com.unitrack.app` | Java/Kotlin package namespace |
+
+#### Minimum Android Device Requirements
+
+| Requirement | Specification |
+|-------------|---------------|
+| **OS Version** | Android 5.1 (Lollipop, API 22) or higher |
+| **RAM** | 1 GB minimum (2 GB recommended) |
+| **Storage** | ~30-50 MB for APK + cache |
+| **GPS Hardware** | Required (`<uses-feature android:name="android.hardware.location.gps" />`) |
+| **Internet** | Required (Wi-Fi or Mobile Data) |
+| **Screen Size** | Any — responsive design adapts |
+| **Processor** | ARMv7 or higher (any modern phone) |
+
+#### Recommended Android Device Specs (Optimal Performance)
+
+| Requirement | Specification |
+|-------------|---------------|
+| **OS Version** | Android 10+ (API 29+) |
+| **RAM** | 3 GB or higher |
+| **Storage** | 100 MB free space |
+| **GPS** | High-accuracy GNSS (GPS + GLONASS/Galileo) |
+| **Internet** | 4G/LTE or stable Wi-Fi |
+| **Screen** | 5.0" or larger, 720p+ resolution |
+| **Processor** | Snapdragon 400 series or equivalent |
+
+#### Maximum Supported Android Version
+
+| Property | Value |
+|----------|-------|
+| **Maximum Supported** | Android 14 (API 34) — Latest as of project build |
+| **Future Compatibility** | Apps targeting API 34 will work on Android 15+ via forward compatibility |
+
+### 18.2 Web Browser — Minimum Requirements
+
+| Browser | Minimum Version | Notes |
+|---------|----------------|-------|
+| **Google Chrome** | 80+ | Full support (recommended) |
+| **Firefox** | 78+ | Full support |
+| **Safari** | 14+ | PWA install limited on iOS |
+| **Microsoft Edge** | 80+ (Chromium) | Full support |
+| **Opera** | 67+ | Full support |
+| **Samsung Internet** | 13+ | Full support on Samsung devices |
+
+#### Required Browser APIs
+
+| API | Purpose | Fallback |
+|-----|---------|----------|
+| **Geolocation API** | GPS tracking (driver + student location) | Error message prompts |
+| **WebSocket** | Firebase RTDB real-time connection | Falls back to long polling |
+| **Service Worker** | PWA offline caching, install prompt | App works without it (no caching) |
+| **localStorage** | Offline GPS queue, favorites | Graceful degradation |
+| **Vibration API** | Haptic feedback on mobile | Silently skipped if unsupported |
+| **matchMedia** | PWA installed detection | Not critical |
+| **ES2020+** | Modern JavaScript features | Vite transpiles for older browsers |
+
+#### Minimum Browser Hardware (for Web Access)
+
+| Requirement | Specification |
+|-------------|---------------|
+| **RAM** | 2 GB minimum (for map tiles) |
+| **Internet** | Required (any speed works, 1 Mbps+ recommended) |
+| **Display** | 320px minimum width (responsive) |
+| **JavaScript** | Must be enabled |
+| **Cookies** | Must be enabled (Firebase auth) |
+
+### 18.3 Development Machine Requirements
+
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| **OS** | Windows 10 / macOS 11 / Linux (any recent) | Windows 11 / macOS 14 |
+| **RAM** | 4 GB | 8 GB+ (Android Studio is RAM-hungry) |
+| **Storage** | 5 GB free | 15 GB+ (for Android SDK + emulators) |
+| **Node.js** | v18+ | v20 LTS |
+| **npm** | v9+ | v10+ |
+| **Java JDK** | 17 (required for Gradle 8.2.1) | JDK 17 |
+| **Android Studio** | Hedgehog (2023.1.1+) | Latest stable |
+| **Android SDK** | API 34 | API 34 |
+| **Git** | 2.30+ | Latest stable |
+
+---
+
+## 19. Android App — Deep Dive
+
+### 19.1 Android Manifest Permissions
+
+From [AndroidManifest.xml](file:///c:/metallic-oort/client/android/app/src/main/AndroidManifest.xml):
+
+```xml
+<!-- Required Permissions -->
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-feature android:name="android.hardware.location.gps" />
+```
+
+| Permission | Type | Purpose |
+|-----------|------|---------|
+| `INTERNET` | Normal (auto-granted) | Firebase connection, map tiles, API calls |
+| `ACCESS_COARSE_LOCATION` | Dangerous (requires user consent) | Cell tower/Wi-Fi based approximate location |
+| `ACCESS_FINE_LOCATION` | Dangerous (requires user consent) | GPS-based precise location (critical for tracking) |
+| `android.hardware.location.gps` | Hardware feature | Declares GPS is **required** — Google Play won't show app on devices without GPS |
+
+### 19.2 Android Activity Configuration
+
+```xml
+<activity
+    android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|
+                           smallestScreenSize|screenLayout|uiMode"
+    android:name=".MainActivity"
+    android:launchMode="singleTask"
+    android:exported="true">
+```
+
+| Property | Value | Purpose |
+|----------|-------|---------|
+| `configChanges` | Multiple | Prevents activity restart on rotation/keyboard changes (WebView handles it) |
+| `launchMode` | `singleTask` | Only one instance of the app exists (deep links reuse it) |
+| `exported` | `true` | Activity can be launched from outside (required for LAUNCHER) |
+
+### 19.3 Android Dependencies
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| `androidx.appcompat` | 1.6.1 | Backward-compatible Android UI |
+| `androidx.coordinatorlayout` | 1.2.0 | Layout coordination |
+| `androidx.core:core-splashscreen` | 1.0.1 | Native splash screen |
+| `androidx.webkit` | 1.9.0 | Modern WebView features |
+| `capacitor-android` | (project) | Capacitor runtime |
+| Google GMS (optional) | 4.4.0 | Google services (push notifications) |
+
+### 19.4 Gradle Build Configuration
+
+| Property | Value |
+|----------|-------|
+| **JVM Memory** | `-Xmx1536m` (1.5 GB max heap) |
+| **AndroidX** | `true` (modern Android support libs) |
+| **Minification** | `false` (not using ProGuard for release) |
+| **BouncyCastle** | Pinned to `1.76` (avoids Java 21 bytecode issues) |
+
+### 19.5 Web-to-Native Bridge (Capacitor Architecture)
+
+```mermaid
+graph TB
+    subgraph "Android Native Layer"
+        A[MainActivity.java]
+        B[WebView]
+        C[Native GPS Plugin]
+    end
+
+    subgraph "Web Layer (inside WebView)"
+        D[React App - dist/]
+        E["@capacitor/geolocation JS API"]
+        F[Firebase SDK]
+    end
+
+    D --> E
+    E -->|Bridge Call| C
+    C -->|Native GPS Data| E
+    E -->|Position Object| D
+    D --> F
+
+    A --> B
+    B --> D
+```
+
+### 19.6 Capacitor vs React Native — Why Capacitor?
+
+| Feature | Capacitor | React Native |
+|---------|-----------|--------------|
+| **Code Reuse** | 100% web code reused | Need to rewrite in RN components |
+| **Learning Curve** | Minimal (it's just web) | Steep (new component paradigm) |
+| **Performance** | Good for content apps | Better for animation-heavy apps |
+| **Plugin Access** | Native via JS bridge | Native modules |
+| **Web Support** | Built-in (same codebase) | Separate web project needed |
+| **Bundle Size** | Larger (WebView overhead) | Smaller native views |
+| **Best For** | Apps that are already web-first | Apps built native-first |
+
+> UniTrack was **built as a website first** (Semester 3), so Capacitor was the natural choice — zero rewrite needed.
+
+---
+
+## 20. Network Requirements & Data Usage
+
+### 20.1 Bandwidth Requirements
+
+| Feature | Data Usage | Direction |
+|---------|-----------|-----------|
+| **Map Tiles** | ~50-200 KB per tile | Download (cached after first load) |
+| **GPS Update (Driver)** | ~200-500 bytes per write | Upload |
+| **GPS Subscription (Student)** | ~200-500 bytes per push event | Download |
+| **Firestore Query** | ~1-5 KB per document | Download |
+| **Firebase Auth** | ~2-5 KB per request | Both |
+| **Geocoding Search** | ~1-3 KB per request | Download |
+
+### 20.2 Estimated Daily Data Usage
+
+| User Role | Estimated Daily Data | Breakdown |
+|-----------|---------------------|-----------|
+| **Driver** (8-hour shift) | ~5-10 MB | GPS uploads + map tiles |
+| **Student** (30 min tracking) | ~2-5 MB | Map tiles + live bus updates |
+| **Admin** (panel usage) | ~10-20 MB | Dashboard data + map tiles |
+
+### 20.3 Network Protocols Used
+
+| Protocol | Where | Purpose |
+|----------|-------|---------|
+| **HTTPS** | All Firebase SDK calls | Encrypted API communication |
+| **WSS (WebSocket Secure)** | Firebase RTDB | Real-time GPS streaming |
+| **HTTPS** | OpenStreetMap tiles | Map imagery download |
+| **HTTPS** | Nominatim API | Geocoding requests |
+
+### 20.4 Offline Behavior
+
+| Feature | Offline Behavior |
+|---------|-----------------|
+| **Map** | Shows previously cached tiles (up to 500 tiles via Service Worker) |
+| **GPS Tracking (Driver)** | Continues tracking, queues updates in `localStorage` |
+| **Bus Locations (Student)** | Shows last known positions, "Offline" indicator appears |
+| **Login** | Not possible (requires Firebase Auth server) |
+| **Admin CRUD** | Not possible (requires Firestore connection) |
+
+---
+
+## 21. Haptic Feedback System
+
+The app implements a comprehensive **haptic feedback system** using the [Vibration API](https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API) for mobile devices. See [haptics.js](file:///c:/metallic-oort/client/src/pages/driver/utils/haptics.js).
+
+### 21.1 Haptic Patterns
+
+| Pattern | Vibration (ms) | Trigger |
+|---------|---------------|---------|
+| `hapticLight` | `[10]` | Light UI interaction |
+| `hapticMedium` | `[25]` | Button press |
+| `hapticHeavy` | `[50]` | Strong confirmation |
+| `hapticSuccess` | `[20, 50, 20]` | Successful action (two bursts) |
+| `hapticError` | `[100]` | Error occurred (long buzz) |
+| `hapticNotification` | `[30, 100, 30]` | System notification |
+| `hapticDoublePulse` | `[30, 80, 30]` | Going online confirmation |
+| `hapticCelebration` | `[50, 100, 50, 100, 100]` | Route completed |
+| `hapticArrival` | `[40, 60, 20]` | Arrived at a stop |
+| `hapticWarning` | `[80, 50, 80]` | Important alert |
+| `hapticSelection` | `[5]` | Subtle selection feedback |
+
+### 21.2 Safety Check
+
+```javascript
+const isVibrationSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator;
+```
+
+The system checks for Vibration API support before every call — silently does nothing on unsupported devices (desktop browsers, older iOS).
+
+---
+
+## 22. Error Handling System
+
+### 22.1 Firebase Auth Error Translation
+
+The login page translates Firebase error codes to **user-friendly messages**:
+
+| Firebase Error Code | User Message |
+|--------------------|--------------|
+| `auth/user-not-found` | "No account found with this email" |
+| `auth/wrong-password` | "Incorrect password" |
+| `auth/invalid-email` | "Invalid email address" |
+| `auth/too-many-requests` | "Too many attempts. Try again later" |
+| `auth/invalid-credential` | "Invalid email or password" |
+| Default | "Something went wrong. Please try again." |
+
+### 22.2 Geolocation Error Handling
+
+The [useUserLocation](file:///c:/metallic-oort/client/src/pages/track/hooks/useUserLocation.js) hook handles platform-aware errors:
+
+| Error Type | Android Message | Web Message |
+|-----------|----------------|-------------|
+| **GPS Disabled** | "Turn on Location/GPS in your device..." | Same |
+| **Permission Denied** | "Go to Settings > App > UniTrack > Permissions..." | "Enable location in your browser settings" |
+| **Location Unavailable** | "Turn on GPS in device Settings > Location" | Same |
+| **Timeout** | "Location request timed out" | Same |
+| **Unknown** | "Failed to get location" | Same |
+
+### 22.3 Platform Detection
+
+```javascript
+import { Capacitor } from '@capacitor/core';
+
+if (Capacitor.isNativePlatform()) {
+    // Android-specific behavior
+    await Geolocation.requestPermissions();
+} else {
+    // Browser-specific behavior
+    navigator.geolocation.getCurrentPosition(...);
+}
+```
+
+The app detects whether it's running in a native Capacitor shell or a browser, and adjusts permission flows and error messages accordingly.
+
+---
+
+## 23. AuthContext — Deep Dive
+
+The [AuthContext](file:///c:/metallic-oort/client/src/contexts/AuthContext.jsx) is the heart of state management:
+
+### 23.1 Context Value (what every component can access)
+
+```javascript
+const value = {
+    user,              // Full user object (uid, email, name, role, phone, etc.)
+    userRole,          // 'admin' | 'driver' | 'student' | 'faculty'
+    loading,           // True while auth is initializing
+    error,             // Auth error messages
+    signIn,            // function(email, password): Logs in
+    signOut,           // function(): Logs out
+    isAuthenticated,   // boolean: is user logged in?
+    isAdmin,           // boolean: userRole === 'admin'
+    isDriver,          // boolean: userRole === 'driver'
+    isStudent          // boolean: userRole === 'student' || 'faculty'
+};
+```
+
+### 23.2 Auth Flow — Detailed
+
+```mermaid
+graph TD
+    A[App Starts] --> B["onAuthStateChanged() fires"]
+    B --> C{Firebase User exists?}
+    C -->|No| D["setUser(null), setLoading(false)"]
+    D --> E[Show Landing/Login Page]
+    C -->|Yes| F["getDoc('users/{uid}')"]
+    F --> G{Firestore doc exists?}
+    G -->|Yes| H["Set user + role, setLoading(false)"]
+    H --> I[Redirect to role dashboard]
+    G -->|No| J["Set user without role"]
+    J --> K[Limbo state - shouldn't happen normally]
+```
+
+---
+
+## 24. Bulk Import System — Deep Dive
+
+### 24.1 Excel/CSV Parsing
+
+The [excelParser.js](file:///c:/metallic-oort/client/src/services/excelParser.js) service:
+
+1. Accepts `.xlsx`, `.xls`, or `.csv` files
+2. Uses **SheetJS (XLSX)** library to parse binary Excel data
+3. Normalizes column headers (handles case insensitivity, alternate names)
+4. Returns structured array of user objects
+
+### 24.2 Column Mapping
+
+| Expected Column | Alt Names Accepted | Required? |
+|----------------|-------------------|-----------|
+| `name` | `fullname`, `full name`, `student name` | ✅ Yes |
+| `rollNo` | `roll_no`, `roll number`, `enrollment` | ✅ Yes (students) |
+| `role` | `type`, `user type` | ✅ Yes |
+| `phone` | `mobile`, `contact`, `phone number` | ❌ Optional |
+| `birthday` | `dob`, `date of birth`, `birthdate` | ✅ Yes (used for password) |
+| `email` | `email address` | ✅ Yes (drivers only) |
+
+### 24.3 Bulk Creation Process
+
+```mermaid
+graph TD
+    A["Upload .xlsx file"] --> B["Parse with SheetJS"]
+    B --> C["Normalize columns"]
+    C --> D["validateBulkData()"]
+    D --> E["Check duplicates within file"]
+    E --> F["Show preview table"]
+    F --> G{User clicks Import?}
+    G -->|Yes| H["bulkCreateUsers() loop"]
+    H --> I["For each user:"]
+    I --> J["1. validateUserData()"]
+    J --> K["2. createSingleUser() via Secondary Auth"]
+    K --> L["3. setDoc() Firestore profile"]
+    L --> M["4. Progress callback → UI update"]
+    M --> N{More users?}
+    N -->|Yes| I
+    N -->|No| O["Show success/failure report"]
+    O --> P["generateErrorReport() → CSV download"]
+```
+
+### 24.4 Rate Limiting Protection
+
+```javascript
+// 100ms delay between each user creation to prevent Firebase rate limiting
+if (i < users.length - 1) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+}
+```
+
+### 24.5 Password Generation Logic
+
+```
+For Students/Faculty:
+  Email = rollNo@gnu.ac.in  (e.g., 22BIT086@gnu.ac.in)
+  Password = birthday in DDMMYYYY format (e.g., 15062003)
+
+For Drivers:
+  Email = provided email
+  Password = birthday in DDMMYYYY format
+```
+
+---
+
+## 25. Schedule Template System
+
+### 25.1 How Templates Work
+
+Templates allow admins to define recurring schedules and **bulk-generate** them:
+
+```mermaid
+graph LR
+    A["Create Template"] --> B["Define: Driver + Bus + Route + Shift"]
+    B --> C["Select Days of Week"]
+    C --> D["Admin selects date range"]
+    D --> E["generateDates() → array of dates"]
+    E --> F["generateScheduleEntries() → schedule docs"]
+    F --> G["Batch write to Firestore"]
+```
+
+### 25.2 Template Data Model
+
+```javascript
+{
+    name: "Morning Ahmedabad Route",
+    driverId: "<driver-uid>",
+    busId: "<bus-doc-id>",
+    routeId: "<route-doc-id>",
+    shiftId: "<shift-doc-id>",
+    daysOfWeek: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+    isActive: true,
+    createdAt: serverTimestamp()
+}
+```
+
+### 25.3 Date Generation Algorithm
+
+```javascript
+function generateDates(daysOfWeek, startDate, endDate) {
+    const dates = [];
+    const current = new Date(startDate);
+    const dayNames = ['sunday', 'monday', ...]; // 0-indexed
+
+    while (current <= endDate) {
+        if (daysOfWeek.includes(dayNames[current.getDay()])) {
+            dates.push(formatDate(current)); // "YYYY-MM-DD"
+        }
+        current.setDate(current.getDate() + 1);
+    }
+    return dates;
+}
+```
+
+**Example:** Template with `["monday", "wednesday", "friday"]` for Jan 1–Jan 31 generates ~13 schedule entries.
+
+---
+
+## 26. Trip History & Analytics
+
+### 26.1 Event Logging
+
+Every driver check-in and check-out creates a [trip history](file:///c:/metallic-oort/client/src/services/tripHistory.js) record:
+
+```javascript
+{
+    driverId: "uid-123",
+    driverName: "Rajesh Kumar",
+    eventType: "check_in",           // or "check_out"
+    busId: "bus-doc-id",
+    routeId: "route-doc-id",
+    routeName: "Ahmedabad Express",
+    scheduleId: "schedule-doc-id",
+    timestamp: "2025-01-15T08:30:00.000Z",
+    date: "2025-01-15",
+    location: { lat: 23.529, lng: 72.457 }
+}
+```
+
+### 26.2 Analytics Computed from Trip History
+
+| Metric | Calculation |
+|--------|------------|
+| **Daily Check-ins** | Count of `eventType === 'check_in'` for a given date |
+| **Daily Check-outs** | Count of `eventType === 'check_out'` for a given date |
+| **Active Trips** | `checkIns - checkOuts` (currently running) |
+| **Unique Drivers Today** | `new Set(trips.map(t => t.driverId)).size` |
+| **Unique Routes Today** | `new Set(trips.map(t => t.routeId)).size` |
+| **Weekly Summary** | Last 7 days of daily stats (used for admin chart) |
+
+---
+
+## 27. Comparison with Existing Solutions
+
+### 27.1 UniTrack vs Other Bus Tracking Apps
+
+| Feature | UniTrack | Google Maps Transit | Moovit | College Bus Apps (generic) |
+|---------|----------|-------------------|--------|---------------------------|
+| **University-specific** | ✅ | ❌ | ❌ | ✅ |
+| **Custom routes** | ✅ Admin creates routes | ❌ Uses public transit data | ❌ | ⚠️ Usually hardcoded |
+| **Real-time GPS** | ✅ Live driver GPS | ✅ For public buses only | ✅ | ⚠️ Often delayed |
+| **Admin dashboard** | ✅ Full CRUD | ❌ | ❌ | ⚠️ Basic |
+| **Bulk user import** | ✅ Excel/CSV | ❌ | ❌ | ❌ |
+| **Offline support** | ✅ GPS queuing | ✅ Cached routes | ⚠️ | ❌ Usually |
+| **Cross-platform** | ✅ Web + Android | ✅ Web + Mobile | ✅ | ⚠️ Usually one platform |
+| **Cost** | Free (Firebase Spark) | Free | Free | Varies |
+| **Schedule management** | ✅ Templates + Calendar | ❌ | ❌ | ⚠️ Basic |
+| **Driver management** | ✅ Full driver profiles | ❌ | ❌ | ⚠️ |
+| **Open-source maps** | ✅ OpenStreetMap | ❌ Google Maps (paid for API) | ❌ | Varies |
+
+### 27.2 Why Not Just Use Google Maps?
+
+1. **No driver management** — Google Maps has no concept of "drivers" or "admin panels"
+2. **No custom routes** — Only supports public transit routes
+3. **API costs** — Google Maps Platform charges $7/1000 map loads; OSM is free
+4. **No university context** — Can't assign buses to shifts or manage schedules
+5. **No offline GPS queuing** — No custom tracking logic possible
+
+---
+
+## 28. Limitations & Known Constraints
+
+### 28.1 Current Limitations
+
+| Limitation | Reason | Possible Future Solution |
+|-----------|--------|------------------------|
+| **Android only** (no iOS APK) | iOS requires Apple Developer account ($99/year) + Mac for build | Add iOS platform via Capacitor |
+| **No push notifications** | Firebase Cloud Messaging not integrated yet | Add FCM for bus arrival alerts |
+| **No route turn-by-turn** | Leaflet doesn't have built-in routing engine | Integrate OSRM or Mapbox Directions |
+| **GPS accuracy varies** | Depends on device hardware, urban canyons, weather | Implement Kalman filter for smoothing |
+| **No multi-language** | Only English UI | Add i18n with `react-intl` or `i18next` |
+| **No dark/light toggle** | Dark theme only | Add theme switching in settings |
+| **No bus capacity display** | No sensor for passenger count | Integrate IoT passenger counter |
+| **Straight-line ETA** | Haversine gives air distance, not road distance | Use OSRM for road-based ETA |
+| **No payment/ticketing** | Out of scope | Integrate Razorpay or UPI |
+| **Single university** | Hardcoded for GNU | Make university configurable |
+
+### 28.2 Scalability Considerations
+
+| Factor | Current Capacity | At Scale |
+|--------|-----------------|----------|
+| **Firebase Spark (Free)** | 50K reads/day, 20K writes/day | Upgrade to Blaze (pay-as-you-go) |
+| **Simultaneous RTDB connections** | 200 concurrent | Firebase auto-scales up to 200K |
+| **Map tiles** | Shared OSM server | Self-host tile server or use Mapbox |
+| **Drivers broadcasting** | Tested with ~5 concurrent | Should handle 50+ without issues |
+| **Firestore document size** | 1 MB max per document | Route stops kept under limit |
+
+---
+
+## 29. Development Journey — Semester Timeline
+
+### 29.1 Semester 3 — Web Application
+
+| Phase | Work Done |
+|-------|-----------|
+| **Planning** | Requirement analysis, chose tech stack (React + Firebase) |
+| **Setup** | Created React + Vite project, configured Firebase project |
+| **Auth** | Implemented Firebase Auth + Role-based login |
+| **Admin Panel** | Built bus, route, shift, schedule management |
+| **Tracking** | Implemented real-time GPS tracking with Leaflet |
+| **Deployment** | Deployed to Firebase Hosting |
+
+### 29.2 Semester 4 — Mobile App + Enhancement
+
+| Phase | Work Done |
+|-------|-----------|
+| **Capacitor Integration** | Added Capacitor, configured Android project |
+| **Native GPS** | Switched from browser Geolocation to `@capacitor/geolocation` |
+| **Offline Support** | Added GPS queue with `localStorage` persistence |
+| **UI Polish** | Glassmorphism design, Uber-inspired driver view, haptic feedback |
+| **Analytics** | Trip history logging, weekly charts, admin dashboard stats |
+| **Bulk Import** | Excel/CSV user import with SheetJS |
+| **Schedule Templates** | Template-based schedule generation |
+| **PWA** | Service worker, install prompt, map tile caching |
+| **APK Build** | Built Android APK via Gradle |
+
+---
+
+## 30. Firebase Configuration & Environment
+
+### 30.1 Environment Variables
+
+Located in `client/.env` (NOT committed to git):
+
+```
+VITE_FIREBASE_API_KEY=AIzaSyB3QEz8i...
+VITE_FIREBASE_AUTH_DOMAIN=university-bus-tracker-app.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=university-bus-tracker-app
+VITE_FIREBASE_STORAGE_BUCKET=university-bus-tracker-app.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=792306737684
+VITE_FIREBASE_APP_ID=1:792306737684:web:c6e4f2ac274659342bbd01
+VITE_FIREBASE_DATABASE_URL=https://university-bus-tracker-app-default-rtdb.firebaseio.com
+```
+
+### 30.2 Firebase Configuration Object
+
+```javascript
+const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
+};
+```
+
+### 30.3 Firebase Project Details
+
+| Property | Value |
+|----------|-------|
+| **Project ID** | `university-bus-tracker-app` |
+| **Region** | Default (US) |
+| **Plan** | Spark (Free) |
+| **Hosting URL** | `university-bus-tracker-app.web.app` |
+| **RTDB URL** | `university-bus-tracker-app-default-rtdb.firebaseio.com` |
+| **Auth Providers** | Email/Password only |
+
+### 30.4 firebase.json — Infrastructure Config
+
+```json
+{
+    "firestore": {
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
+    },
+    "database": {
+        "rules": "database.rules.json"
+    },
+    "hosting": {
+        "public": "client/dist",
+        "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+        "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    }
+}
+```
+
+---
+
+## 31. Map System — Deep Dive
+
+### 31.1 Leaflet Map Stack
+
+```mermaid
+graph TD
+    A[React Component] --> B["react-leaflet (React wrapper)"]
+    B --> C["Leaflet.js (core map library)"]
+    C --> D["OpenStreetMap Tiles"]
+    C --> E["Custom Markers/Icons"]
+    C --> F["Polylines (Route paths)"]
+    C --> G["Popup Components"]
+```
+
+### 31.2 Custom Map Icons
+
+The app uses **inline SVG-based icons** (no external image files):
+
+| Icon | Purpose | Visual |
+|------|---------|--------|
+| **Bus Marker** | Driver's live position | Blue circle with rotatable arrow (heading) |
+| **Stop Marker (Red)** | Upcoming route stop | Red circle with white dot |
+| **Current Stop (Green)** | Current/nearest stop | Large green circle |
+| **Passed Stop (Gray)** | Already passed stop | Gray circle with checkmark |
+
+### 31.3 Map Features by Role
+
+| Feature | Admin | Driver | Student |
+|---------|-------|--------|---------|
+| Click to add stops | ✅ (RouteBuilder) | ❌ | ❌ |
+| Drag stops to reorder | ✅ | ❌ | ❌ |
+| See live bus markers | ❌ | ✅ (own position) | ✅ (all buses) |
+| See route polyline | ✅ (preview) | ✅ (assigned route) | ✅ (selected route) |
+| User's own location | ❌ | ✅ | ✅ |
+| Rotate marker with heading | ❌ | ✅ | ❌ |
+| Zoom/recenter controls | ❌ | ✅ (glassmorphism bar) | ✅ |
+
+### 31.4 Default Map Center
+
+```javascript
+// Ahmedabad, India (near Ganpat University)
+export const DEFAULT_CENTER = [23.0225, 72.5714];
+export const DEFAULT_ZOOM = 13;
+```
+
+---
+
+## 32. PWA Install & Detection System
+
+### 32.1 How PWA Install Works
+
+The [usePWAInstall](file:///c:/metallic-oort/client/src/hooks/usePWAInstall.js) hook manages the entire install lifecycle:
+
+```mermaid
+graph TD
+    A[App Loads] --> B{Already installed?}
+    B -->|Yes| C["matchMedia('display-mode: standalone')"]
+    C --> D["setIsInstalled(true)"]
+    B -->|No| E["Listen for 'beforeinstallprompt'"]
+    E --> F["Browser fires event"]
+    F --> G["e.preventDefault() — Save prompt"]
+    G --> H["Show 'Install App' button in UI"]
+    H --> I{User clicks Install?}
+    I -->|Yes| J["installPrompt.prompt()"]
+    J --> K["await installPrompt.userChoice"]
+    K --> L{Accepted?}
+    L -->|Yes| M["'appinstalled' event fires"]
+    M --> D
+    L -->|No| N["User declined, hide button"]
+```
+
+### 32.2 PWA Manifest Key Points
+
+| Property | Value |
+|----------|-------|
+| Name | UniTrack |
+| Short Name | UniTrack |
+| Display | standalone |
+| Orientation | portrait |
+| Theme Color | #1a1a2e |
+| Background Color | #0f0f1a |
+| Icons | 192×192, 512×512 PNG |
+| Categories | transportation, education, utilities |
+
+---
+
+## 33. Utility Functions Reference
+
+### 33.1 Tracking Utilities ([tracking.js](file:///c:/metallic-oort/client/src/pages/track/utils/tracking.js))
+
+| Function | Input | Output | Purpose |
+|----------|-------|--------|---------|
+| `formatSpeed(speedMs)` | Speed in m/s | `"XX.X km/h"` | Display speed in km/h |
+| `formatTimeAgo(timestamp)` | Unix ms | `"5s ago"`, `"3m ago"` | Relative time display |
+| `getDistance(lat1, lng1, lat2, lng2)` | Two coordinates | Distance in meters | Haversine formula |
+| `calculateETA(bus, targetLat, targetLng)` | Bus object + target | `"5 min"` or `"1h 20m"` | ETA to destination |
+
+### 33.2 ETA Utilities ([eta.js](file:///c:/metallic-oort/client/src/pages/driver/utils/eta.js))
+
+| Function | Default Speed | Purpose |
+|----------|--------------|---------|
+| `calculateETA(currentPos, targetPos, 25)` | 25 km/h | Formatted ETA string for driver view |
+| `getETAMinutes(currentPos, targetPos, 25)` | 25 km/h | Numeric minutes for comparisons |
+
+---
+
+## 34. Additional Viva Questions & Answers
+
+---
+
+**Q11: What are the minimum device requirements for this app?**
+
+> The Android APK requires Android 5.1 (API 22) or higher with GPS hardware. On web, any modern browser (Chrome 80+, Firefox 78+) with JavaScript enabled, location access, and internet connectivity is required. A device needs at minimum 1 GB RAM and any internet connection.
+
+---
+
+**Q12: How does the app handle poor GPS signals?**
+
+> The GPS API provides an `accuracy` field in meters — we display this to drivers (e.g., "±8m"). If a GPS fix isn't obtained within 15 seconds, a timeout error is shown. The default speed of 25 km/h is used when the device reports 0 speed (stationary). For students, the `maximumAge` parameter allows reusing cached positions up to 60 seconds old.
+
+---
+
+**Q13: What Android permissions does the app require?**
+
+> Three permissions: `INTERNET` (auto-granted, for Firebase), `ACCESS_COARSE_LOCATION` (Wi-Fi/cell location), and `ACCESS_FINE_LOCATION` (GPS). The app also declares `android.hardware.location.gps` as a required hardware feature, meaning devices without GPS hardware won't see the app on Google Play.
+
+---
+
+**Q14: How does the bulk import from Excel work?**
+
+> The admin uploads an Excel or CSV file. We parse it using the SheetJS library (client-side, no server upload needed). Column headers are normalized to handle variations (e.g., "Roll No", "roll_no", "enrollment"). Each row is validated for required fields and checked for duplicate emails/roll numbers within the file. Users are then created sequentially with a 100ms delay between each to avoid Firebase rate limiting. A progress bar shows real-time status, and failed entries can be downloaded as a CSV error report.
+
+---
+
+**Q15: What happens if two drivers broadcast from the same device?**
+
+> Each driver writes to `busLocations/{their-own-uid}`. Firebase Security Rules enforce `auth.uid == $driverId`, so Driver A cannot write to Driver B's location node. If a driver logs out and another logs in on the same device, the new driver writes to their own separate node. The previous driver's node is cleaned up when they go "offline" (setting `isActive: false`).
+
+---
+
+**Q16: How does the schedule template system save time for admins?**
+
+> Instead of manually creating a schedule entry for every day, an admin creates a template once (e.g., "Driver X + Bus Y + Route Z, Monday–Friday"). The `generateDates()` function computes all matching dates in a given range, and `generateScheduleEntries()` creates a Firestore document for each. A semester has ~90 weekdays — the template generates 90 schedules in one click instead of 90 manual entries.
+
+---
+
+**Q17: What is the Vibration API and where do you use it?**
+
+> The Web Vibration API (`navigator.vibrate()`) provides haptic feedback on mobile devices. We use 11 different vibration patterns: light tap for UI interactions, double pulse when going online, celebration pattern when completing a route, and warning pattern for alerts. It's checked with `'vibrate' in navigator` and silently skipped on unsupported devices.
+
+---
+
+**Q18: How does your map caching work for offline use?**
+
+> The Vite PWA plugin generates a Service Worker that caches map tiles using a `CacheFirst` strategy. When a student views a map area, all tile images are stored in the browser cache (up to 500 tiles, 30-day expiry). If the user loses internet, previously viewed map areas still display from cache. New areas won't load until connectivity returns.
+
+---
+
+**Q19: Why did you use Vite instead of Create React App (CRA)?**
+
+> Create React App is deprecated by the React team since 2023. Vite is the recommended replacement because it offers: 10x faster dev server startup (ESBuild-based), Hot Module Replacement (HMR), native ES module serving, tree-shaking, and built-in PWA plugin support. CRA bundles with Webpack which is significantly slower.
+
+---
+
+**Q20: What data does Firebase store in the free Spark plan? Are there limits?**
+
+> Firebase Spark plan includes: 1 GB Firestore storage, 10 GB/month bandwidth, 50K reads/day, 20K writes/day, 20K deletes/day. For RTDB: 1 GB storage, 10 GB/month bandwidth, 200 simultaneous connections. For Auth: unlimited users. For Hosting: 10 GB storage, 360 MB/day bandwidth. For a university of ~500 students with ~10 drivers, this is more than sufficient.
+
+---
+
+### Complete List of All Custom hooks
+
+| Hook | File | Data Source | Purpose |
+|------|------|-------------|---------|
+| `useAuth()` | `contexts/AuthContext.jsx` | Firebase Auth + Firestore | Global auth state, user role |
+| `useBusLocations()` | `track/hooks/useBusLocations.js` | Firebase RTDB | Real-time bus positions |
+| `useUserLocation()` | `track/hooks/useUserLocation.js` | Capacitor Geolocation | Student's own GPS location |
+| `useRoutes()` | `track/hooks/useRoutes.js` | Firestore | Fetch active routes |
+| `useFavorites()` | `track/hooks/useFavorites.js` | localStorage | Persist favorite routes |
+| `useDriverTracking()` | `driver/hooks/useDriverTracking.js` | Geolocation + RTDB | GPS broadcasting, offline queue |
+| `useDriverSchedule()` | `driver/hooks/useDriverSchedule.js` | Firestore + RTDB | Today's schedule, check-in/out |
+| `useScheduleData()` | `hooks/useScheduleData.js` | Firestore | Admin schedule management |
+| `useDashboardStats()` | `hooks/useDashboardStats.js` | Firestore | Admin dashboard counters |
+| `useAnalyticsData()` | `hooks/useAnalyticsData.js` | Firestore (tripHistory) | Weekly chart data |
+| `useUsersData()` | `hooks/useUsersData.js` | Firestore | User list with filtering |
+| `usePWAInstall()` | `hooks/usePWAInstall.js` | Browser Events | PWA install prompt |
+
+---
+
+### Complete Service Layer Reference
+
+| Service | File | Methods | CRUD Target |
+|---------|------|---------|-------------|
+| Firebase Init | `firebase.js` | `getSecondaryAuth()` | Firebase app instances |
+| Auth | `auth.js` | `signIn`, `signOut`, `resetPassword` | Firebase Auth |
+| Database (Generic) | `database.js` | `create`, `read`, `update`, `delete`, `getAll` | Any Firestore collection |
+| Users | `users.js` | `getAll`, `getById`, `update`, `delete` | `users` collection |
+| User Creation | `userCreation.js` | `createSingleUser`, `validateUserData`, `checkEmailExists` | `users` + Firebase Auth |
+| Bulk Import | `bulkImport.js` | `bulkCreateUsers`, `validateBulkData`, `generateErrorReport` | Batch `users` creation |
+| Excel Parser | `excelParser.js` | `parseExcelFile`, `downloadTemplate` | Client-side file parsing |
+| Destinations | `destinations.js` | `getAll`, `create`, `update`, `delete` | `destinations` collection |
+| Geocoding | `geocoding.js` | `searchAddress`, `reverseGeocode` | Nominatim API |
+| Schedule Templates | `scheduleTemplates.js` | `getAll`, `create`, `update`, `delete`, `generateDates`, `generateScheduleEntries` | `scheduleTemplates` collection |
+| Trip History | `tripHistory.js` | `logTripEvent`, `getTripHistory`, `getDailyStats`, `getWeeklySummary` | `tripHistory` collection |
