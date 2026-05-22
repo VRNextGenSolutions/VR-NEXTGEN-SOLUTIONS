@@ -46,7 +46,7 @@ export default function RegistrationForm() {
             id="name" 
             required
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="John Doe"
+            placeholder="Tirth Raval"
           />
         </div>
 
@@ -57,7 +57,7 @@ export default function RegistrationForm() {
             id="email" 
             required
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="john@company.com"
+            placeholder="tirth@gmail.com"
           />
         </div>
 
