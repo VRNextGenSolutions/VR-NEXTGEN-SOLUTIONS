@@ -4,22 +4,26 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
-}
-
 // Singleton for browser
 let browserClient: SupabaseClient | null = null;
 
-export function getSupabaseClient(): SupabaseClient {
+/**
+ * Returns Supabase client or null if env vars are missing.
+ * Callers must handle the null case gracefully.
+ */
+export function getSupabaseClient(): SupabaseClient | null {
+    if (!supabaseUrl || !supabaseAnonKey) {
+        return null;
+    }
+
     if (typeof window === 'undefined') {
         // Server: always create new instance
-        return createClient(supabaseUrl!, supabaseAnonKey!);
+        return createClient(supabaseUrl, supabaseAnonKey);
     }
 
     // Browser: reuse singleton
     if (!browserClient) {
-        browserClient = createClient(supabaseUrl!, supabaseAnonKey!);
+        browserClient = createClient(supabaseUrl, supabaseAnonKey);
     }
     return browserClient;
 }

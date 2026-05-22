@@ -13,9 +13,9 @@ export default function HeroText() {
   return (
     <div className="relative z-10 flex items-center justify-center min-h-screen">
       <Container size="lg">
-        <div className="text-center space-y-8">
+        <div className="text-center space-y-8 -mt-20 md:-mt-32 relative z-20">
           {/* Main Hero Title - static (no animation) */}
-          <h1 className="hero-title text-3xl md:text-5xl lg:text-6xl font-bold text-gold leading-tight">
+          <h1 className="hero-title text-4xl md:text-5xl lg:text-6xl font-bold text-gold leading-tight">
             {heroText}
           </h1>
 
@@ -26,6 +26,18 @@ export default function HeroText() {
             </p>
           </div>
 
+          {/* Call to Action Button */}
+          <div className="animate-fade-in-up delay-[1500ms] pt-6">
+            <a 
+              href="/contact" 
+              className="inline-flex items-center justify-center gap-2 bg-gold hover:bg-gold-dark text-black font-bold py-3.5 px-8 rounded-full transition-all duration-300 btn-enhanced btn-primary text-lg"
+            >
+              Book Now
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </a>
+          </div>
         </div>
       </Container>
 

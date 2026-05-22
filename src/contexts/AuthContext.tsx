@@ -50,6 +50,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Initialize auth state
     useEffect(() => {
+        // If Supabase is not configured, skip auth entirely
+        if (!supabase) {
+            setState(prev => ({ ...prev, isLoading: false }));
+            return;
+        }
+
         const initAuth = async () => {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
@@ -106,6 +112,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Sign in with email and password
     const signIn = useCallback(async (email: string, password: string) => {
+        if (!supabase) {
+            return { success: false, error: 'Authentication service is not configured' };
+        }
+
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
@@ -149,7 +159,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Sign out
     const signOut = useCallback(async () => {
-        await supabase.auth.signOut();
+        if (supabase) {
+            await supabase.auth.signOut();
+        }
         setState({
             user: null,
             session: null,
@@ -161,6 +173,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Refresh session
     const refreshSession = useCallback(async () => {
+        if (!supabase) return;
         const { data: { session } } = await supabase.auth.refreshSession();
         if (session) {
             setState(prev => ({ ...prev, session }));

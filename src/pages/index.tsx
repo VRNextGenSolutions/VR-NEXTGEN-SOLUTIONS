@@ -92,14 +92,14 @@ export default function Home() {
       <LazyWrapper rootMargin="200px">
         <Services />
       </LazyWrapper>
+      <LazyWrapper rootMargin="200px">
+        <OurApproach />
+      </LazyWrapper>
       <LazyWrapper rootMargin="400px">
         <Industries />
       </LazyWrapper>
       <LazyWrapper rootMargin="200px">
         <WhyChooseUs />
-      </LazyWrapper>
-      <LazyWrapper rootMargin="200px">
-        <OurApproach />
       </LazyWrapper>
       <LazyWrapper rootMargin="200px">
         <CallToAction />

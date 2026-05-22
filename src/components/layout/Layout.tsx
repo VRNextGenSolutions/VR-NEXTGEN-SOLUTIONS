@@ -116,7 +116,7 @@ export default function Layout({ title, description, children }: LayoutProps) {
                   "logo": "https://vrnextgen.com/images-optimized/logo-Final-png.png",
                   "description": pageDesc,
                   "sameAs": [
-                    "https://linkedin.com/company/vr-nextgen-solutions",
+                    "https://in.linkedin.com/company/vr-nextgen-solutions?trk=public_post_feed-actor-name",
                     "https://twitter.com/vrnextgen"
                   ]
                 })
