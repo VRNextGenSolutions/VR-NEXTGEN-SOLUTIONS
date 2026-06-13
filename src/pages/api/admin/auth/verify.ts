@@ -5,6 +5,7 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { createClient } from '@supabase/supabase-js';
 import { createServiceRoleClient } from '@/lib/supabase';
 
 interface VerifyResponse {
@@ -28,7 +29,33 @@ export default async function handler(
         }
 
         const token = authHeader.split(' ')[1];
-        const supabase = createServiceRoleClient();
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        if (!supabaseUrl || !supabaseAnonKey) {
+            return res.status(500).json({ isAdmin: false, error: 'Supabase is not configured' });
+        }
+
+        // Prefer service role client (production), fall back to authenticated anon client (local dev)
+        let supabase;
+        let usingServiceRole = false;
+        try {
+            supabase = createServiceRoleClient();
+            usingServiceRole = true;
+        } catch {
+            // Service role key not configured — create an anon client authenticated
+            // with the user's JWT so RLS policies for 'authenticated' role apply
+            supabase = createClient(supabaseUrl, supabaseAnonKey, {
+                global: {
+                    headers: { Authorization: `Bearer ${token}` },
+                },
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false,
+                },
+            });
+        }
 
         // Validate JWT and extract user
         const { data: { user }, error: authError } = await supabase.auth.getUser(token);
@@ -53,3 +80,4 @@ export default async function handler(
         return res.status(500).json({ isAdmin: false, error: 'Verification failed' });
     }
 }
+
