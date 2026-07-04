@@ -2,6 +2,7 @@ import Layout from "@/components/layout/Layout";
 import Link from "next/link";
 import { SEOHead, getOrganizationSchema, getBreadcrumbSchema } from "@/components/seo";
 import { useParallax } from "@/hooks/useParallax";
+import CustomerStorySection from "@/components/sections/who-we-are/CustomerStorySection";
 
 export default function InsightsPage() {
   const parallax = useParallax(0.25);
@@ -16,16 +17,6 @@ export default function InsightsPage() {
   ];
 
   const comingSoonSections = [
-    {
-      id: "customer-stories",
-      title: "Customer Stories",
-      description: "Real success stories from our clients who have transformed their businesses with our solutions.",
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      )
-    },
     {
       id: "case-studies",
       title: "Case Studies",
@@ -140,7 +131,7 @@ export default function InsightsPage() {
       </section>
 
       {/* Featured Section */}
-      <section className="relative py-16 bg-black">
+      <section className="relative py-16">
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold text-gold leading-tight mb-4">
@@ -187,7 +178,7 @@ export default function InsightsPage() {
       {/* What's Coming Section - Moved Up */}
       <section
         id="whats-coming"
-        className="relative py-12 md:py-16 bg-black/30"
+        className="relative py-12 md:py-16"
       >
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
           {/* Header */}
@@ -195,9 +186,11 @@ export default function InsightsPage() {
             <h2 className="text-3xl md:text-4xl font-extrabold text-gold leading-tight mb-4">
               What&apos;s Coming
             </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              We&apos;re working on bringing you comprehensive insights and resources to support your business growth.
-            </p>
+            <div className="bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 max-w-2xl mx-auto shadow-2xl">
+              <p className="text-lg text-white">
+                We&apos;re working on bringing you comprehensive insights and resources to support your business growth.
+              </p>
+            </div>
           </div>
 
           {/* Coming Soon Cards Grid */}
@@ -244,6 +237,9 @@ export default function InsightsPage() {
           </div>
         </div>
       </section>
+
+      {/* Customer Stories Section */}
+      <CustomerStorySection />
 
       {/* Call to Action Section */}
       <section

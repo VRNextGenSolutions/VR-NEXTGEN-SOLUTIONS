@@ -3,34 +3,36 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 const customerStories = [
   {
-    title: "Digital Transformation Success",
-    company: "TechCorp Solutions",
-    industry: "Technology",
-    challenge: "Legacy system modernization and digital workflow implementation",
-    solution: "Comprehensive digital transformation strategy with cloud migration and process automation",
-    results: ["40% increase in operational efficiency", "60% reduction in manual processes", "25% cost savings"],
-    testimonial: "VR NextGEN transformed our entire operation. Their expertise in digital transformation was exactly what we needed.",
-    author: "Sarah Johnson, CEO"
+    title: "Data-Driven Reporting Automation",
+    company: "Alleima India Pvt. Ltd.",
+    industry: "Manufacturing & Logistics",
+    challenge: "Manual Excel-based reporting processes causing inefficiencies and reduced visibility.",
+    solution: "Developed an interactive OSP Dashboard tailored to business requirements and provided Power BI training.",
+    results: [
+      "Automated Excel-based reporting system",
+      "Interactive OSP Dashboard development",
+      "Improved reporting accuracy",
+      "Enhanced operational visibility",
+      "Increased process efficiency",
+      "Power BI capability development"
+    ],
+    testimonial: "VR NextGen Solutions successfully automated our Excel-based reporting processes and developed an interactive OSP Dashboard tailored to our business requirements. Their team demonstrated strong technical expertise, professionalism, and commitment throughout the project. The solution has significantly improved reporting accuracy, operational visibility, and overall efficiency. Additionally, the Power BI training provided to our team was highly valuable and enhanced our analytical capabilities.",
+    author: "Nimit Dabhi, Senior General Manager – SCM & APAC Logistics"
   },
   {
-    title: "Data-Driven Growth Strategy",
-    company: "RetailMax Inc",
-    industry: "Retail",
-    challenge: "Declining sales and lack of customer insights",
-    solution: "Advanced analytics implementation with customer segmentation and predictive modeling",
-    results: ["35% increase in sales", "50% improvement in customer retention", "20% boost in profit margins"],
-    testimonial: "The data insights provided by VR NextGEN revolutionized our understanding of our customers and market.",
-    author: "Michael Chen, CMO"
-  },
-  {
-    title: "Operational Excellence Initiative",
-    company: "ManufacturingPro",
+    title: "Operational Excellence & Lean Training",
+    company: "HG Aluminium Smelters Limited",
     industry: "Manufacturing",
-    challenge: "Inefficient production processes and quality control issues",
-    solution: "Lean manufacturing implementation with quality management systems and automation",
-    results: ["30% reduction in production time", "45% decrease in defects", "15% increase in output"],
-    testimonial: "Their operational expertise helped us achieve levels of efficiency we never thought possible.",
-    author: "David Rodriguez, Operations Director"
+    challenge: "Need for practical training on 5S, Kaizen, Lean Manufacturing, and Six Sigma to improve workplace organization.",
+    solution: "Delivered a highly practical, engaging training program tailored to the manufacturing environment using real-life examples.",
+    results: [
+      "Enhanced ability to identify waste",
+      "Improved workplace organization",
+      "Enhanced process efficiency",
+      "Fostered a culture of continuous improvement"
+    ],
+    testimonial: "We had the opportunity to work with VR Next Gen Solutions for a comprehensive training program on 5S, Kaizen, Lean Manufacturing, and Six Sigma. The training was highly practical, engaging, and tailored to our manufacturing environment. The team demonstrated excellent subject expertise and explained complex concepts through real-life industrial examples, making them easy to understand and implement. The sessions encouraged active participation and provided our employees with practical tools to identify waste, improve workplace organization, enhance process efficiency, and foster a culture of continuous improvement.",
+    author: "Mr. Harsh Patel, Management Team"
   }
 ];
 
