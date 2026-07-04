@@ -1,5 +1,6 @@
 import { use3DTilt } from "@/hooks/use3DTilt";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import Link from "next/link";
 
 const customerStories = [
   {
@@ -136,12 +137,12 @@ export default function CustomerStorySection() {
 
           <div className="text-center mt-16">
             <div className="inline-flex flex-col sm:flex-row gap-4">
-              <button className="px-8 py-4 bg-sand-yellow text-black font-semibold rounded-lg hover:bg-sand-yellow/90 transition-colors duration-300 btn-enhanced">
+              <Link href="/contact" className="inline-flex justify-center items-center px-8 py-4 bg-sand-yellow text-black font-semibold rounded-lg hover:bg-sand-yellow/90 transition-colors duration-300 btn-enhanced">
                 Share Your Story
-              </button>
-              <button className="px-8 py-4 border border-sand-yellow/50 text-sand-yellow font-semibold rounded-lg hover:bg-sand-yellow/10 transition-colors duration-300 btn-enhanced">
+              </Link>
+              <Link href="/insights" className="inline-flex justify-center items-center px-8 py-4 border border-sand-yellow/50 text-sand-yellow font-semibold rounded-lg hover:bg-sand-yellow/10 transition-colors duration-300 btn-enhanced">
                 View All Stories
-              </button>
+              </Link>
             </div>
           </div>
         </div>

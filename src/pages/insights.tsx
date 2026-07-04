@@ -175,7 +175,10 @@ export default function InsightsPage() {
         </div>
       </section>
 
-      {/* What's Coming Section - Moved Up */}
+      {/* Customer Stories Section */}
+      <CustomerStorySection />
+
+      {/* What's Coming Section */}
       <section
         id="whats-coming"
         className="relative py-12 md:py-16"
@@ -237,9 +240,6 @@ export default function InsightsPage() {
           </div>
         </div>
       </section>
-
-      {/* Customer Stories Section */}
-      <CustomerStorySection />
 
       {/* Call to Action Section */}
       <section
