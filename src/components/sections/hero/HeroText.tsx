@@ -26,16 +26,22 @@ export default function HeroText() {
             </p>
           </div>
 
-          {/* Call to Action Button */}
-          <div className="animate-fade-in-up delay-[1500ms] pt-6">
+          {/* Call to Action Buttons */}
+          <div className="animate-fade-in-up delay-[1500ms] pt-6 flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a 
               href="/contact" 
-              className="inline-flex items-center justify-center gap-2 bg-gold hover:bg-gold-dark text-black font-bold py-3.5 px-8 rounded-full transition-all duration-300 btn-enhanced btn-primary text-lg"
+              className="inline-flex items-center justify-center gap-2 bg-gold hover:bg-gold-dark text-black font-bold py-3.5 px-8 rounded-full transition-all duration-300 btn-enhanced btn-primary text-lg w-full sm:w-auto"
             >
               Book Now
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
+            </a>
+            <a 
+              href="/insights#customer-stories" 
+              className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-gold text-gold hover:bg-gold/15 hover:text-white hover:scale-105 hover:shadow-[0_0_15px_rgba(255,215,0,0.4)] active:scale-95 font-bold py-3.5 px-8 rounded-full transition-all duration-300 text-lg w-full sm:w-auto"
+            >
+              Customer Stories
             </a>
           </div>
         </div>

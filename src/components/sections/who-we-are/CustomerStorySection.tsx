@@ -1,6 +1,7 @@
 import { use3DTilt } from "@/hooks/use3DTilt";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import Link from "next/link";
+import Image from "next/image";
 
 const customerStories = [
   {
@@ -18,7 +19,8 @@ const customerStories = [
       "Power BI capability development"
     ],
     testimonial: "VR NextGen Solutions successfully automated our Excel-based reporting processes and developed an interactive OSP Dashboard tailored to our business requirements. Their team demonstrated strong technical expertise, professionalism, and commitment throughout the project. The solution has significantly improved reporting accuracy, operational visibility, and overall efficiency. Additionally, the Power BI training provided to our team was highly valuable and enhanced our analytical capabilities.",
-    author: "Nimit Dabhi, Senior General Manager – SCM & APAC Logistics"
+    author: "Nimit Dabhi, Senior General Manager – SCM & APAC Logistics",
+    image: "/images/testimonials/alleima.jpeg"
   },
   {
     title: "Operational Excellence & Lean Training",
@@ -33,7 +35,8 @@ const customerStories = [
       "Fostered a culture of continuous improvement"
     ],
     testimonial: "We had the opportunity to work with VR Next Gen Solutions for a comprehensive training program on 5S, Kaizen, Lean Manufacturing, and Six Sigma. The training was highly practical, engaging, and tailored to our manufacturing environment. The team demonstrated excellent subject expertise and explained complex concepts through real-life industrial examples, making them easy to understand and implement. The sessions encouraged active participation and provided our employees with practical tools to identify waste, improve workplace organization, enhance process efficiency, and foster a culture of continuous improvement.",
-    author: "Mr. Harsh Patel, Management Team"
+    author: "Mr. Harsh Patel, Management Team",
+    image: "/images/testimonials/hg-extrusion.jpeg"
   }
 ];
 
@@ -48,6 +51,19 @@ function StoryCard({ story }: { story: typeof customerStories[0] }) {
       className="group bg-gradient-to-br from-white/90 to-gray-50 border border-gray-200 rounded-2xl p-8 hover:border-sand-yellow/50 hover:from-white hover:to-gray-100 transition-all duration-500 card-3d hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,215,0,0.25)] active:scale-[1.02] active:shadow-[0_0_20px_rgba(255,215,0,0.25)] relative overflow-hidden"
     >
       <div className="space-y-6">
+        {/* Story Image */}
+        {story.image && (
+          <div className="relative w-full h-64 md:h-72 rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow duration-300">
+            <Image 
+              src={story.image} 
+              alt={`${story.company} Customer Story`} 
+              fill 
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div className="space-y-3">
           <div className="flex items-center gap-3">

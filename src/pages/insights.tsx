@@ -63,72 +63,8 @@ export default function InsightsPage() {
         structuredData={structuredData}
       />
 
-      {/* Hero Section */}
-      <section
-        id="insights-hero"
-        className="section-hero relative min-h-[60vh] md:min-h-[70vh] flex items-center overflow-hidden"
-        aria-label="Insights Hero"
-      >
-        {/* Enhanced Background Elements */}
-        <div
-          className="absolute inset-0 -z-20 bg-[url('/next.svg')] bg-no-repeat bg-center opacity-[0.03]"
-          aria-hidden
-          style={{ transform: `translateY(${parallax * -1}px)` }}
-        />
-
-        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 relative z-10">
-          <div className="flex items-center justify-center">
-            <div className="space-y-8 text-center max-w-4xl">
-              <div className="space-y-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gold leading-tight">
-                  Insights
-                </h1>
-
-                <div className="inline-flex items-center gap-3 px-8 py-4 bg-gold/10 border border-gold/30 rounded-full text-gold text-lg font-medium mb-6">
-                  <div className="w-2 h-2 bg-gold rounded-full animate-pulse" />
-                  Coming Soon
-                </div>
-
-                <p className="text-lg md:text-xl text-white/80 leading-relaxed">
-                  We&apos;re preparing valuable insights, case studies, customer stories, and thought leadership content to help you stay ahead in the digital transformation journey.
-                </p>
-
-                {/* Scroll Down Prompt */}
-                <div className="mt-8 flex flex-col items-center space-y-4">
-                  <p className="text-gold text-lg font-medium">
-                    Scroll down to see What&apos;s Coming
-                  </p>
-                  <a
-                    href="#whats-coming"
-                    className="scroll-down-arrow group flex flex-col items-center space-y-2 text-gold hover:text-gold/80 transition-colors duration-300"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.querySelector('#whats-coming')?.scrollIntoView({
-                        behavior: 'smooth'
-                      });
-                    }}
-                  >
-                    <svg
-                      className="w-8 h-8 animate-bounce group-hover:animate-none"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                      />
-                    </svg>
-                    <span className="text-sm">Scroll Down</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Customer Stories Section */}
+      <CustomerStorySection />
 
       {/* Featured Section */}
       <section className="relative py-16">
@@ -174,9 +110,6 @@ export default function InsightsPage() {
           </div>
         </div>
       </section>
-
-      {/* Customer Stories Section */}
-      <CustomerStorySection />
 
       {/* What's Coming Section */}
       <section
