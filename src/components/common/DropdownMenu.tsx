@@ -163,7 +163,7 @@ export default function DropdownMenu({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-black/95 backdrop-blur-sm border border-white/10 rounded-lg shadow-xl z-50">
+        <div className="absolute top-full left-0 mt-2 bg-black/50 backdrop-blur-md border border-white/10 rounded-lg shadow-xl z-50">
           <div className="py-2 max-h-80 overflow-y-auto">
             {items.map((item, index) => (
               <Link
@@ -193,7 +193,7 @@ export default function DropdownMenu({
       {/* Hover Content Panel - Positioned to the right of dropdown */}
       {hoveredItem && (
         <div 
-          className="absolute top-full left-full mt-2 ml-2 bg-black/98 backdrop-blur-sm border border-white/10 rounded-lg shadow-xl z-50 min-w-[300px] max-w-[400px]"
+          className="absolute top-full left-full mt-2 ml-2 bg-black/50 backdrop-blur-md border border-white/10 rounded-lg shadow-xl z-50 min-w-[300px] max-w-[400px]"
           onMouseLeave={handleHoverPanelLeave}
         >
           <div className="p-6">

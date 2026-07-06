@@ -11,14 +11,14 @@ import { Service } from './types';
 
 interface ServiceCardProps {
   service: Service;
-  isVisible: boolean;
+  index?: number;
 }
 
-export default function ServiceCard({ service, isVisible }: ServiceCardProps) {
+export default function ServiceCard({ service, index = 0 }: ServiceCardProps) {
   const router = useRouter();
   const cardRef = useRef<HTMLElement>(null);
   const { cardRef: tiltRef, onMouseMove, onMouseLeave } = use3DTilt();
-  const { ref: viewRef } = useInView({ threshold: 0.1 });
+  const { ref: viewRef, inView } = useInView({ threshold: 0.1 });
 
   const handleLearnMore = () => {
     router.push(`/services/${service.id}`);
@@ -38,12 +38,11 @@ export default function ServiceCard({ service, isVisible }: ServiceCardProps) {
       ref={combinedRef}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
-      className={`group relative border border-gray-700 rounded-xl p-6 overflow-hidden focus-within:ring-2 focus-within:ring-gold/50 focus-within:ring-offset-2 card-3d ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      className={`group relative border border-gray-700 rounded-xl p-6 overflow-hidden focus-within:ring-2 focus-within:ring-gold/50 focus-within:ring-offset-2 card-3d transition-all duration-700 ${inView ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
         }`}
       style={{
         transformStyle: 'preserve-3d',
-        // willChange removed - CSS handles this on hover for better performance
-        transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+        transitionDelay: `${index * 150}ms`,
         height: '100%'
       }}
       role="article"

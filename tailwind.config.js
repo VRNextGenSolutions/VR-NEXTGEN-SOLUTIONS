@@ -93,8 +93,8 @@ module.exports = {
         xl: "1280px"
       },
       fontFamily: {
-        'heading': ['Playfair Display', 'Montserrat', 'serif'],
-        'body': ['Montserrat', 'Open Sans', 'sans-serif']
+        'heading': ['var(--font-playfair)', 'serif'],
+        'body': ['var(--font-montserrat)', 'sans-serif']
       },
       fontSize: {
         'h1': '3rem',

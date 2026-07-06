@@ -20,7 +20,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="relative z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
+    <header className="relative z-50 bg-black/40 backdrop-blur-md border-b border-white/10 shadow-lg">
       <Container>
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo - Positioned at very left */}

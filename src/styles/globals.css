@@ -39,18 +39,6 @@
   --text-clients: var(--color-black);
 }
 
-@theme inline {
-  /* Fonts (kept generic; can be wired to Google Fonts later) */
-  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
-  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, monospace);
-
-  /* Breakpoints */
-  --breakpoint-xs: 320px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-}
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
@@ -549,9 +537,23 @@ section {
 
 /* Performance optimizations - consolidated above */
 
-/* Smooth scrolling for better UX */
+/* Add smooth scrollbar behaviors */
 html {
   scroll-behavior: smooth;
+}
+
+/* Gradient Section Transitions */
+.bg-gradient-black-to-white {
+  background: linear-gradient(to bottom, var(--color-black) 0%, var(--glory-white) 100%);
+}
+.bg-gradient-white-to-black {
+  background: linear-gradient(to bottom, var(--glory-white) 0%, var(--color-black) 100%);
+}
+.bg-gradient-black-to-gray {
+  background: linear-gradient(to bottom, var(--color-black) 0%, var(--gray-night-black) 100%);
+}
+.bg-gradient-gray-to-white {
+  background: linear-gradient(to bottom, var(--gray-night-black) 0%, var(--glory-white) 100%);
 }
 
 /* 3D Industries Carousel Styles */
@@ -925,7 +927,6 @@ html {
   .nav-item-main,
   .nav-item-toggle {
     -webkit-tap-highlight-color: rgba(255, 215, 0, 0.3);
-    tap-highlight-color: rgba(255, 215, 0, 0.3);
   }
 
   .nav-item-main:active,
