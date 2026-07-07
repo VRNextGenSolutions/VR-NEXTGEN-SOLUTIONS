@@ -59,12 +59,12 @@ const WhyChooseUs = dynamic(() => import("@/components/sections/home/WhyChooseUs
   )
 });
 
-const OurApproach = dynamic(() => import("@/components/sections/home/OurApproach"), {
+const Clients = dynamic(() => import("@/components/sections/clients/Clients"), {
   ssr: false,
   loading: () => (
     <div className="py-16 md:py-24">
-      <div className="animate-pulse bg-gray-200/10 rounded-lg h-96 flex items-center justify-center">
-        <div className="text-gray-400 text-lg">Loading Our Approach...</div>
+      <div className="animate-pulse bg-gray-200/10 rounded-lg h-48 flex items-center justify-center">
+        <div className="text-gray-400 text-lg">Loading Clients...</div>
       </div>
     </div>
   )
@@ -93,7 +93,7 @@ export default function Home() {
         <Services />
       </LazyWrapper>
       <LazyWrapper rootMargin="200px">
-        <OurApproach />
+        <Clients />
       </LazyWrapper>
       <LazyWrapper rootMargin="400px">
         <Industries />
