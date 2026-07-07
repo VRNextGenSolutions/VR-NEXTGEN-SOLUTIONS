@@ -48,11 +48,9 @@ export default function Hero() {
       ariaLabel="Hero"
       minHeight={HERO_CONFIG.minHeight}
     >
-      {/* Reusable optimized background with parallax and fade effects */}
       <HeroBackground 
         backgroundImage="/images-optimized/Hero.webp"
         opacity={smoothedOpacity}
-        overlayImage="/next.svg"
         parallaxOffset={parallaxOffset}
       />
       {/* Original Hero Text Content with Animations */}
