@@ -17,6 +17,7 @@ export default function WhyChooseUs() {
                     title="Why Choose VR NextGen Solutions"
                     titleColor="gold"
                     description="We combine deep industry expertise with advanced analytics and automation to deliver transformative results."
+                    descriptionColor="gold"
                 />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-16 text-center">
                     <div className="p-8 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl hover:border-gold/50 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)] transition-all duration-300">

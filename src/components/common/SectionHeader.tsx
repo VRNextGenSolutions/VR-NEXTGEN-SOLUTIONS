@@ -18,7 +18,7 @@ export interface SectionHeaderProps {
   align?: 'left' | 'center' | 'right';
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   titleColor?: 'white' | 'black' | 'gold' | 'gold-title' | 'sand-yellow' | 'purple' | 'custom';
-  descriptionColor?: 'white' | 'black' | 'gray' | 'custom';
+  descriptionColor?: 'white' | 'black' | 'gray' | 'gold' | 'custom';
   compact?: boolean; // reduces vertical spacing
   titleSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'; // new prop for title size
   showTitle?: boolean; // new prop to control title visibility
@@ -36,7 +36,7 @@ const badgeColorClasses = {
 const titleColorClasses = {
   white: 'text-white',
   black: 'text-black',
-  gold: 'text-gold-darker',
+  gold: 'text-gold',
   'gold-title': 'text-gold-darker',
   'sand-yellow': 'text-sand-yellow',
   purple: 'text-purple-400',
@@ -47,6 +47,7 @@ const descriptionColorClasses = {
   white: 'text-white/70',
   black: 'text-black/70',
   gray: 'text-gray-600',
+  gold: 'text-gold',
   custom: '',
 };
 
