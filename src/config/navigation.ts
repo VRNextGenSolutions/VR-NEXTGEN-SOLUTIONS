@@ -88,11 +88,11 @@ export const navigationConfig: NavigationItem[] = [
     hasDropdown: true,
     dropdownItems: [
       {
-        label: 'Overview',
-        href: '/insights',
-        description: 'Hub for knowledge and trends',
+        label: 'Customer Stories',
+        href: '/insights#customer-stories',
+        description: 'Real success from our clients',
         showOnHover: true,
-        hoverContent: 'Explore our latest thinking, expert opinions, and deep dives into the technologies and trends shaping the future of business.'
+        hoverContent: 'Discover how we have helped organizations optimize operations, automate workflows, and achieve transformative results.'
       },
       {
         label: 'Blog',
