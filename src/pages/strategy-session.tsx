@@ -15,24 +15,29 @@ export default function StrategySessionPage() {
     }
   };
 
+  const benefits = [
+    "Sales Dashboard Review",
+    "Process Optimization",
+    "Automation Roadmap",
+    "SOP Assessment",
+    "Growth Recommendations",
+    "Identified Bottlenecks"
+  ];
+
   return (
     <LandingLayout 
       title="Exclusive Strategy Session | VR NextGen Solutions"
-      description="Register for an exclusive business strategy session to unlock data-driven growth."
+      description="Register for an exclusive 60-minute business growth strategy session to unlock data-driven growth."
     >
       <SEOHead 
         title="Exclusive Strategy Session | VR NextGen Solutions"
-        description="Register for an exclusive business strategy session to unlock data-driven growth."
+        description="Register for an exclusive 60-minute business growth strategy session to unlock data-driven growth."
         canonical="/strategy-session"
-        // Prevent indexing of landing pages meant for ads
         noindex={true} 
       />
 
       {/* Hero Section */}
       <LandingHero onScrollToForm={scrollToForm} />
-
-      {/* Social Proof Bar */}
-      <TrustSignals />
 
       {/* Booking/Registration Section */}
       <section className="py-20 bg-[#050505] relative overflow-hidden" id="register">
@@ -40,44 +45,45 @@ export default function StrategySessionPage() {
         <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
         
         <Container>
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             {/* Left side: Value Prop */}
             <div className="lg:w-1/2 space-y-8 relative z-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-                What You Get In Your <span className="text-gold">Free Strategy Session</span>
-              </h2>
               
-              <ul className="space-y-6">
-                <li className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-semibold text-white mb-1">Custom Data Audit</h4>
-                    <p className="text-gray-400">We analyze your current operations and identify where you are leaking profit.</p>
-                  </div>
-                </li>
-                
-                <li className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-semibold text-white mb-1">Automation Roadmap</h4>
-                    <p className="text-gray-400">A clear, step-by-step plan on how to automate your most time-consuming processes.</p>
-                  </div>
-                </li>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-full text-gold text-sm font-semibold">
+                <span className="w-2 h-2 bg-gold rounded-full animate-ping" />
+                Exclusive Strategy Session: Only Limited Free Sessions Available
+              </div>
 
-                <li className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+                Unlock Your Business Potential With <span className="text-gold">Data-Driven Strategy</span>
+                <span className="block text-2xl md:text-3xl text-gold mt-2 font-semibold">FREE 60-Minute Business Growth Strategy Session</span>
+              </h2>
+
+              <p className="text-xl text-gray-300 font-medium leading-relaxed">
+                Discover Hidden Growth Opportunities, Process Gaps &amp; Automation Ideas
+              </p>
+
+              {/* Checklist Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                {benefits.map((benefit, idx) => (
+                  <div key={idx} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3.5 hover:border-gold/30 transition-colors">
+                    <span className="text-gold text-lg flex-shrink-0">✔️</span>
+                    <span className="text-gray-200 font-semibold text-base">{benefit}</span>
                   </div>
-                  <div>
-                    <h4 className="text-xl font-semibold text-white mb-1">Expert Consultation</h4>
-                    <p className="text-gray-400">Direct 1-on-1 time with our senior business strategists to ask any questions.</p>
-                  </div>
-                </li>
-              </ul>
+                ))}
+              </div>
+
+              {/* Special Highlight Callout */}
+              <div className="bg-gold/10 border border-gold/30 rounded-2xl p-6 flex items-start gap-4 shadow-[0_0_30px_rgba(255,215,0,0.08)]">
+                <span className="text-2xl text-gold flex-shrink-0">✅</span>
+                <div>
+                  <h4 className="text-lg font-bold text-white mb-1">Identify Hidden Profit Leakage</h4>
+                  <p className="text-gray-300 text-sm">
+                    Claim your free consultation today and map out a clear roadmap to scale your business efficiency.
+                  </p>
+                </div>
+              </div>
+
             </div>
 
             {/* Right side: The Form */}
@@ -87,6 +93,9 @@ export default function StrategySessionPage() {
           </div>
         </Container>
       </section>
+
+      {/* Social Proof Bar - Placed Below Request Form */}
+      <TrustSignals />
     </LandingLayout>
   );
 }

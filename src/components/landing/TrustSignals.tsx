@@ -6,11 +6,11 @@ export default function TrustSignals() {
     {
       icon: (
         <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      title: "10+ Years",
-      subtitle: "Industry Expertise"
+      title: "Exclusive Strategy Session",
+      subtitle: "Only Limited Free Sessions Available"
     },
     {
       icon: (
@@ -18,8 +18,8 @@ export default function TrustSignals() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      title: "Proven ROI",
-      subtitle: "Measurable Results"
+      title: "60-Minute Growth Audit",
+      subtitle: "Measurable Results & Automation Ideas"
     },
     {
       icon: (
@@ -27,13 +27,13 @@ export default function TrustSignals() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
-      title: "Data Secure",
-      subtitle: "Enterprise Grade"
+      title: "100% Confidential & Secure",
+      subtitle: "Enterprise Grade Data Security"
     }
   ];
 
   return (
-    <section className="py-12 bg-black border-y border-white/5 relative z-20">
+    <section className="py-12 bg-black border-t border-white/10 relative z-20">
       <Container>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 divide-y md:divide-y-0 md:divide-x divide-white/10">
           {signals.map((signal, idx) => (
@@ -42,7 +42,7 @@ export default function TrustSignals() {
                 {signal.icon}
               </div>
               <h3 className="text-xl font-bold text-white mb-1">{signal.title}</h3>
-              <p className="text-gray-400">{signal.subtitle}</p>
+              <p className="text-gold text-sm font-medium">{signal.subtitle}</p>
             </div>
           ))}
         </div>
