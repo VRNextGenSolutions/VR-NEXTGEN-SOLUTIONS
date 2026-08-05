@@ -21,7 +21,7 @@ export default function StrategySessionPage() {
     { text: "SOP Assessment", icon: "✔️" },
     { text: "Growth Recommendations", icon: "✔️" },
     { text: "Identified Bottlenecks", icon: "✔️" },
-    { text: "Identify Hidden Profit Leakage", icon: "✅" }
+    { text: "Identify Hidden Profit Leakage", icon: "✔️" }
   ];
 
   return (
