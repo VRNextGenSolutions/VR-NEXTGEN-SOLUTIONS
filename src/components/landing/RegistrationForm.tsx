@@ -136,7 +136,7 @@ export default function RegistrationForm() {
             {...register('name')}
             aria-invalid={Boolean(errors.name)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="John Doe"
+            placeholder="Enter your name"
           />
           {errors.name && (
             <p className="mt-1 text-red-400 text-xs">{errors.name.message}</p>
@@ -151,7 +151,7 @@ export default function RegistrationForm() {
             {...register('email')}
             aria-invalid={Boolean(errors.email)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="john@example.com"
+            placeholder="Enter your email"
           />
           {errors.email && (
             <p className="mt-1 text-red-400 text-xs">{errors.email.message}</p>
@@ -166,7 +166,7 @@ export default function RegistrationForm() {
             {...register('phone')}
             aria-invalid={Boolean(errors.phone)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="+91 98765 43210"
+            placeholder="Enter your phone number"
           />
           {errors.phone && (
             <p className="mt-1 text-red-400 text-xs">{errors.phone.message}</p>
@@ -181,7 +181,7 @@ export default function RegistrationForm() {
             {...register('city')}
             aria-invalid={Boolean(errors.city)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="Mumbai, Maharashtra"
+            placeholder="Enter your city"
           />
           {errors.city && (
             <p className="mt-1 text-red-400 text-xs">{errors.city.message}</p>
@@ -196,7 +196,7 @@ export default function RegistrationForm() {
             {...register('companyName')}
             aria-invalid={Boolean(errors.companyName)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="VR NextGen Solutions"
+            placeholder="Enter your company name"
           />
           {errors.companyName && (
             <p className="mt-1 text-red-400 text-xs">{errors.companyName.message}</p>
@@ -210,7 +210,7 @@ export default function RegistrationForm() {
             rows={3}
             {...register('currentChallenge')}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors resize-none"
-            placeholder="Briefly describe your biggest operational or growth bottleneck..."
+            placeholder="Describe your current challenge..."
           />
           {errors.currentChallenge && (
             <p className="mt-1 text-red-400 text-xs">{errors.currentChallenge.message}</p>
