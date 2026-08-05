@@ -47,22 +47,8 @@ export default function StrategySessionPage() {
         <Container>
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             {/* Left side: Value Prop */}
-            <div className="lg:w-1/2 space-y-8 relative z-10">
+            <div className="lg:w-1/2 space-y-6 relative z-10">
               
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-full text-gold text-sm font-semibold">
-                <span className="w-2 h-2 bg-gold rounded-full animate-ping" />
-                Exclusive Strategy Session: Only Limited Free Sessions Available
-              </div>
-
-              <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">
-                Unlock Your Business Potential With <span className="text-gold">Data-Driven Strategy</span>
-                <span className="block text-2xl md:text-3xl text-gold mt-2 font-semibold">FREE 60-Minute Business Growth Strategy Session</span>
-              </h2>
-
-              <p className="text-xl text-gray-300 font-medium leading-relaxed">
-                Discover Hidden Growth Opportunities, Process Gaps &amp; Automation Ideas
-              </p>
-
               {/* Checklist Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 {benefits.map((benefit, idx) => (

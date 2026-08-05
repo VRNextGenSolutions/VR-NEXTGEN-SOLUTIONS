@@ -136,7 +136,7 @@ export default function RegistrationForm() {
             {...register('name')}
             aria-invalid={Boolean(errors.name)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="Tirth Raval"
+            placeholder="John Doe"
           />
           {errors.name && (
             <p className="mt-1 text-red-400 text-xs">{errors.name.message}</p>
@@ -151,7 +151,7 @@ export default function RegistrationForm() {
             {...register('email')}
             aria-invalid={Boolean(errors.email)}
             className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-colors"
-            placeholder="tirthraval@gmail.com"
+            placeholder="john@example.com"
           />
           {errors.email && (
             <p className="mt-1 text-red-400 text-xs">{errors.email.message}</p>
