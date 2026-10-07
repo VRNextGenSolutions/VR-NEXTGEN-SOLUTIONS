@@ -8,6 +8,7 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { useEffect } from "react";
 import { register, preloadCriticalResources, trackPerformance } from "@/utils/serviceWorker";
 import { Playfair_Display, Montserrat } from 'next/font/google';
+import CookieConsent from "@/components/common/CookieConsent";
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -59,6 +60,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </ErrorBoundary>
         )}
       </main>
+      <CookieConsent />
     </ThemeProvider>
   );
 }
