@@ -94,9 +94,8 @@ export default function Layout({ title, description, children }: LayoutProps) {
             <style dangerouslySetInnerHTML={{
               __html: `
                 /* Critical scroll optimizations */
-                * { -webkit-transform: translateZ(0); transform: translateZ(0); }
                 html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-                .bg-parallax { will-change: transform; }
+                .bg-parallax { will-change: transform; -webkit-transform: translateZ(0); transform: translateZ(0); }
                 @media (prefers-reduced-motion: reduce) {
                   html { scroll-behavior: auto; }
                   .bg-parallax { will-change: auto; }
